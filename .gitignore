@@ -1,0 +1,15 @@
+*~
+url/
+tutorial/
+tramp
+recentf
+notes
+*.dat
+*.data
+bookmarks
+elpa/
+semanticdb/
+eshell/
+.org-id-locations
+Configurations/*.elc
+Extensions/*.elc

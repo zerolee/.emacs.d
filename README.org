@@ -1,0 +1,24 @@
+* init.el
+  Emacs 启动时默认读取的配置文件，
+  这个文件会读取 Configurations 下的相关文件，以及保存了 elpa 的一些相关设置
+* Configurations
+  该文件夹下存放 Emacs 的配置文件
+** bindings.el
+   绑定快捷键
+** emacs-std.el
+   Emacs 设置相关
+** extensions.el
+   对安装的一些扩展进行的设置
+** modes.el
+   major mode 设置相关
+** my-macros.el
+   保存一些键盘宏
+* Extensions
+  该文件夹下存放一些第三方扩展(非 elpa 安装的)
+** antlr-mode.el         
+** color-theme.el        
+** color-theme-gnome2.el 
+** redo.el               
+** sams-lib.el           
+** tabbar.el             
+** template.el           
