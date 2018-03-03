@@ -1,8 +1,4 @@
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
-;; 我从 elpa 下载的包：(company, helm, yasnippet, yasnippet-snippets, auto-complete, company-quickhelp, helm-company)
+;; (counsel wgrep paredit geiser yasnippet-snippets markdown-mode exwm evil cquery company-quickhelp company-lsp ivy-xref smex)
 (package-initialize)
 
 (setq load-path
@@ -26,13 +22,6 @@
 (load "extensions")
 
 
-
-;;;;;;;;;;;;;;;;;;;
-;; exwm
-;;;;;;;;;;;;;;;;;;;
-;;(require 'exwm)
-;;(require 'exwm-config)
-;;(exwm-config-default)
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
