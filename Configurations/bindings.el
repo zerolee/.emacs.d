@@ -99,3 +99,10 @@
 (define-key ivy-minibuffer-map (kbd "C-l") 'counsel-up-directory)
 
 (global-set-key (kbd "C-c a") 'org-agenda)
+
+
+
+;;; 键盘宏
+(global-set-key (kbd "C-o")   'lzl-cool-newline)
+(global-set-key (kbd "s-p")   'use-printf-debug)
+(global-set-key (kbd "C-x d") 'lzl-dired)
