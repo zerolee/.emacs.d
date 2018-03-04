@@ -1,8 +1,7 @@
-(message "Loading modes...")
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq scheme-program-name "guile")         ;; 如果用 Petite 就改成 "petite"
+(setq scheme-program-name "scheme")         ;; 如果用 Petite 就改成 "petite"
 (setq geiser-active-implementations '(chez))
 ;;(setq geiser-active-implementations '(racket))
 
@@ -110,5 +109,3 @@
 	     (require 'groovy-electric) 
 	     (groovy-electric-mode))) 
 
-
-(message "Loading modes...done")

@@ -1,5 +1,3 @@
-(message "Loading bindings...")
-
 ;; Keeping Points in Buffers for Current Session
 (global-set-key (kbd "s-.") 'sams-cm-save-point)
 (global-set-key (kbd "s-,") 'sams-cm-rotate)
@@ -75,20 +73,29 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(global-set-key (kbd "C-h a") 'counsel-apropos)
-(global-set-key (kbd "M-y")   'counsel-yank-pop)
+(global-set-key (kbd "C-x C-f") 'counsel-find-file)
+(global-set-key (kbd "M-x")     'counsel-M-x)
+
+(global-set-key (kbd "C-h f") 'counsel-describe-function)
+(global-set-key (kbd "C-h v") 'counsel-describe-variable)
+(global-set-key (kbd "C-h S") 'counsel-info-lookup-symbol)
+
+
+(global-set-key (kbd "C-h a")   'counsel-apropos)
+(global-set-key (kbd "M-y")     'counsel-yank-pop)
 ;;(global-set-key (kbd "M-w")   'ivy-kill-ring-save)
 
 (global-set-key (kbd "C-x c l") 'counsel-locate)
 (global-set-key (kbd "C-x c a") 'counsel-ag)
 (global-set-key (kbd "C-x c f") 'counsel-fzf)
 (global-set-key (kbd "C-x c i") 'counsel-imenu)
+(global-set-key (kbd "C-x c g") 'counsel-git)
 
 (global-set-key (kbd "C-x c p") 'ivy-push-view)
 
 ;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
 (global-set-key (kbd "C-M-s") 'swiper)
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+(define-key ivy-minibuffer-map (kbd "C-l") 'counsel-up-directory)
 
-
-(message "Loading bindings...done")
+(global-set-key (kbd "C-c a") 'org-agenda)

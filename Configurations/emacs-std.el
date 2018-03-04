@@ -1,7 +1,12 @@
-(message "Loading emacs-std...")
 (display-time)
 ;; 关掉开机信息
 (setq inhibit-startup-message t)
+
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+
+(setq column-number-mode t)
 
 ;; 使用主题
 (load-theme 'adwaita t)
@@ -24,10 +29,6 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 
-
-;; display the number of column
-(setq column-number-mode t)
-
 ;;;Always do syntax highligting
 (global-font-lock-mode 1)
 
@@ -39,12 +40,6 @@
 ;; showing region between parentheses
 ;;(setq show-paren-style 'expression)
 
-;;;if you want to remove menu,you can insert the following line
-(menu-bar-mode 0)
-;;;if you want to remove tool...you can
-(tool-bar-mode 0)
-;;
-(scroll-bar-mode 0)
 
 ;;;edit Compressed File
 (require 'jka-compr)
@@ -53,10 +48,15 @@
 ;;;display and open image
 (auto-image-file-mode)
 
-;;;arrest auto-save by session
-;;;(setq auto-save-list-prefix nill)
+
 (put 'upcase-region 'disabled 0)
 (put 'downcase-region 'disabled 0)
+
+
+(delete-selection-mode t)
+
+;;; org
+(setq org-agenda-files '("~/note/plan"))
 
 
 ;; 设置环境变量
@@ -64,6 +64,3 @@
  
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
-
-
-(message "Loading emacs-std...done")

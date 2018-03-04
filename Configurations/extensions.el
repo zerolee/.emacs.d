@@ -1,9 +1,9 @@
-(message "Loading extensions...")
-(require 'sams-lib)
+;;(require 'sams-lib)
 ;;(autoload 'sams-lib "sams-lib" nil t)
+(autoload 'sams-cm-save-point "sams-lib")
 
 ;; yasnippet
-(require 'yasnippet)
+;; (require 'yasnippet)
 (yas-global-mode 1)
 
 
@@ -11,10 +11,8 @@
 ;; ivy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (ivy-mode 1)
+(setq ivy-use-virtual-buffers t); 将最近的文件和书签加入到 ivy-switch-buffer
 
-;;;  将最近的文件和书签加入到 ivy-switch-buffer
-(setq ivy-use-virtual-buffers t)	
-(define-key ivy-minibuffer-map (kbd "C-l") 'counsel-up-directory)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode
@@ -51,6 +49,3 @@
 ;;(require 'evil)
 ;;(evil-mode 1)
 ;;(setq evil-default-state 'emacs)
-
-
-(message "Loading extensions...done")
