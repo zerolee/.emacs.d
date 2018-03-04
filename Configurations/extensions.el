@@ -1,10 +1,10 @@
-;;(require 'sams-lib)
-;;(autoload 'sams-lib "sams-lib" nil t)
+;; sams-lib
 (autoload 'sams-cm-save-point "sams-lib")
 
 ;; yasnippet
-;; (require 'yasnippet)
-(yas-global-mode 1)
+(require 'yasnippet)
+(yas-reload-all)1
+(add-hook 'prog-mode-hook #'yas-minor-mode)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

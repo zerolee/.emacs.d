@@ -30,10 +30,6 @@
 ;; Compile
 (global-set-key (kbd "<C-f9>") 'compile)
 
-
-;; Macro f3: start define macro f4:end define macro
-(global-set-key (kbd "C-=") 'call-last-kbd-macro)
-
 ;; C-return
 ;; I use it to instead C-o
 (global-set-key (kbd "<C-return>") 'open-line)

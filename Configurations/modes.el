@@ -80,32 +80,3 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (autoload 'antlr-v4-mode "antlr-mode" nil t)
 (push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 使用 markdown mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(autoload 'markdown-mode "markdown-mode"
-  "Major mode for editing Markdown files" t)
-(add-to-list 'auto-mode-alist '("\\.markdown\\'" . markdown-mode))
-(add-to-list 'auto-mode-alist '("\\.md\\'" . markdown-mode))
-
-(autoload 'gfm-mode "markdown-mode"
-  "Major mode for editing GitHub Flavored Markdown files" t)
-(add-to-list 'auto-mode-alist '("README\\.md\\'" . gfm-mode))
-;;(setq auto-mode-alist (cons '(".markdown" . markdown-mode) auto-mode-alist))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; groovy
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 当文件以.groovy结束或者#!/bin/groovy开始时，使用 groovy-mode 
-(autoload 'groovy-mode "groovy-mode" "Major mode for editing Groovy code." t) 
-(add-to-list'auto-mode-alist '("\.groovy$". groovy-mode)) 
-(add-to-list'interpreter-mode-alist '("groovy". groovy-mode)) 
-
-;;;使Groovy mode为默认 
-(add-hook 'groovy-mode-hook 
-	  '(lambda () 
-	     (require 'groovy-electric) 
-	     (groovy-electric-mode))) 
-
