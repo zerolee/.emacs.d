@@ -6,6 +6,8 @@
 			(cons "~/.emacs.d/Configurations"
 			      (cons "~/.emacs.d/Extensions" load-path))))
 
+(setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
+
 ;; This file is for standard Emacs option.
 (load "emacs-std")
 
@@ -22,5 +24,4 @@
 ;; This file includes the keybindings for your Emacs setup
 (load "bindings")
 
-(setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
 (load-file custom-file)
