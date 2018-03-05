@@ -22,5 +22,5 @@
 ;; This file includes the keybindings for your Emacs setup
 (load "bindings")
 
-(setq custom-file (expand-file-name "Configurations/custom.elc" user-emacs-directory))
+(setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
 (load-file custom-file)

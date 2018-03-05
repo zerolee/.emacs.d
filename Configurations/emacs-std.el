@@ -9,7 +9,7 @@
 (setq column-number-mode t)
 
 ;; 使用主题
-(load-theme 'adwaita t)
+(load-theme 'solarized-light t)
 
 ;; hippie-expand
 (setq hippie-expand-try-functions-list
