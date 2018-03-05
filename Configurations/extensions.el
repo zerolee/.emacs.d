@@ -1,7 +1,6 @@
 ;; sams-lib
 (autoload 'sams-cm-save-point "sams-lib")
 
-(use-package solarized-theme           :ensure t)
 (use-package cquery                    :ensure t)
 (use-package ht                        :ensure t)
 (use-package wgrep                     :ensure t)
@@ -12,6 +11,14 @@
 (use-package smex                      :ensure t)
 (use-package yasnippet-snippets        :ensure t)
 (use-package groovy-mode               :ensure t)
+(use-package slime                     :ensure t)
+
+
+;; 使用主题
+(use-package solarized-theme
+  :ensure t
+  :config
+  (load-theme 'solarized-light t))
 
 
 ;; yasnippet
