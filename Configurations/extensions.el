@@ -1,31 +1,46 @@
 ;; sams-lib
 (autoload 'sams-cm-save-point "sams-lib")
 
-;; yasnippet
-(require 'yasnippet)
-(yas-reload-all)1
-(add-hook 'prog-mode-hook #'yas-minor-mode)
+(use-package solarized-theme           :ensure t)
+(use-package cquery                    :ensure t)
+(use-package ht                        :ensure t)
+(use-package wgrep                     :ensure t)
+(use-package geiser                    :ensure t)
+(use-package markdown-mode             :ensure t)
+(use-package company-lsp               :ensure t)
+(use-package ivy-xref                  :ensure t)
+(use-package smex                      :ensure t)
+(use-package yasnippet-snippets        :ensure t)
+(use-package groovy-mode               :ensure t)
 
+
+;; yasnippet
+(use-package yasnippet
+  :after company
+  :ensure t
+  :config
+  (progn
+    (yas-reload-all)
+    (add-hook 'prog-mode-hook #'yas-minor-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(ivy-mode 1)
-(setq ivy-use-virtual-buffers t); 将最近的文件和书签加入到 ivy-switch-buffer
-
+(use-package ivy
+  :ensure counsel
+  :config
+  (progn
+    (ivy-mode 1)
+    ; 将最近的文件和书签加入到 ivy-switch-buffer
+    (setq ivy-use-virtual-buffers t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-hook 'after-init-hook 'global-company-mode)
-
-(setq company-backends
-      '(company-bbdb company-nxml company-css
-		     company-eclim company-semantic
-		     company-cmake company-capf company-files
-		     (company-dabbrev-code company-keywords)
-		     company-oddmuse company-dabbrev
-		     (company-yasnippet company-lsp)))
+(use-package company
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-company-mode))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,13 +51,15 @@
 ;; C-(, C-) 吃掉左边或者右边的 s-exp, C-{, C-} 吐出来
 ;; M-r 跳出外围块(去掉外层代码)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(autoload 'enable-paredit-mode "paredit"
-  "Turn on pseudo-structural editing of Lisp code."
-  t)
-(add-hook 'scheme-mode-hook 'enable-paredit-mode)
-(add-hook 'elisp-mode-hook 'enable-paredit-mode)
-(add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-(add-hook 'common-lisp-mode-hook 'enable-paredit-mode)
+(use-package paredit
+  :ensure t
+  :config
+  (progn
+    (add-hook 'scheme-mode-hook 'enable-paredit-mode)
+    (add-hook 'elisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
+    (add-hook 'common-lisp-mode-hook 'enable-paredit-mode)))
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

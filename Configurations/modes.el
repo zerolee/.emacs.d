@@ -20,9 +20,6 @@
 ;; Common Lisp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq inferior-lisp-program "/usr/bin/sbcl")
-;;(require 'slime)
-;;(slime-setup)
-;;(slime-setup '(slime-fancy))
  
 (add-hook 'common-lisp-mode-hook
 	  '(lambda ()
@@ -56,13 +53,19 @@
 	     (require 'cquery)
 	     (lsp-cquery-enable)
      	     (require 'company-lsp)
-	     (push 'company-lsp company-backends)
      	     (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
 	     (setq cquery--get-init-params '(:completion (:detailedLabel t)))
 	     (require 'ivy-xref)
 	     (setq xref-show-xrefs-function 'ivy-xref-show-xrefs)
 	     (setq cquery-sem-highlight-method 'overlay)
-	     (setq cquery-sem-highlight-method 'font-lock)))
+	     (setq cquery-sem-highlight-method 'font-lock)
+	     (set (make-local-variable 'company-backends)
+		  '((company-yasnippet company-lsp company-dabbrev-code)
+		    company-dabbrev
+		    company-files))
+	))
+
+
 
 (require 'lsp-imenu)
 (add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
