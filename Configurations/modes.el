@@ -1,84 +1,59 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Scheme 
+;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq scheme-program-name "scheme")         ;; 如果用 Petite 就改成 "petite"
-(setq geiser-active-implementations '(chez))
-;;(setq geiser-active-implementations '(racket))
+(use-package geiser
+  :ensure t
+  :config
+  (progn
+    (setq scheme-program-name "scheme")        
+    (setq geiser-active-implementations '(chez))))
+
+
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Elisp
+;; Common Lisp slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-hook 'elisp-mode-hook
-	  '(lambda ()
-	     (semantic-mode t)
-	     (semantic-idle-summary-mode)
-	     (require 'semantic/sb)))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Common Lisp
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq inferior-lisp-program "/usr/bin/sbcl")
- 
-(add-hook 'common-lisp-mode-hook
-	  '(lambda ()
-	     (require 'slime)
-	     (slime-setup)
-	     (slime-setup '(slime-fancy))))
-
+(use-package slime
+  :ensure t
+  :init
+  (setq inferior-lisp-program "/usr/bin/sbcl"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-hook 'c-mode-hook
-	  '(lambda ()
-	     (c-set-style "cc-mode")))
-
-;; 查看当前所在函数名称
-(add-hook 'c-mode-common-hook
-	  '(lambda()
-	     (which-function-mode t)))
-
-
 ;; cquery
 ;; xref-find-definitions ( M-. )
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
 (setq cquery-executable "/home/zmqc/backups/src/cquery/cquery/build/release/bin/cquery")
 
-(add-hook 'c-mode-hook
+(add-hook 'c-mode-common-hook
 	  '(lambda ()
 	     (lsp-cquery-enable)
      	     (require 'company-lsp)
      	     (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-	     (setq cquery--get-init-params '(:completion (:detailedLabel t)))
+	     (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
 	     (require 'ivy-xref)
 	     (setq xref-show-xrefs-function 'ivy-xref-show-xrefs)
-	     (setq cquery-sem-highlight-method 'overlay)
 	     (setq cquery-sem-highlight-method 'font-lock)
 	     (set (make-local-variable 'company-backends)
-		  '((company-yasnippet company-lsp company-dabbrev-code)
+		  '((company-lsp company-yasnippet ) company-dabbrev-code
 		    company-dabbrev
-		    company-files))
-	))
+		    company-files))))
 
 
+(use-package lsp-imenu
+  :init
+  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
-(require 'lsp-imenu)
-(add-hook 'lsp-after-open-hook 'lsp-enable-imenu)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; asm
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(add-hook 'asm-mode-hook
-	  '(lambda()
-	     (which-func-mode t)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(autoload 'antlr-v4-mode "antlr-mode" nil t)
-(push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
+(use-package antlr-mode
+  :mode ("\\.g4\\'" . antlr-v4-mode))
+

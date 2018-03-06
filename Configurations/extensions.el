@@ -4,14 +4,13 @@
 (use-package cquery                    :ensure t)
 (use-package ht                        :ensure t)
 (use-package wgrep                     :ensure t)
-(use-package geiser                    :ensure t)
 (use-package markdown-mode             :ensure t)
 (use-package company-lsp               :ensure t)
 (use-package ivy-xref                  :ensure t)
 (use-package smex                      :ensure t)
 (use-package yasnippet-snippets        :ensure t)
 (use-package groovy-mode               :ensure t)
-(use-package slime                     :ensure t)
+
 
 
 ;; 使用主题
@@ -60,12 +59,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package paredit
   :ensure t
-  :config
-  (progn
-    (add-hook 'scheme-mode-hook 'enable-paredit-mode)
-    (add-hook 'elisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'emacs-lisp-mode-hook 'enable-paredit-mode)
-    (add-hook 'common-lisp-mode-hook 'enable-paredit-mode)))
+  :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode))
+
 
 
 
