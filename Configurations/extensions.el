@@ -2,7 +2,6 @@
 (autoload 'sams-cm-save-point "sams-lib")
 
 (use-package cquery                    :ensure t)
-(use-package ht                        :ensure t)
 (use-package wgrep                     :ensure t)
 (use-package markdown-mode             :ensure t)
 (use-package company-lsp               :ensure t)
