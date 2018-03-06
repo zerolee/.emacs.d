@@ -39,7 +39,7 @@
 	     (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
 	     (setq cquery-sem-highlight-method 'font-lock)
 	     (set (make-local-variable 'company-backends)
-		  '((company-lsp company-yasnippet ) company-dabbrev-code
+		  '(company-lsp company-yasnippet  company-dabbrev-code
 		    company-dabbrev
 		    company-files))))
 
