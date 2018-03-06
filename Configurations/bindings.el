@@ -88,6 +88,9 @@
 (global-set-key (kbd "C-x c g") 'counsel-git)
 
 (global-set-key (kbd "C-x c p") 'ivy-push-view)
+(global-set-key (kbd "C-x c r") 'ivy-resume)
+
+(global-set-key (kbd "C-x c y") 'company-yasnippet)
 
 ;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
 (global-set-key (kbd "C-M-s") 'swiper)
@@ -95,6 +98,7 @@
 (define-key ivy-minibuffer-map (kbd "C-l") 'counsel-up-directory)
 
 (global-set-key (kbd "C-c a") 'org-agenda)
+
 
 
 
