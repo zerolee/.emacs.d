@@ -59,6 +59,13 @@
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
+
+;;; .cquery 导入
+(add-hook 'before-save-hook
+	  '(lambda ()
+	     (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
+		 (if (not (file-exists-p (buffer-file-name)))
+		     (insert-file-contents "~/模板/.cquery")))))
  
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
