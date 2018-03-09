@@ -27,9 +27,6 @@
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
 
-;;;Always do syntax highligting
-(global-font-lock-mode 1)
-
 ;;;Also highlight parens,
 (show-paren-mode t)
 ;;showing matching parentheses

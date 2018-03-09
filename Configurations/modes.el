@@ -37,11 +37,10 @@
 	     (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
 	     (require 'ivy-xref)
 	     (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
-	     (setq cquery-sem-highlight-method 'font-lock)
 	     (set (make-local-variable 'company-backends)
 		  '(company-lsp  company-dabbrev-code
-		    company-dabbrev
-		    company-files))))
+				 company-dabbrev
+				 company-files))))
 
 
 (use-package lsp-imenu
