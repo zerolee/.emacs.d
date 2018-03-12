@@ -61,7 +61,7 @@
 (add-hook 'before-save-hook
 	  '(lambda ()
 	     (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
-		 (if (not (file-exists-p (buffer-file-name)))
+		 (unless (file-exists-p (buffer-file-name))
 		     (insert-file-contents "~/模板/.cquery")))))
  
 ;; Using MELPA
