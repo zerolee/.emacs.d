@@ -35,13 +35,16 @@
      	     (require 'company-lsp)
      	     (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
 	     (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
-	     (require 'ivy-xref)
-	     (setq xref-show-xrefs-function #'ivy-xref-show-xrefs)
 	     (set (make-local-variable 'company-backends)
 		  '(company-lsp  company-dabbrev-code
 				 company-dabbrev
 				 company-files))))
 
+
+(use-package ivy-xref
+  :ensure t
+  :init
+  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
 (use-package lsp-imenu
   :init
