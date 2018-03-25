@@ -1,6 +1,4 @@
 ;; (counsel wgrep paredit geiser yasnippet-snippets markdown-mode exwm evil cquery company-quickhelp company-lsp ivy-xref smex)
-(package-initialize)
-
 (setq load-path
       (cons "~/.emacs.d/Extensions/emacs-groovy-mode"
 			(cons "~/.emacs.d/Configurations"
