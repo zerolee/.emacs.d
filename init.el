@@ -19,6 +19,9 @@
 ;; This file can contain all the macros you have developed
 (load "my-macros")
 
+;;;
+(load "hydras")
+
 ;; This file includes the keybindings for your Emacs setup
 (load "bindings")
 

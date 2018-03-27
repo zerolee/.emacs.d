@@ -6,7 +6,6 @@
 ;; shift the meaning of M-% and C-M-%
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
 (global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "C-M-s") 'isearch-forward)
 (global-set-key (kbd "C-M-r") 'isearch-backward)
 (global-set-key (kbd "M-%") 'query-replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace)
@@ -40,12 +39,6 @@
 (global-unset-key (kbd "C-\\"))
 
 
-;; yasnippet
-(global-set-key (kbd "C-c y i") 'yas-insert-snippet)
-(global-set-key (kbd "C-c y n") 'yas-new-snippet)
-(global-set-key (kbd "C-c y e") 'yas-expand)
-
-
 ;; electric-newline-and-maybe-indent
 (global-set-key (kbd "C-j") 'newline-and-indent)
 
@@ -71,27 +64,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (global-set-key (kbd "C-x C-f") 'counsel-find-file)
 (global-set-key (kbd "M-x")     'counsel-M-x)
-(global-set-key (kbd "C-x b") 'ivy-switch-buffer)
-
-(global-set-key (kbd "C-h f") 'counsel-describe-function)
-(global-set-key (kbd "C-h v") 'counsel-describe-variable)
-(global-set-key (kbd "C-h S") 'counsel-info-lookup-symbol)
-
-
-(global-set-key (kbd "C-h a")   'counsel-apropos)
 (global-set-key (kbd "M-y")     'counsel-yank-pop)
+(global-set-key (kbd "C-x b")   'ivy-switch-buffer)
+
+
+(global-set-key (kbd "C-h f")   'counsel-describe-function)
+(global-set-key (kbd "C-h v")   'counsel-describe-variable)
+(global-set-key (kbd "C-h S")   'counsel-info-lookup-symbol)
+(global-set-key (kbd "C-h a")   'counsel-apropos)
+
 ;;(global-set-key (kbd "M-w")   'ivy-kill-ring-save)
 
-(global-set-key (kbd "C-x c l") 'counsel-locate)
-(global-set-key (kbd "C-x c a") 'counsel-ag)
-(global-set-key (kbd "C-x c f") 'counsel-fzf)
-(global-set-key (kbd "C-x c i") 'counsel-imenu)
-(global-set-key (kbd "C-x c g") 'counsel-git)
-
-(global-set-key (kbd "C-x c p") 'ivy-push-view)
-(global-set-key (kbd "C-x c r") 'ivy-resume)
-
-(global-set-key (kbd "C-x c y") 'company-yasnippet)
 
 ;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
 (global-set-key (kbd "C-M-s") 'swiper)
@@ -100,6 +83,9 @@
 
 (global-set-key (kbd "C-c a") 'org-agenda)
 
+;;; hydra
+(global-set-key (kbd "<escape>") 'hydra-esc/body)
+(define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
 
 
 

@@ -51,7 +51,8 @@
 (delete-selection-mode t)
 
 ;;; org
-(setq org-agenda-files '("~/note/plan"))
+(setq org-agenda-files
+      '("~/note/plan"  "~/note/emacs"))
 
 
 ;; 设置环境变量
