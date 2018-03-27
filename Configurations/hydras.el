@@ -1,28 +1,19 @@
-(defhydra hydra-esc (:color pink
+(defhydra hydra-SPC (:color pink
 			    :hint nil)
   "
-   _i_: ivy           _f_: counsel-find-file
+   _c_: counsel       _f_: counsel-find-file
    _y_: yasnippet     _b_: ivy-switch-buffer
-   _v_: vim           _s_: save-buffer
-   _p_: paredit       _h_: backwardchar
-                    _j_: nextline
-                    _k_: previousline  
-                    _l_: forwardchar
-                    _d_: dired
+   _p_: paredit       _s_: save-buffer
+   _d_: dired
   "
-  ("i" hydra-counsel/body :exit t)
+  ("c" hydra-counsel/body :exit t)
   ("y" hydra-yasnippet/body :exit t)
-  ("v" hydra-vim/body :exit t)
   ("p" hydra-paredit/body :exit t)
   ("f" counsel-find-file :exit t)
   ("b" ivy-switch-buffer :exit t)
   ("s" save-buffer :exit t)
-  ("j" next-line)
-  ("k" previous-line)
-  ("h" backward-char)
-  ("l" forward-char)
-  ("d" lzl-dired)
-  ("c" nil "cancel")
+  ("d" lzl-dired :exit t)
+  ("i" nil "cancel")
   ("q" quit-window "quit" :color blue))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -76,13 +67,7 @@
    _(_: 吃掉左边的 s-exp        _)_: 吃掉右边的 s-exp
    _{_: 吐出左边的 s-exp        _}_: 吐出右边的 s-exp
    _S_: (he wo)=>  (he) (wo)  _J_: 将其重新连接起来
-   _j_: nextline              _k_: previousline  
-   _h_: backwardchar          _l_: forwardchar 
   "
-  ("j" next-line)
-  ("k" previous-line)
-  ("h" backward-char)
-  ("l" forward-char)
   ("r" paredit-raise-sexp)
   ("(" paredit-backward-slurp-sexp)
   (")" paredit-forward-slurp-sexp)
@@ -99,7 +84,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; vim
+;; hydra-esc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lzlvim-y (beg end &optional region)
   (interactive (list (mark) (point)
@@ -109,40 +94,48 @@
     (save-excursion
       (lzlvim-yy))))
 
+(defun lzlvim-x (beg end &optional region)
+  (interactive (list (mark) (point)
+		     (prefix-numeric-value current-prefix-arg)))
+  (if (region-active-p)
+      (kill-region beg end region)
+    (delete-char region)))
 
-(defhydra hydra-vim (:color pink
+
+(defhydra hydra-esc (:color pink
 			    :hint nil)
   "
-                              VIM
-   -------------------------------------------------------------
-   _j_: nextline          _k_: previousline  _I_: beginning-of-line
-   _h_: backwardchar      _l_: forwardchar   _0_: beginning-of-line
-   _x_: deletechar        _u_: undo          _d_: kill-line        
-   _o_: vim-o             _O_: vim-O         _A_: end-of-line
-   _v_: set-mark-command  _p_: vim-p         _$_: end-of-line
-   _y_: kill-ring-save    _s_: save-buffer   _e_: eval-last-sexp
-   _/_: Isearch
   "
+  ("SPC" hydra-SPC/body :exit t)
   ("j" next-line)
   ("k" previous-line)
   ("h" backward-char)
   ("l" forward-char)
-  ("x" delete-char)
+  ("x" lzlvim-x)
   ("u" undo)
   ("o" lzlvim-o :exit t)
   ("O" lzlvim-O :exit t)
   ("v" set-mark-command)
   ("p" lzlvim-p)
   ("y" lzlvim-y)
-  ("s" save-buffer)
+  ("s" delete-char :exit t)
   ("I" move-beginning-of-line :exit t)
   ("A" move-end-of-line :exit t)
-  ("0" move-beginning-of-line)
   ("$" move-end-of-line)
   ("a" forward-char :exit t)
   ("d" kill-line)
   ("/" isearch-forward-regexp :exit t)
+  ("J" delete-indentation)
   ("e" eval-last-sexp)
+  ("{" shrink-window-horizontally)
+  ("}" enlarge-window-horizontally)
+  ("^" enlarge-window)
+  ("G" goto-line)
+  ("f" avy-goto-char :exit t)
+  ("F" avy-goto-char-2 :exit t)
+  ("w" avy-goto-word-1 :exit t)
+  ("W" avy-goto-word-0 :exit t)
+  ("L" avy-goto-line)
   ("i" nil "cancel")
   ("q" quit-window "quit" :color blue))
 
