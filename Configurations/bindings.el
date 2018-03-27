@@ -48,7 +48,7 @@
 
 
 ;; windmove
-(windmove-default-keybindings)
+(windmove-default-keybindings 'super)
 ;;(global-set-key (kbd "<s-S-left>") 'windmove-left)
 
 ;; winner-mode
@@ -92,3 +92,15 @@
 ;;; 键盘宏
 (global-set-key (kbd "C-o")   'lzl-cool-newline)
 (global-set-key (kbd "C-x d") 'lzl-dired)
+
+
+
+;;; 调节声音
+(define-key exwm-mode-map (kbd "<XF86AudioLowerVolume>")
+  (lambda () (interactive) (shell-command "amixer set Master 5%- &> /dev/null")))
+
+(define-key exwm-mode-map (kbd "<XF86AudioRaiseVolume>")
+  (lambda () (interactive) (shell-command "amixer set Master 5%+ &> /dev/null")))
+
+(define-key exwm-mode-map (kbd "<XF86AudioMute>")
+  (lambda () (interactive) (shell-command "amixer set Master 1+ toggle &> /dev/null")))
