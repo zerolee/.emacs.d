@@ -1,20 +1,15 @@
 (defhydra hydra-SPC (:color pink
 			    :hint nil)
   "
-   _c_: counsel       _f_: counsel-find-file
-   _y_: yasnippet     _b_: ivy-switch-buffer
-   _p_: paredit       _s_: save-buffer
-   _d_: dired
+   _c_: counsel       _d_: dired
+   _y_: yasnippet     _s_: save-buffer
   "
   ("c" hydra-counsel/body :exit t)
   ("y" hydra-yasnippet/body :exit t)
-  ("p" hydra-paredit/body :exit t)
-  ("f" counsel-find-file :exit t)
-  ("b" ivy-switch-buffer :exit t)
   ("s" save-buffer :exit t)
   ("d" lzl-dired :exit t)
   ("i" nil "cancel")
-  ("q" quit-window "quit" :color blue))
+  ("q" kill-buffer "quit" :color blue))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-counsel (:color pink
@@ -37,7 +32,7 @@
   ("P" ivy-pop-view :exit t)
   ("r" ivy-resume :exit t)
   ("c" nil "cancel")
-  ("q" quit-window "quit" :color blue))
+  ("q" kill-buffer "quit" :color blue))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-yasnippet (:color pink
@@ -53,40 +48,14 @@
   ("n" yas-new-snippet :exit t)
   ("e" yas-expand :exit t)
   ("c" nil "cancel")
-  ("q" quit-window "quit" :color blue))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; paredit
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-paredit (:color pink
-				:hint nil)
-  "
-                      paredit
-   -------------------------------------------------------------
-   _r_: 去掉外层代码            _s_: (f (x b) l) => (f x b l)
-   _(_: 吃掉左边的 s-exp        _)_: 吃掉右边的 s-exp
-   _{_: 吐出左边的 s-exp        _}_: 吐出右边的 s-exp
-   _S_: (he wo)=>  (he) (wo)  _J_: 将其重新连接起来
-  "
-  ("r" paredit-raise-sexp)
-  ("(" paredit-backward-slurp-sexp)
-  (")" paredit-forward-slurp-sexp)
-  ("{" paredit-backward-barf-sexp)
-  ("}" paredit-forward-barf-sexp)
-  ("S" paredit-split-sexp)
-  ("J" paredit-join-sexps)
-  ("s" paredit-splice-sexp)
-  ("i" nil "cancel")
-  ("q" quit-window "quit" :color blue))
-
-
-
+  ("q" kill-buffer "quit" :color blue))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra-esc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lzlvim-y (beg end &optional region)
+  "mark 被激活则复制 region， 否则复制整行"
   (interactive (list (mark) (point)
 		     (prefix-numeric-value current-prefix-arg)))
   (if (region-active-p)
@@ -95,17 +64,39 @@
       (lzlvim-yy))))
 
 (defun lzlvim-x (beg end &optional region)
+  "mark 被激活则删除 region，否则删除单个字符"
   (interactive (list (mark) (point)
 		     (prefix-numeric-value current-prefix-arg)))
   (if (region-active-p)
       (kill-region beg end region)
     (delete-char region)))
 
+(defun lzlvim-B ()
+  "打开并跳转到 ListBuffer"
+  (interactive)
+  (progn
+    (list-buffers)
+    (while (not (string-equal "*Buffer List*" (buffer-name)))
+      (other-window 1))))
+
 
 (defhydra hydra-esc (:color pink
 			    :hint nil)
   "
+   _R_: 去掉外层代码            _s_: (f (x b) l) => (f x b l)
+   _(_: 吃掉左边的 s-exp        _)_: 吃掉右边的 s-exp
+   _<_: 吐出左边的 s-exp        _>_: 吐出右边的 s-exp
+   _S_: (he wo)=>  (he) (wo)  _J_: 将其重新连接起来
   "
+  ("r" delete-char :exit t)
+  ("R" paredit-raise-sexp)
+  ("(" paredit-backward-slurp-sexp)
+  (")" paredit-forward-slurp-sexp)
+  ("<" paredit-backward-barf-sexp)
+  (">" paredit-forward-barf-sexp)
+  ("S" paredit-split-sexp)
+  ("J" paredit-join-sexps)
+  ("s" paredit-splice-sexp)
   ("SPC" hydra-SPC/body :exit t)
   ("j" next-line)
   ("k" previous-line)
@@ -118,26 +109,42 @@
   ("v" set-mark-command)
   ("p" lzlvim-p)
   ("y" lzlvim-y)
-  ("s" delete-char :exit t)
   ("I" move-beginning-of-line :exit t)
   ("A" move-end-of-line :exit t)
-  ("$" move-end-of-line)
+  (";" move-end-of-line)
   ("a" forward-char :exit t)
-  ("d" kill-line)
+  ("c" kill-line)
+  ("d" kill-whole-line)
   ("/" isearch-forward-regexp :exit t)
-  ("J" delete-indentation)
+  ("L" delete-indentation)
   ("e" eval-last-sexp)
   ("{" shrink-window-horizontally)
   ("}" enlarge-window-horizontally)
   ("^" enlarge-window)
   ("G" goto-line)
-  ("f" avy-goto-char :exit t)
-  ("F" avy-goto-char-2 :exit t)
-  ("w" avy-goto-word-1 :exit t)
-  ("W" avy-goto-word-0 :exit t)
-  ("L" avy-goto-line)
+  ("t" avy-goto-char)
+  ("T" transpose-lines)
+  ("F" avy-goto-char-2)
+  ("w" avy-goto-word-1)
+  ("W" avy-goto-word-0)
+  ("g" avy-goto-line)
+  ("f" counsel-find-file)
+  ("b" ivy-switch-buffer)
+  ("B" lzlvim-B :exit t)
+  ("M-h" windmove-left)
+  ("M-j" windmove-down)
+  ("M-k" windmove-up)
+  ("M-l" windmove-right)
+  ("M-0" delete-window)
+  ("M-1" delete-other-windows)
+  ("M-2" split-window-below)
+  ("M-3" split-window-right)
+  ("M-x" counsel-M-x)
+  ("m" point-to-register)
+  ("M" window-configuration-to-register)
+  ("`" jump-to-register)
   ("i" nil "cancel")
-  ("q" quit-window "quit" :color blue))
+  ("q" kill-buffer "quit" :color blue))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 配置 buffer-list
