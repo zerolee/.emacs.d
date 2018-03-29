@@ -250,7 +250,7 @@
       (end-of-line)
       (kill-ring-save beg (point)))))
 
-(defhydra hydra-vim/y (:color  pink
+(defhydra hydra-vim/y (:color  amaranth
                                :hint nil)
   "
    y
@@ -318,11 +318,26 @@
      (setq current-prefix-arg nil)
      (hydra-esc/body)) :exit t))
 
-
+(defun lzl-vim-r ()
+  (interactive)
+  (undo)
+  (self-insert-command 1)
+  (delete-char 1))
 (defhydra hydra-vim/r (:pre (delete-char 1)
 			    :post (hydra-esc/body)
 			    :color blue
 			    :hint nil)
+  ("0" lzl-vim-r)
+  ("1" lzl-vim-r)
+  ("2" lzl-vim-r)
+  ("3" lzl-vim-r)
+  ("4" lzl-vim-r)
+  ("5" lzl-vim-r)
+  ("6" lzl-vim-r)
+  ("7" lzl-vim-r)
+  ("8" lzl-vim-r)
+  ("9" lzl-vim-r)
+  ("-" lzl-vim-r)
   ("<escape>" hydra-esc/body :exit t))
 
 (defhydra hydra-vim/v (:pre (setq-default cursor-type 'bar)
