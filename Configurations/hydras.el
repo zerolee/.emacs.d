@@ -3,10 +3,12 @@
   "
    _c_: counsel       _d_: dired
    _y_: yasnippet     _s_: save-buffer
+   _o_: org
   "
   ("c" hydra-counsel/body :exit t)
   ("y" hydra-yasnippet/body :exit t)
   ("s" save-buffer :exit t)
+  ("o" hydra-org/body :exit t)
   ("d" lzl-dired :exit t)
   ("i" nil "cancel")
   ("<escape>" hydra-esc/body :exit t)
@@ -50,6 +52,48 @@
   ("e" yas-expand :exit t)
   ("c" nil "cancel")
   ("q" kill-buffer "quit" :color blue))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defhydra hydra-org (:color pink
+			    :hint nil)
+  "
+                          Org
+   -------------------------------------------------------------
+   ^Move^          Title^               ^Time^            ^Operator^
+   _p_: 不分级别    _<left>_: 子树降级     _s_: scheduled    _m_: mark
+   _n_: 不分级别    _<right>_:子树升级     _t_: state        _q_: tag
+   _f_: 同一级别    _<up>_:   子树上移     _d_: deadline
+   _b_: 同一级别    _<down>_: 子树下移     _i_: 开始计时
+   _U_: 上一级别    _*_:      设为标题     _o_: 停止计时
+   _O_: 大纲预览    _/_:      搜索大纲     _._: 时间戳
+ "
+  ("j" next-line)
+  ("k" previous-line)
+  ("h" backward-char)
+  ("l" forward-char)
+  ("u" undo)
+  ("p" org-previous-visible-heading)
+  ("n" org-next-visible-heading)
+  ("f" org-forward-heading-same-level)
+  ("b" org-backward-heading-same-level)
+  ("U" outline-up-heading)
+  ("O" org-goto)
+  ("<left>"  org-shiftmetaleft)
+  ("<right>" org-shiftmetaright)
+  ("<up>"    org-shiftmetaup)
+  ("<down>" org-shiftmetadown)
+  ("*" org-ctrl-c-star)
+  ("/" org-sparse-tree)
+  ("s" org-schedule)
+  ("d" org-deadline)
+  ("t" org-todo)
+  ("i" org-clock-in)
+  ("o" org-clock-out)
+  ("." org-time-stamp)
+  ("m" org-ctrl-c-ctrl-c)
+  ("q" org-set-tags-command)
+  ("<escape>" hydra-esc/body :exit t))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -345,9 +389,12 @@
 (defun lzl-avy (arg)
   (interactive "p")
   (cond ((= arg 1) (call-interactively #'avy-goto-char))
-	((= arg 2) (call-interactively #'avy-goto-char-2))
-	((= arg 3) (call-interactively #'avy-goto-word-1))
-	((= arg 4) (call-interactively #'avy-goto-word-0))
+	((= arg 2) (let (current-prefix-arg)
+		     (call-interactively #'avy-goto-char-2)))
+	((= arg 3) (let (current-prefix-arg)
+		     (call-interactively #'avy-goto-word-1)))
+	((= arg 4) (let (current-prefix-arg)
+		     (call-interactively #'avy-goto-word-0)))
 	(t (call-interactively #'avy-goto-char-in-line))))
 
 (defhydra hydra-esc (:pre (setq-default cursor-type t)
@@ -378,7 +425,7 @@
   ("d" hydra-vim/d/body :exit t)
   ("D" kill-line)
   ("e" forward-word)
-  ("E" eval-last-sexp)
+  ("E" paredit-close-round-and-newline)
   ("f" counsel-find-file)
   ("F" avy-goto-char-in-line)
   ("g" avy-goto-line)
