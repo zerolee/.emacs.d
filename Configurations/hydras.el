@@ -327,7 +327,7 @@
   ("SPC" hydra-SPC/body :exit t)
   ("a" forward-char :exit t)
   ("A" move-end-of-line :exit t)
-  ("b" ivy-switch-buffer)
+  ("b" ivy-switch-buffer :exit t)
   ("B" lzlvim-B :exit t)
   ("c" hydra-vim/c/body :exit t)
   ("C" kill-line :exit t)
@@ -557,7 +557,7 @@ Info-mode:
     ("l" recenter-top-bottom)
     ("s" isearch-forward-regexp)
     ("w" kill-sexp)
-    ("W" (save-excursion
+    ("c" (save-excursion
 	   (beginning-of-line)
 	   (let ((beg (point)))
 	     (end-of-line)
@@ -609,7 +609,7 @@ Info-mode:
     ("l" recenter-top-bottom)
     ("s" isearch-forward-regexp)
     ("w" kill-sexp)
-    ("W" (save-excursion
+    ("c" (save-excursion
 	   (beginning-of-line)
 	   (let ((beg (point)))
 	     (end-of-line)
