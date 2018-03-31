@@ -73,6 +73,14 @@
   ("h" backward-char)
   ("l" forward-char)
   ("u" undo)
+  ("I" beginning-of-line :exit t)
+  ("a" forward-char :exit t)
+  ("A" end-of-line :exit t)
+  ("c" hydra-vim/c/body :exit t)
+  ("y" hydra-vim/y/body :exit t)
+  ("r" hydra-vim/r/body :exit t)
+  ("R" hydra-vim/R/body :exit t)
+  (";" eval-last-sexp)
   ("p" org-previous-visible-heading)
   ("n" org-next-visible-heading)
   ("f" org-forward-heading-same-level)
@@ -107,298 +115,199 @@
     (while (not (string-equal "*Buffer List*" (buffer-name)))
       (other-window 1))))
 
-(defhydra hydra-vim/c (:color amaranth
-			      :hint nil)
-  "
-   c
-  "
-  ("<" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (count-lines (point-min) (point))))
-	   (goto-char (point-min))
-	   (call-interactively #'kill-whole-line))) :exit t)
-  (">" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (count-lines (point) (point-max))))
-	   (call-interactively #'kill-whole-line))) :exit t)
-  ("i" (lambda ()
-	 (interactive)
-	 (let ((end (point)))
-	   (beginning-of-line)
-	   (delete-char (- end (point))))) :exit t)
-  ("w" (lambda ()
-	 (interactive)
-	 (call-interactively #'kill-word)
-	 (message "c%dw" (prefix-numeric-value current-prefix-arg)))  :exit t)
-  ("W" (lambda ()
-	 (interactive)
-	 (call-interactively #'kill-sexp)
-	 (message "c%dW" (prefix-numeric-value current-prefix-arg))) :exit t)
-  (";" (lambda ()
-	 (interactive)
-	 (kill-line)
-	 (message "c;")) :exit t)
-  ("j" (lambda ()
-	 (interactive)
-	 (beginning-of-line)
-	 (let ((current-prefix-arg
-		(1+ (prefix-numeric-value current-prefix-arg))))
-	   (call-interactively #'kill-line)
-	   (open-line 1)
-	   (message "c%dj" (1- current-prefix-arg)))) :exit t)
-  ("k" (lambda ()
-	 (interactive)
-	 (beginning-of-line)
-	 (forward-line (- 0 (prefix-numeric-value current-prefix-arg)))
-	 (let ((current-prefix-arg
-		(1+ (prefix-numeric-value current-prefix-arg))))
-	   (call-interactively #'kill-line)
-	   (open-line 1)
-	   (message "c%dk" (1- current-prefix-arg)))) :exit t)
-  ("c" (lambda ()
-	 (interactive)
-	 (beginning-of-line)
-	 (if (= (prefix-numeric-value current-prefix-arg) 1)
-	     (kill-line)
-	   (progn
-	     (call-interactively #'kill-line)
-	     (open-line 1)))
-	 (message "c%dc" (prefix-numeric-value current-prefix-arg))) :exit t))
+(defun lzl-look-forward-char (arg char)
+  "查找字符"
+  (interactive "*p\ncZap: ")
+  (search-forward
+   (char-to-string char) nil nil arg))
 
+(defun lzl-vim-get (lzl-move lzl-arg2)
+  "删除或者保存 region 中的数据"
+  (if (string-match lzl-arg2 "<k")
+      (forward-line))
+  (if (string-match lzl-arg2 ">jcdy")
+      (beginning-of-line))
+  (let ((beg (point)))
+    (call-interactively lzl-move)
+    (funcall lzl-kill-or-save beg (point)))
+  (let ((num (prefix-numeric-value current-prefix-arg)))
+    (if (< num 0)
+	(setq num (- -1 num)))
+    (if (string-equal lzl-arg2 "j")
+	(setq num (- num 1)))
+    (message "%s%d%s" lzl-arg1 num lzl-arg2))
+  (if (and (string-equal lzl-arg1 "c")
+	   (string-match lzl-arg2 "<>jkc"))
+      (open-line 1))
+  (setq current-prefix-arg nil)
+  (if lzl-esc
+      (hydra-esc/body)))
 
-(defhydra hydra-vim/d (:color amaranth
-			      :hint nil)
+(defhydra hydra-vim/c (:pre (progn (setq lzl-kill-or-save #'kill-region)
+				   (setq lzl-esc nil)
+				   (setq lzl-arg1 "c"))
+			    :color blue
+			    :hint nil)
+  "
+  c
+  "
+  ("<" (let ((current-prefix-arg (point-min)))
+	 (lzl-vim-get #'goto-char "<")))
+  (">" (let ((current-prefix-arg (point-max)))
+	 (lzl-vim-get #'goto-char ">")))
+  ("i" (lzl-vim-get #'beginning-of-line "i"))
+  ("w" (lzl-vim-get #'forward-word "w"))
+  ("W" (lzl-vim-get #'forward-sexp "W"))
+  (";" (lzl-vim-get #'end-of-line ";"))
+  ("j" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+	 (lzl-vim-get #'forward-line "j")))
+  ("k" (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
+	 (lzl-vim-get #'forward-line "k")))
+  ("c" (lzl-vim-get #'forward-line "c"))
+  ("t" (lzl-vim-get #'lzl-look-forward-char "t")))
+
+(defhydra hydra-vim/d (:pre (progn (setq lzl-kill-or-save #'kill-region)
+				   (setq lzl-esc t)
+				   (setq lzl-arg1 "d"))
+			    :color blue
+			    :hint nil)
   "
   d
   "
-  ("<" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (count-lines (point-min) (point))))
-	   (goto-char (point-min))
-	   (call-interactively #'kill-whole-line))
-	 (message "d<")
-	 (hydra-esc/body)) :exit t)
-  (">" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (count-lines (point) (point-max))))
-	   (call-interactively #'kill-whole-line))
-	 (message "d>")
-	 (hydra-esc/body)) :exit t)
-  ("i" (lambda ()
-	 (interactive)
-	 (let ((end (point)))
-	   (beginning-of-line)
-	   (delete-char (- end (point))))
-	 (message "di")
-	 (hydra-esc/body)) :exit t)
-  ("w" (lambda ()
-	 (interactive)
-	 (call-interactively #'kill-word)
-	 (message "d%dw" (prefix-numeric-value current-prefix-arg))
-	 (setq current-prefix-arg nil)
-	 (hydra-esc/body))  :exit t)
-  ("W" (lambda ()
-	 (interactive)
-	 (call-interactively #'kill-sexp)
-	 (message "d%dW" (prefix-numeric-value current-prefix-arg))
-	 (setq current-prefix-arg nil)
-	 (hydra-esc/body)) :exit t)
-  (";" (lambda ()
-	 (interactive)
-	 (kill-line)
-	 (message "d;")
-	 (hydra-esc/body)) :exit t)
-  ("j" (lambda ()
-	 (interactive)
-	 (beginning-of-line)
-	 (let ((current-prefix-arg
-		(1+ (prefix-numeric-value current-prefix-arg))))
-	   (call-interactively #'kill-line)
-	   (message "d%dj" (1- current-prefix-arg)))
-	 (setq current-prefix-arg nil)
-	 (hydra-esc/body)) :exit t)
-  ("k" (lambda ()
-	 (interactive)
-	 (beginning-of-line)
-	 (forward-line (- 0 (prefix-numeric-value current-prefix-arg)))
-	 (let ((current-prefix-arg
-		(1+ (prefix-numeric-value current-prefix-arg))))
-	   (call-interactively #'kill-line)
-	   (message "d%dk" (1- current-prefix-arg)))
-	 (setq current-prefix-arg nil)
-	 (hydra-esc/body)) :exit t)
-  ("d" (lambda ()
-	 (interactive)
-	 (beginning-of-line)
-	 (if (= (prefix-numeric-value current-prefix-arg) 1)
-	     (progn (kill-line)
-		    (delete-char 1))
-	   (call-interactively #'kill-line))
-	 (message "d%dd" (prefix-numeric-value current-prefix-arg))
-	 (setq current-prefix-arg nil)
-	 (hydra-esc/body)) :exit t))
+  ("<" (let ((current-prefix-arg (point-min)))
+	 (lzl-vim-get #'goto-char "<")))
+  (">" (let ((current-prefix-arg (point-max)))
+	 (lzl-vim-get #'goto-char ">")))
+  ("i" (lzl-vim-get #'beginning-of-line "i"))
+  ("w" (lzl-vim-get #'forward-word "w"))
+  ("W" (lzl-vim-get #'forward-sexp "W"))
+  (";" (lzl-vim-get #'end-of-line ";"))
+  ("j" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+	 (lzl-vim-get #'forward-line "j")))
+  ("k" (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
+	 (lzl-vim-get #'forward-line "k")))
+  ("d" (lzl-vim-get #'forward-line "d"))
+  ("t" (lzl-vim-get #'lzl-look-forward-char "t")))
 
-(defun lzl-vim-y (arg)
-  "复制 arg + 1 行数据"
-  (interactive)
-  (save-excursion
-    (let (beg)
-      (beginning-of-line)
-      (setq beg (point))
-      (push-mark)
-      (forward-line arg)
-      (end-of-line)
-      (kill-ring-save beg (point)))))
-
-(defhydra hydra-vim/y (:color  pink
-                               :hint nil)
+(defhydra hydra-vim/y (:pre (progn (setq lzl-kill-or-save #'kill-ring-save)
+				   (setq lzl-esc t)
+				   (setq lzl-arg1 "y"))
+			    :color  blue
+                            :hint nil)
   "
    y
   "
-  ("i" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((end (point)))
-	     (push-mark)
-	     (beginning-of-line)
-	     (kill-ring-save  (point) end)))
-	 (message "yi")
-	 (hydra-esc/body)) :exit t)
-  (";" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((beg (point)))
-	     (push-mark)
-	     (end-of-line)
-	     (kill-ring-save beg (point))))
-	 (message "y;")
-	 (hydra-esc/body)) :exit t)
-  ("w" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((beg (point)))
-	     (push-mark)
-	     (forward-word (prefix-numeric-value current-prefix-arg))
-	     (kill-ring-save beg (point))))
-	 (message "y%dw" (prefix-numeric-value current-prefix-arg))
-	 (setq current-prefix-arg nil)
-	 (hydra-esc/body)) :exit t)
-  ("<" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((count (count-lines (point-min) (point))))
-	     (goto-char (point-min))
-	     (lzl-vim-y (1- count))))
-	 (message "y<")
-	 (hydra-esc/body)) :exit t)
-  (">" (lambda ()
-	 (interactive)
-	 (lzl-vim-y (1- (count-lines (point) (point-max))))
-	 (message "y>")
-	 (hydra-esc/body)) :exit t)
-  ("j"
-   (lambda ()
-     (interactive)
-     (lzl-vim-y (prefix-numeric-value current-prefix-arg))
-     (message "y%dj" (prefix-numeric-value current-prefix-arg))
-     (setq current-prefix-arg nil)
-     (hydra-esc/body)) :exit t)
-  ("k" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (forward-line (- 0 (prefix-numeric-value current-prefix-arg)))
-	   (lzl-vim-y (prefix-numeric-value current-prefix-arg)))
-	 (message "y%dk" (prefix-numeric-value current-prefix-arg))
-	 (hydra-esc/body)) :exit t)
-  ("y"
-   (lambda ()
-     (interactive)
-     (lzl-vim-y (1- (prefix-numeric-value current-prefix-arg)))
-     (message "y%dy" (prefix-numeric-value current-prefix-arg))
-     (setq current-prefix-arg nil)
-     (hydra-esc/body)) :exit t))
+  ("<" (save-excursion
+	 (let ((current-prefix-arg (point-min)))
+	   (lzl-vim-get #'goto-char "<"))))
+  (">" (save-excursion
+	 (let ((current-prefix-arg (point-max)))
+	   (lzl-vim-get #'goto-char ">"))))
+  ("i" (save-excursion
+	 (lzl-vim-get #'beginning-of-line "i")))
+  ("w" (save-excursion
+	 (lzl-vim-get #'forward-word "w")))
+  ("W" (save-excursion
+	 (lzl-vim-get #'forward-sexp "W")))
+  (";" (save-excursion
+	 (lzl-vim-get #'end-of-line ";")))
+  ("j" (save-excursion
+	 (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+	   (lzl-vim-get #'forward-line "j"))))
+  ("k" (save-excursion
+	 (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
+	   (lzl-vim-get #'forward-line "k"))))
+  ("y" (save-excursion
+	 (lzl-vim-get #'forward-line "y")))
+  ("t" (save-excursion
+	 (lzl-vim-get #'lzl-look-forward-char "t"))))
 
-
-(defhydra hydra-vim/r (:pre (delete-char 1)
+(defhydra hydra-vim/r (:body-pre (delete-char 1)
 			    :post (hydra-esc/body)
 			    :color blue
 			    :hint nil)
+  ("0" self-insert-command)
+  ("1" self-insert-command)
+  ("2" self-insert-command)
+  ("3" self-insert-command)
+  ("4" self-insert-command)
+  ("5" self-insert-command)
+  ("6" self-insert-command)
+  ("7" self-insert-command)
+  ("8" self-insert-command)
+  ("9" self-insert-command)
+  ("-" self-insert-command)
   ("<escape>" hydra-esc/body :exit t))
 
-(defhydra hydra-vim/v (:pre (setq-default cursor-type 'bar)
-			    :color pink
-			    :hint nil)
+(defhydra hydra-vim/v (:body-pre (progn
+				   (call-interactively #'set-mark-command)
+				   (setq-default cursor-type 'bar))
+				 :post (setq-default cursor-type t)
+				 :color pink
+				 :hint nil)
 
   ("j" next-line)
   ("k" previous-line)
   ("h" backward-char)
   ("l" forward-char)
-  ("y" (lambda ()
-	 (interactive)
+  ("y" (progn
 	 (call-interactively #'kill-ring-save)
 	 (hydra-esc/body)) :exit t)
-  ("d" (lambda ()
-	 (interactive)
+  ("d" (progn
 	 (call-interactively #'kill-region)
 	 (hydra-esc/body)) :exit t)
-  ("c" (lambda ()
-	 (interactive)
+  ("c" (progn
 	 (call-interactively #'kill-region)
 	 (setq-default cursor-type t)) :exit t)
-  ("t" (lambda ()
-	 (interactive)
+  ("t" (progn
 	 (call-interactively #'string-rectangle)
 	 (hydra-esc/body)) :exit t))
 
-(defhydra hydra-vim/V (:pre (setq-default cursor-type 'bar)
-			    :color pink
-			    :hint nil)
+(defhydra hydra-vim/V (:body-pre (progn
+				   (rectangle-mark-mode)
+				   (setq-default cursor-type 'bar))
+				 :post (setq-default cursor-type t)
+				 :color pink
+				 :hint nil)
 
   ("j" next-line)
   ("k" previous-line)
   ("h" backward-char)
   ("l" forward-char)
-  ("y" (lambda ()
-	 (interactive)
+  ("y" (progn
 	 (call-interactively #'copy-region-as-kill)
 	 (hydra-esc/body)) :exit t)
-  ("d" (lambda ()
-	 (interactive)
+  ("d" (progn
 	 (call-interactively #'kill-rectangle)
 	 (hydra-esc/body)) :exit t)
-  ("c" (lambda ()
-	 (interactive)
+  ("c" (progn
 	 (call-interactively #'kill-rectangle)
 	 (setq-default cursor-type t)) :exit t)
-  ("t" (lambda ()
-	 (interactive)
+  ("t" (progn
 	 (call-interactively #'string-rectangle)
 	 (hydra-esc/body)) :exit t))
 
-(defhydra hydra-vim/R (:color pink
+(defhydra hydra-vim/R (:body-pre (overwrite-mode)
+		       :color pink
 			      :hint nil)
   "
    --REPLACE--
   "
-  ("<escape>"
-   (lambda ()
-     (interactive)
-     (overwrite-mode -1)
-     (hydra-esc/body)) :exit t))
+  ("<escape>"   (progn
+		  (overwrite-mode -1)
+		  (hydra-esc/body)) :exit t))
+
 
 (defun lzl-avy (arg)
   (interactive "p")
-  (cond ((= arg 1) (call-interactively #'avy-goto-char))
-	((= arg 2) (let (current-prefix-arg)
-		     (call-interactively #'avy-goto-char-2)))
-	((= arg 3) (let (current-prefix-arg)
-		     (call-interactively #'avy-goto-word-1)))
-	((= arg 4) (let (current-prefix-arg)
-		     (call-interactively #'avy-goto-word-0)))
-	(t (call-interactively #'avy-goto-char-in-line))))
+  (let (current-prefix-arg)
+    (cond ((= arg 3) (call-interactively #'avy-goto-char))
+	  ((= arg 2) (call-interactively #'avy-goto-char-2))
+	  ((= arg 1) (call-interactively #'avy-goto-word-1))
+	  ((= arg 4) (call-interactively #'avy-goto-word-0))
+	  (t (call-interactively #'avy-goto-char-in-line)))))
 
-(defhydra hydra-esc (:pre (setq-default cursor-type t)
-			  :color pink
+(defhydra hydra-esc (:color pink
 			  :hint nil)
   "
    _<down>_: 取出右边的 s-exp   _<up>_: 去除两边的括号
@@ -436,40 +345,33 @@
   ("I" move-beginning-of-line :exit t)
   ("j" next-line)
   ("k" previous-line)
-  ("K" (lambda ()
-	 (interactive)
+  ("K" (progn
 	 (beginning-of-line)
 	 (kill-line)) :exit t)
   ("l" forward-char)
   ("L" delete-indentation)
   ("m" point-to-register)
   ("M" window-configuration-to-register)
-  ("n" (lambda ()
-	 (interactive)
+  ("n" (progn
 	 (save-excursion
 	   (end-of-line)
 	   (call-interactively #'open-line))))
-  ("N" (lambda ()
-	 (interactive)
+  ("N" (progn
 	 (save-excursion
 	   (beginning-of-line)
 	   (call-interactively #'newline))))
-  ("o" (lambda ()
-	 (interactive)
+  ("o" (progn
 	 (end-of-line)
 	 (newline-and-indent)) :exit t)
-  ("O" (lambda ()
-	 (interactive)
+  ("O" (progn
 	 (beginning-of-line)
 	 (newline)
 	 (forward-line -1)) :exit t)
-  ("p" (lambda ()
-	 (interactive)
+  ("p" (progn
 	 (end-of-line)
 	 (newline)
 	 (yank)))
-  ("P" (lambda ()
-	 (interactive)
+  ("P" (progn
 	 (beginning-of-line)
 	 (newline)
 	 (forward-line -1)
@@ -477,35 +379,24 @@
   ("q" backward-word)
   ("Q" kill-buffer "quit" :color blue)
   ("r" hydra-vim/r/body :exit t)
-  ("R" (lambda ()
-	 (interactive)
-	 (overwrite-mode)
-	 (hydra-vim/R/body)) :exit t)
+  ("R" hydra-vim/R/body :exit t)
   ("s" delete-char :exit t)
   ("t" lzl-avy)
   ("T" transpose-lines)
   ("u" undo)
-  ("v" (lambda ()
-	 (interactive)
-	 (call-interactively #'set-mark-command)
-	 (hydra-vim/v/body)) :exit t)
-  ("V" (lambda ()
-	 (interactive)
-	 (rectangle-mark-mode)
-	 (hydra-vim/V/body)) :exit t)
-  ("w" (lambda ()
-	 (interactive)
+  ("v" hydra-vim/v/body :exit t)
+  ("V" hydra-vim/V/body :exit t)
+  ("w" (progn
 	 (forward-word)
 	 (forward-word)
 	 (backward-word)))
-  ("W" avy-goto-word-0)
+  ("W" forward-whitespace)
   ("x" delete-char)
   ("X" delete-backward-char)
   ("y" hydra-vim/y/body :exit t)
   ("z" save-buffer)
   ("Z" save-buffers-kill-terminal :exit t)
-  (";" (lambda ()
-	 (interactive)
+  (";" (progn
 	 (end-of-line)
 	 (call-interactively #'eval-last-sexp)))
   ("/" isearch-forward-regexp :exit t)
@@ -560,3 +451,120 @@ _~_: modified
   ("v" Buffer-menu-select "select" :color blue)
   ("o" Buffer-menu-other-window "other-window" :color blue)
   ("q" quit-window "quit" :color blue))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Info
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defhydra hydra-info (:color red
+                      :hint nil)
+      "
+Info-mode:
+
+  ^^_]_ forward  (next logical node)       ^^_l_ast (←)        _u_p (↑)                             _f_ollow reference       _T_OC
+  ^^_[_ backward (prev logical node)       ^^_r_eturn (→)      _m_enu (↓) (C-u for new window)      _i_ndex                  _d_irectory
+  ^^_n_ext (same level only)               ^^_H_istory         _g_oto (C-u for new window)          _,_ next index item      _c_opy node name
+  ^^_p_rev (same level only)               _<_/_t_op           _b_eginning of buffer                virtual _I_ndex          _C_lone buffer
+  regex _s_earch (_S_ case sensitive)      ^^_>_ final         _e_nd of buffer                      ^^                       _a_propos
+
+  _1_ .. _9_ Pick first .. ninth item in the node's menu.
+
+"
+      ("]"   Info-forward-node)
+      ("["   Info-backward-node)
+      ("n"   Info-next)
+      ("p"   Info-prev)
+      ("s"   Info-search)
+      ("S"   Info-search-case-sensitively)
+
+      ("l"   Info-history-back)
+      ("r"   Info-history-forward)
+      ("H"   Info-history)
+      ("t"   Info-top-node)
+      ("<"   Info-top-node)
+      (">"   Info-final-node)
+
+      ("u"   Info-up)
+      ("^"   Info-up)
+      ("m"   Info-menu)
+      ("g"   Info-goto-node)
+      ("b"   beginning-of-buffer)
+      ("e"   end-of-buffer)
+
+      ("f"   Info-follow-reference)
+      ("i"   Info-index)
+      (","   Info-index-next)
+      ("I"   Info-virtual-index)
+
+      ("T"   Info-toc)
+      ("d"   Info-directory)
+      ("c"   Info-copy-current-node-name)
+      ("C"   clone-buffer)
+      ("a"   info-apropos)
+
+      ("1"   Info-nth-menu-item)
+      ("2"   Info-nth-menu-item)
+      ("3"   Info-nth-menu-item)
+      ("4"   Info-nth-menu-item)
+      ("5"   Info-nth-menu-item)
+      ("6"   Info-nth-menu-item)
+      ("7"   Info-nth-menu-item)
+      ("8"   Info-nth-menu-item)
+      ("9"   Info-nth-menu-item)
+
+      ("?"   Info-summary "Info summary")
+      ("h"   Info-help "Info help")
+      ("q"   Info-exit "Info exit")
+      ("C-g" nil "cancel" :color blue))
+
+(defhydra hydra-move
+    (:body-pre (next-line))
+    "move"
+    ("n" next-line)
+    ("p" previous-line)
+    ("f" forward-char)
+    ("b" backward-char)
+    ("a" beginning-of-line)
+    ("A" move-end-of-line :exit t)
+    ("i" nil)
+    ("I" move-beginning-of-line :exit t)
+    ("e" move-end-of-line)
+    ("v" scroll-up-command)
+    ;; Converting M-v to V here by analogy.
+    ("V" scroll-down-command)
+    ("o" (progn
+	   (end-of-line)
+	   (newline-and-indent)) :exit t)
+    ("O" (progn
+	   (beginning-of-line)
+	   (newline)
+	   (forward-line -1)) :exit t)
+    ("l" recenter-top-bottom))
+(define-key  prog-mode-map  (kbd "C-n")  #'hydra-move/body)
+(define-key  org-mode-map (kbd "C-n") #'hydra-move/body)
+
+(defhydra hydra-move-p
+    (:body-pre (previous-line))
+    "move"
+    ("n" next-line)
+    ("p" previous-line)
+    ("f" forward-char)
+    ("b" backward-char)
+    ("a" beginning-of-line)
+    ("A" move-end-of-line :exit t)
+    ("i" nil)
+    ("I" move-beginning-of-line :exit t)
+    ("e" move-end-of-line)
+    ("v" scroll-up-command)
+    ;; Converting M-v to V here by analogy.
+    ("V" scroll-down-command)
+    ("o" (progn
+	   (end-of-line)
+	   (newline-and-indent)) :exit t)
+    ("O" (progn
+	   (beginning-of-line)
+	   (newline)
+	   (forward-line -1)) :exit t)
+    ("l" recenter-top-bottom))
+(define-key  prog-mode-map  (kbd "C-p")  #'hydra-move-p/body)
+(define-key  org-mode-map (kbd "C-p") #'hydra-move-p/body)

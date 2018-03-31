@@ -86,6 +86,7 @@
 ;;; hydra
 (global-set-key (kbd "<escape>") 'hydra-esc/body)
 (define-key Buffer-menu-mode-map "." 'hydra-buffer-menu/body)
+(define-key Info-mode-map (kbd "?") #'hydra-info/body)
 
 
 
