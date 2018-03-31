@@ -151,40 +151,20 @@
   "
   c
   "
-  ("<" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (point-min)))
-	   (lzl-vim-get #'goto-char "<"))))
-  (">" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (point-max)))
-	   (lzl-vim-get #'goto-char ">"))))
-  ("i" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'beginning-of-line "i")))
-  ("w" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'forward-word "w")))
-  ("W" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'forward-sexp "W")))
-  (";" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'end-of-line ";")))
-  ("j" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-	   (lzl-vim-get #'forward-line "j"))))
-  ("k" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
-	   (lzl-vim-get #'forward-line "k"))))
-  ("c" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'forward-line "c")))
-  ("t" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'lzl-look-forward-char "t"))))
+  ("<" (let ((current-prefix-arg (point-min)))
+	 (lzl-vim-get #'goto-char "<")))
+  (">" (let ((current-prefix-arg (point-max)))
+	 (lzl-vim-get #'goto-char ">")))
+  ("i" (lzl-vim-get #'beginning-of-line "i"))
+  ("w" (lzl-vim-get #'forward-word "w"))
+  ("W" (lzl-vim-get #'forward-sexp "W"))
+  (";" (lzl-vim-get #'end-of-line ";"))
+  ("j" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+	 (lzl-vim-get #'forward-line "j")))
+  ("k" (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
+	 (lzl-vim-get #'forward-line "k")))
+  ("c" (lzl-vim-get #'forward-line "c"))
+  ("t" (lzl-vim-get #'lzl-look-forward-char "t")))
 
 (defhydra hydra-vim/d (:pre (progn (setq lzl-kill-or-save #'kill-region)
 				   (setq lzl-esc t)
@@ -194,40 +174,20 @@
   "
   d
   "
-  ("<" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (point-min)))
-	   (lzl-vim-get #'goto-char "<"))))
-  (">" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (point-max)))
-	   (lzl-vim-get #'goto-char ">"))))
-  ("i" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'beginning-of-line "i")))
-  ("w" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'forward-word "w")))
-  ("W" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'forward-sexp "W")))
-  (";" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'end-of-line ";")))
-  ("j" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-	   (lzl-vim-get #'forward-line "j"))))
-  ("k" (lambda ()
-	 (interactive)
-	 (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
-	   (lzl-vim-get #'forward-line "k"))))
-  ("d" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'forward-line "d")))
-  ("t" (lambda ()
-	 (interactive)
-	 (lzl-vim-get #'lzl-look-forward-char "t"))))
+  ("<" (let ((current-prefix-arg (point-min)))
+	 (lzl-vim-get #'goto-char "<")))
+  (">" (let ((current-prefix-arg (point-max)))
+	 (lzl-vim-get #'goto-char ">")))
+  ("i" (lzl-vim-get #'beginning-of-line "i"))
+  ("w" (lzl-vim-get #'forward-word "w"))
+  ("W" (lzl-vim-get #'forward-sexp "W"))
+  (";" (lzl-vim-get #'end-of-line ";"))
+  ("j" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+	 (lzl-vim-get #'forward-line "j")))
+  ("k" (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
+	 (lzl-vim-get #'forward-line "k")))
+  ("d" (lzl-vim-get #'forward-line "d"))
+  ("t" (lzl-vim-get #'lzl-look-forward-char "t")))
 
 (defhydra hydra-vim/y (:pre (progn (setq lzl-kill-or-save #'kill-ring-save)
 				   (setq lzl-esc t)
@@ -237,51 +197,30 @@
   "
    y
   "
-  ("<" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((current-prefix-arg (point-min)))
-	     (lzl-vim-get #'goto-char "<")))))
-  (">" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((current-prefix-arg (point-max)))
-	     (lzl-vim-get #'goto-char ">")))))
-  ("i" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (lzl-vim-get #'beginning-of-line "i"))))
-  ("w" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (lzl-vim-get #'forward-word "w"))))
-  ("W" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (lzl-vim-get #'forward-sexp "W"))))
-  (";" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (lzl-vim-get #'end-of-line ";"))))
-  ("j" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-	     (lzl-vim-get #'forward-line "j")))))
-  ("k" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
-	     (lzl-vim-get #'forward-line "k")))))
-  ("y" (lambda ()
-	 (interactive)
-	 (save-excursion
-	   (lzl-vim-get #'forward-line "y"))))
-  ("t"
-   (lambda ()
-     (interactive)
-     (save-excursion
-       (lzl-vim-get #'lzl-look-forward-char "t")))))
+  ("<" (save-excursion
+	 (let ((current-prefix-arg (point-min)))
+	   (lzl-vim-get #'goto-char "<"))))
+  (">" (save-excursion
+	 (let ((current-prefix-arg (point-max)))
+	   (lzl-vim-get #'goto-char ">"))))
+  ("i" (save-excursion
+	 (lzl-vim-get #'beginning-of-line "i")))
+  ("w" (save-excursion
+	 (lzl-vim-get #'forward-word "w")))
+  ("W" (save-excursion
+	 (lzl-vim-get #'forward-sexp "W")))
+  (";" (save-excursion
+	 (lzl-vim-get #'end-of-line ";")))
+  ("j" (save-excursion
+	 (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+	   (lzl-vim-get #'forward-line "j"))))
+  ("k" (save-excursion
+	 (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
+	   (lzl-vim-get #'forward-line "k"))))
+  ("y" (save-excursion
+	 (lzl-vim-get #'forward-line "y")))
+  ("t" (save-excursion
+	 (lzl-vim-get #'lzl-look-forward-char "t"))))
 
 (defhydra hydra-vim/r (:body-pre (delete-char 1)
 			    :post (hydra-esc/body)
@@ -303,6 +242,7 @@
 (defhydra hydra-vim/v (:body-pre (progn
 				   (call-interactively #'set-mark-command)
 				   (setq-default cursor-type 'bar))
+				 :post (setq-default cursor-type t)
 				 :color pink
 				 :hint nil)
 
@@ -310,26 +250,23 @@
   ("k" previous-line)
   ("h" backward-char)
   ("l" forward-char)
-  ("y" (lambda ()
-	 (interactive)
+  ("y" (progn
 	 (call-interactively #'kill-ring-save)
 	 (hydra-esc/body)) :exit t)
-  ("d" (lambda ()
-	 (interactive)
+  ("d" (progn
 	 (call-interactively #'kill-region)
 	 (hydra-esc/body)) :exit t)
-  ("c" (lambda ()
-	 (interactive)
+  ("c" (progn
 	 (call-interactively #'kill-region)
 	 (setq-default cursor-type t)) :exit t)
-  ("t" (lambda ()
-	 (interactive)
+  ("t" (progn
 	 (call-interactively #'string-rectangle)
 	 (hydra-esc/body)) :exit t))
 
 (defhydra hydra-vim/V (:body-pre (progn
 				   (rectangle-mark-mode)
 				   (setq-default cursor-type 'bar))
+				 :post (setq-default cursor-type t)
 				 :color pink
 				 :hint nil)
 
@@ -337,20 +274,16 @@
   ("k" previous-line)
   ("h" backward-char)
   ("l" forward-char)
-  ("y" (lambda ()
-	 (interactive)
+  ("y" (progn
 	 (call-interactively #'copy-region-as-kill)
 	 (hydra-esc/body)) :exit t)
-  ("d" (lambda ()
-	 (interactive)
+  ("d" (progn
 	 (call-interactively #'kill-rectangle)
 	 (hydra-esc/body)) :exit t)
-  ("c" (lambda ()
-	 (interactive)
+  ("c" (progn
 	 (call-interactively #'kill-rectangle)
 	 (setq-default cursor-type t)) :exit t)
-  ("t" (lambda ()
-	 (interactive)
+  ("t" (progn
 	 (call-interactively #'string-rectangle)
 	 (hydra-esc/body)) :exit t))
 
@@ -360,24 +293,21 @@
   "
    --REPLACE--
   "
-  ("<escape>"
-   (lambda ()
-     (interactive)
-     (overwrite-mode -1)
-     (hydra-esc/body)) :exit t))
+  ("<escape>"   (progn
+		  (overwrite-mode -1)
+		  (hydra-esc/body)) :exit t))
 
 
 (defun lzl-avy (arg)
   (interactive "p")
   (let (current-prefix-arg)
-    (cond ((= arg 1) (call-interactively #'avy-goto-char))
+    (cond ((= arg 3) (call-interactively #'avy-goto-char))
 	  ((= arg 2) (call-interactively #'avy-goto-char-2))
-	  ((= arg 3) (call-interactively #'avy-goto-word-1))
+	  ((= arg 1) (call-interactively #'avy-goto-word-1))
 	  ((= arg 4) (call-interactively #'avy-goto-word-0))
 	  (t (call-interactively #'avy-goto-char-in-line)))))
 
-(defhydra hydra-esc (:pre (setq-default cursor-type t)
-			  :color pink
+(defhydra hydra-esc (:color pink
 			  :hint nil)
   "
    _<down>_: 取出右边的 s-exp   _<up>_: 去除两边的括号
@@ -415,40 +345,33 @@
   ("I" move-beginning-of-line :exit t)
   ("j" next-line)
   ("k" previous-line)
-  ("K" (lambda ()
-	 (interactive)
+  ("K" (progn
 	 (beginning-of-line)
 	 (kill-line)) :exit t)
   ("l" forward-char)
   ("L" delete-indentation)
   ("m" point-to-register)
   ("M" window-configuration-to-register)
-  ("n" (lambda ()
-	 (interactive)
+  ("n" (progn
 	 (save-excursion
 	   (end-of-line)
 	   (call-interactively #'open-line))))
-  ("N" (lambda ()
-	 (interactive)
+  ("N" (progn
 	 (save-excursion
 	   (beginning-of-line)
 	   (call-interactively #'newline))))
-  ("o" (lambda ()
-	 (interactive)
+  ("o" (progn
 	 (end-of-line)
 	 (newline-and-indent)) :exit t)
-  ("O" (lambda ()
-	 (interactive)
+  ("O" (progn
 	 (beginning-of-line)
 	 (newline)
 	 (forward-line -1)) :exit t)
-  ("p" (lambda ()
-	 (interactive)
+  ("p" (progn
 	 (end-of-line)
 	 (newline)
 	 (yank)))
-  ("P" (lambda ()
-	 (interactive)
+  ("P" (progn
 	 (beginning-of-line)
 	 (newline)
 	 (forward-line -1)
@@ -463,8 +386,7 @@
   ("u" undo)
   ("v" hydra-vim/v/body :exit t)
   ("V" hydra-vim/V/body :exit t)
-  ("w" (lambda ()
-	 (interactive)
+  ("w" (progn
 	 (forward-word)
 	 (forward-word)
 	 (backward-word)))
@@ -474,8 +396,7 @@
   ("y" hydra-vim/y/body :exit t)
   ("z" save-buffer)
   ("Z" save-buffers-kill-terminal :exit t)
-  (";" (lambda ()
-	 (interactive)
+  (";" (progn
 	 (end-of-line)
 	 (call-interactively #'eval-last-sexp)))
   ("/" isearch-forward-regexp :exit t)
@@ -595,3 +516,55 @@ Info-mode:
       ("h"   Info-help "Info help")
       ("q"   Info-exit "Info exit")
       ("C-g" nil "cancel" :color blue))
+
+(defhydra hydra-move
+    (:body-pre (next-line))
+    "move"
+    ("n" next-line)
+    ("p" previous-line)
+    ("f" forward-char)
+    ("b" backward-char)
+    ("a" beginning-of-line)
+    ("A" move-end-of-line :exit t)
+    ("i" nil)
+    ("I" move-beginning-of-line :exit t)
+    ("e" move-end-of-line)
+    ("v" scroll-up-command)
+    ;; Converting M-v to V here by analogy.
+    ("V" scroll-down-command)
+    ("o" (progn
+	   (end-of-line)
+	   (newline-and-indent)) :exit t)
+    ("O" (progn
+	   (beginning-of-line)
+	   (newline)
+	   (forward-line -1)) :exit t)
+    ("l" recenter-top-bottom))
+(define-key  prog-mode-map  (kbd "C-n")  #'hydra-move/body)
+(define-key  org-mode-map (kbd "C-n") #'hydra-move/body)
+
+(defhydra hydra-move-p
+    (:body-pre (previous-line))
+    "move"
+    ("n" next-line)
+    ("p" previous-line)
+    ("f" forward-char)
+    ("b" backward-char)
+    ("a" beginning-of-line)
+    ("A" move-end-of-line :exit t)
+    ("i" nil)
+    ("I" move-beginning-of-line :exit t)
+    ("e" move-end-of-line)
+    ("v" scroll-up-command)
+    ;; Converting M-v to V here by analogy.
+    ("V" scroll-down-command)
+    ("o" (progn
+	   (end-of-line)
+	   (newline-and-indent)) :exit t)
+    ("O" (progn
+	   (beginning-of-line)
+	   (newline)
+	   (forward-line -1)) :exit t)
+    ("l" recenter-top-bottom))
+(define-key  prog-mode-map  (kbd "C-p")  #'hydra-move-p/body)
+(define-key  org-mode-map (kbd "C-p") #'hydra-move-p/body)
