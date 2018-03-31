@@ -53,7 +53,7 @@
 ;;; org
 (setq org-agenda-files
       '("~/note/plan"  "~/note/emacs"))
-
+(setq org-html-htmlize-output-type nil)
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
