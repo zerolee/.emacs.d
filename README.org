@@ -24,3 +24,5 @@
 ** sams-lib.el           
 ** tabbar.el             
 ** template.el           
+** lzl-lib.el
+   我个人写的一些小函数什么的

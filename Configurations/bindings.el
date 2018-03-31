@@ -1,6 +1,6 @@
 ;; Keeping Points in Buffers for Current Session
-(global-set-key (kbd "s-.") 'sams-cm-save-point)
-(global-set-key (kbd "s-,") 'sams-cm-rotate)
+(global-set-key (kbd "s-.") 'lzl-push-mark-to-ring)
+(global-set-key (kbd "s-,") 'lzl-get-mark-from-ring)
 
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%
@@ -92,3 +92,15 @@
 ;;; 键盘宏
 (global-set-key (kbd "C-o")   'lzl-cool-newline)
 (global-set-key (kbd "C-x d") 'lzl-dired)
+
+
+;;;
+(global-set-key (kbd "M-0") 'delete-window)
+(global-set-key (kbd "M-1") 'delete-other-windows)
+(global-set-key (kbd "M-2") 'split-window-below)
+(global-set-key (kbd "M-3") 'split-window-right)
+(global-set-key (kbd "M-h") 'windmove-left)
+(global-set-key (kbd "M-j") 'windmove-down)
+(global-set-key (kbd "M-k") 'windmove-up)
+(global-set-key (kbd "M-l") 'windmove-right)
+(global-set-key (kbd "M-m") 'downcase-word)
