@@ -123,13 +123,15 @@
 
 (defun lzl-vim-get (lzl-move lzl-arg2)
   "删除或者保存 region 中的数据"
+  (setq vim-cdy-point (point))
   (if (string-match lzl-arg2 "<k")
       (forward-line))
   (if (string-match lzl-arg2 ">jcdy")
       (beginning-of-line))
-  (let ((beg (point)))
-    (call-interactively lzl-move)
-    (funcall lzl-kill-or-save beg (point)))
+  (funcall lzl-kill-or-save (point)
+	   (progn
+	     (call-interactively lzl-move)
+	     (point)))
   (let ((num (prefix-numeric-value current-prefix-arg)))
     (if (< num 0)
 	(setq num (- -1 num)))
@@ -139,18 +141,24 @@
   (if (and (string-equal lzl-arg1 "c")
 	   (string-match lzl-arg2 "<>jkc"))
       (open-line 1))
+  (if (string-equal lzl-arg1 "y")
+      (goto-char vim-cdy-point))
   (setq current-prefix-arg nil)
   (if lzl-esc
       (hydra-esc/body)))
 
-(defhydra hydra-vim/c (:pre (progn (setq lzl-kill-or-save #'kill-region)
-				   (setq lzl-esc nil)
-				   (setq lzl-arg1 "c"))
-			    :color blue
-			    :hint nil)
-  "
-  c
-  "
+(defun vim-cdy (which-cdy)
+  (setq lzl-arg1 which-cdy)
+  (if (string-equal which-cdy "y")
+      (setq lzl-kill-or-save #'kill-ring-save)
+    (setq lzl-kill-or-save #'kill-region))
+  (if (string-equal which-cdy "c")
+      (setq lzl-esc nil)
+    (setq lzl-esc t))
+  (hydra-vim/cdy/body))
+
+(defhydra hydra-vim/cdy (:color blue
+				:hint nil)
   ("<" (let ((current-prefix-arg (point-min)))
 	 (lzl-vim-get #'goto-char "<")))
   (">" (let ((current-prefix-arg (point-max)))
@@ -164,63 +172,10 @@
   ("k" (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
 	 (lzl-vim-get #'forward-line "k")))
   ("c" (lzl-vim-get #'forward-line "c"))
-  ("t" (lzl-vim-get #'lzl-look-forward-char "t")))
-
-(defhydra hydra-vim/d (:pre (progn (setq lzl-kill-or-save #'kill-region)
-				   (setq lzl-esc t)
-				   (setq lzl-arg1 "d"))
-			    :color blue
-			    :hint nil)
-  "
-  d
-  "
-  ("<" (let ((current-prefix-arg (point-min)))
-	 (lzl-vim-get #'goto-char "<")))
-  (">" (let ((current-prefix-arg (point-max)))
-	 (lzl-vim-get #'goto-char ">")))
-  ("i" (lzl-vim-get #'beginning-of-line "i"))
-  ("w" (lzl-vim-get #'forward-word "w"))
-  ("W" (lzl-vim-get #'forward-sexp "W"))
-  (";" (lzl-vim-get #'end-of-line ";"))
-  ("j" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-	 (lzl-vim-get #'forward-line "j")))
-  ("k" (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
-	 (lzl-vim-get #'forward-line "k")))
   ("d" (lzl-vim-get #'forward-line "d"))
+  ("y" (lzl-vim-get #'forward-line "y"))
   ("t" (lzl-vim-get #'lzl-look-forward-char "t")))
 
-(defhydra hydra-vim/y (:pre (progn (setq lzl-kill-or-save #'kill-ring-save)
-				   (setq lzl-esc t)
-				   (setq lzl-arg1 "y"))
-			    :color  blue
-                            :hint nil)
-  "
-   y
-  "
-  ("<" (save-excursion
-	 (let ((current-prefix-arg (point-min)))
-	   (lzl-vim-get #'goto-char "<"))))
-  (">" (save-excursion
-	 (let ((current-prefix-arg (point-max)))
-	   (lzl-vim-get #'goto-char ">"))))
-  ("i" (save-excursion
-	 (lzl-vim-get #'beginning-of-line "i")))
-  ("w" (save-excursion
-	 (lzl-vim-get #'forward-word "w")))
-  ("W" (save-excursion
-	 (lzl-vim-get #'forward-sexp "W")))
-  (";" (save-excursion
-	 (lzl-vim-get #'end-of-line ";")))
-  ("j" (save-excursion
-	 (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-	   (lzl-vim-get #'forward-line "j"))))
-  ("k" (save-excursion
-	 (let ((current-prefix-arg (- 0  (1+ (prefix-numeric-value current-prefix-arg)))))
-	   (lzl-vim-get #'forward-line "k"))))
-  ("y" (save-excursion
-	 (lzl-vim-get #'forward-line "y")))
-  ("t" (save-excursion
-	 (lzl-vim-get #'lzl-look-forward-char "t"))))
 
 (defhydra hydra-vim/r (:body-pre (delete-char 1)
 			    :post (hydra-esc/body)
@@ -329,9 +284,9 @@
   ("A" move-end-of-line :exit t)
   ("b" ivy-switch-buffer :exit t)
   ("B" lzlvim-B :exit t)
-  ("c" hydra-vim/c/body :exit t)
+  ("c" (vim-cdy "c") :exit t)
   ("C" kill-line :exit t)
-  ("d" hydra-vim/d/body :exit t)
+  ("d" (vim-cdy "d") :exit t)
   ("D" kill-line)
   ("e" forward-word)
   ("E" paredit-close-round-and-newline)
@@ -365,8 +320,7 @@
 	 (newline-and-indent)) :exit t)
   ("O" (progn
 	 (beginning-of-line)
-	 (newline)
-	 (forward-line -1)) :exit t)
+	 (open-line 1)) :exit t)
   ("p" (progn
 	 (end-of-line)
 	 (newline)
@@ -393,7 +347,7 @@
   ("W" forward-whitespace)
   ("x" delete-char)
   ("X" delete-backward-char)
-  ("y" hydra-vim/y/body :exit t)
+  ("y" (vim-cdy "y") :exit t)
   ("z" save-buffer)
   ("Z" save-buffers-kill-terminal :exit t)
   (";" (progn
@@ -418,40 +372,6 @@
   ("!" quit-window)
   ("$" end-of-line)
   ("." hydra-repeat))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; 配置 buffer-list
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-buffer-menu (:color pink
-				    :hint nil)
-  "
-^Mark^             ^Unmark^           ^Actions^          ^Search
-^^^^^^^^-----------------------------------------------------------------
-_m_: mark          _u_: unmark        _x_: execute       _R_: re-isearch
-_s_: save          _U_: unmark up     _b_: bury          _I_: isearch
-_d_: delete        ^ ^                _g_: refresh       _O_: multi-occur
-_D_: delete up     ^ ^                _T_: files only: % -28`Buffer-menu-files-only
-_~_: modified
-"
-  ("m" Buffer-menu-mark)
-  ("u" Buffer-menu-unmark)
-  ("U" Buffer-menu-backup-unmark)
-  ("d" Buffer-menu-delete)
-  ("D" Buffer-menu-delete-backwards)
-  ("s" Buffer-menu-save)
-  ("~" Buffer-menu-not-modified)
-  ("x" Buffer-menu-execute)
-  ("b" Buffer-menu-bury)
-  ("g" revert-buffer)
-  ("T" Buffer-menu-toggle-files-only)
-  ("O" Buffer-menu-multi-occur :color blue)
-  ("I" Buffer-menu-isearch-buffers :color blue)
-  ("R" Buffer-menu-isearch-buffers-regexp :color blue)
-  ("c" nil "cancel")
-  ("v" Buffer-menu-select "select" :color blue)
-  ("o" Buffer-menu-other-window "other-window" :color blue)
-  ("q" quit-window "quit" :color blue))
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Info
@@ -517,8 +437,7 @@ Info-mode:
       ("q"   Info-exit "Info exit")
       ("C-g" nil "cancel" :color blue))
 
-(defhydra hydra-move
-    (:body-pre (next-line))
+(defhydra hydra-move ()
     "move"
     ("n" next-line)
     ("p" previous-line)
@@ -555,8 +474,11 @@ Info-mode:
 	 (yank)))
     ("u" undo)
     ("l" recenter-top-bottom)
-    ("s" isearch-forward-regexp)
-    ("w" kill-sexp)
+    ("/" isearch-forward-regexp :exit t)
+    ("s" kill-sexp)
+    ("w" kill-region)
+    ("W" kill-ring-save)
+    ("SPC" set-mark-command)
     ("c" (save-excursion
 	   (beginning-of-line)
 	   (let ((beg (point)))
@@ -565,57 +487,18 @@ Info-mode:
     ("[" backward-sexp)
     ("]" forward-sexp)
     ("z" save-buffer))
-(define-key text-mode-map (kbd "C-n") #'hydra-move/body)
-(define-key prog-mode-map (kbd "C-n") #'hydra-move/body)
 
+(defun lzl-move-n ()
+  (interactive)
+  (next-line)
+  (hydra-move/body))
 
-(defhydra hydra-move-p
-    (:body-pre (previous-line))
-    "move"
-    ("n" next-line)
-    ("p" previous-line)
-    ("f" forward-char)
-    ("b" backward-char)
-    ("a" beginning-of-line)
-    ("A" move-end-of-line :exit t)
-    ("i" nil)
-    ("I" move-beginning-of-line :exit t)
-    ("e" move-end-of-line)
-    ("v" scroll-up-command)
-    ;; Converting M-v to V here by analogy.
-    ("V" scroll-down-command)
-    ("o" (progn
-	   (end-of-line)
-	   (newline-and-indent)) :exit t)
-    ("O" (progn
-	   (beginning-of-line)
-	   (newline)
-	   (forward-line -1)) :exit t)
-    ("k" kill-line)
-    ("K" kill-whole-line)
-    ("d" delete-char)
-    ("D" kill-word)
-    ("y" yank)
-    ("Y" (progn
-	 (end-of-line)
-	 (newline)
-	 (yank)))
-    ("P" (progn
-	 (beginning-of-line)
-	 (newline)
-	 (forward-line -1)
-	 (yank)))
-    ("u" undo)
-    ("l" recenter-top-bottom)
-    ("s" isearch-forward-regexp)
-    ("w" kill-sexp)
-    ("c" (save-excursion
-	   (beginning-of-line)
-	   (let ((beg (point)))
-	     (end-of-line)
-	     (kill-ring-save beg (point)))))
-    ("[" backward-sexp)
-    ("]" forward-sexp)
-    ("z" save-buffer))
-(define-key text-mode-map (kbd "C-p") #'hydra-move-p/body)
-(define-key prog-mode-map (kbd "C-p") #'hydra-move-p/body)
+(defun lzl-move-p ()
+  (interactive)
+  (previous-line)
+  (hydra-move/body))
+
+(define-key text-mode-map (kbd "C-p") #'lzl-move-p)
+(define-key prog-mode-map (kbd "C-p") #'lzl-move-p)
+(define-key text-mode-map (kbd "C-n") #'lzl-move-n)
+(define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
