@@ -1,5 +1,5 @@
 ;; sams-lib
-(autoload 'sams-cm-save-point "sams-lib")
+(autoload 'lzl-push-mark-to-ring "lzl-lib")
 
 (use-package cquery                    :ensure t)
 (use-package wgrep                     :ensure t)

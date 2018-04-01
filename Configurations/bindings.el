@@ -1,6 +1,6 @@
 ;; Keeping Points in Buffers for Current Session
-(global-set-key (kbd "s-.") 'sams-cm-save-point)
-(global-set-key (kbd "s-,") 'sams-cm-rotate)
+(global-set-key (kbd "s-.") 'lzl-push-mark-to-ring)
+(global-set-key (kbd "s-,") 'lzl-get-mark-from-ring)
 
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%
@@ -95,6 +95,7 @@
 
 
 
+
 ;;; 调节声音
 (define-key exwm-mode-map (kbd "<XF86AudioLowerVolume>")
   (lambda () (interactive) (shell-command "amixer set Master 5%- &> /dev/null")))
@@ -104,3 +105,14 @@
 
 (define-key exwm-mode-map (kbd "<XF86AudioMute>")
   (lambda () (interactive) (shell-command "amixer set Master 1+ toggle &> /dev/null")))
+
+;;;
+(global-set-key (kbd "M-0") 'delete-window)
+(global-set-key (kbd "M-1") 'delete-other-windows)
+(global-set-key (kbd "M-2") 'split-window-below)
+(global-set-key (kbd "M-3") 'split-window-right)
+(global-set-key (kbd "M-h") 'windmove-left)
+(global-set-key (kbd "M-j") 'windmove-down)
+(global-set-key (kbd "M-k") 'windmove-up)
+(global-set-key (kbd "M-l") 'windmove-right)
+(global-set-key (kbd "M-m") 'downcase-word)
