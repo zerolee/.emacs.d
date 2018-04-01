@@ -1,39 +1,30 @@
-(defhydra hydra-SPC (:color pink
-			    :hint nil)
-  "
-   _c_: counsel       _d_: dired
-   _y_: yasnippet     _o_: org
-  "
-  ("c" hydra-counsel/body :exit t)
-  ("y" hydra-yasnippet/body :exit t)
-  ("o" hydra-org/body :exit t)
-  ("d" lzl-dired :exit t)
-  ("i" nil "cancel")
-  ("<escape>" hydra-esc/body :exit t)
-  ("q" kill-buffer "quit" :color blue))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-counsel (:color pink
+(defhydra hydra-f1 (:color pink
 				:hint nil)
   "
                    counsel
    -------------------------------------------------------------
-   _l_: locate  _p_: ivy-push-view
-   _a_: ag      _P_: ivy-pop-view
-   _f_: fzf     _r_: ivy-resume
-   _i_: imenu
-   _g_: git
+   _l_: locate  _p_: ivy-push-view    _o_: org
+   _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
+   _z_: fzf     _r_: ivy-resume       _d_: dired
+   _g_: git     _i_: imenu
   "
+  ("b" ivy-switch-buffer :exit t)
+  ("B" lzlvim-B :exit t)
+  ("f" counsel-find-file)
   ("l" counsel-locate :exit t)
   ("a" counsel-ag :exit t)
-  ("f" counsel-fzf :exit t)
+  ("z" counsel-fzf :exit t)
   ("i" counsel-imenu :exit t)
   ("g" counsel-git :exit t)
+  ("o" hydra-org/body :exit t)
   ("p" ivy-push-view :exit t)
   ("P" ivy-pop-view :exit t)
+  ("y" hydra-yasnippet/body :exit t)
   ("r" ivy-resume :exit t)
   ("c" nil "cancel")
-  ("q" kill-buffer "quit" :color blue))
+  ("d" lzl-dired :exit t))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-yasnippet (:color pink
@@ -102,36 +93,6 @@
   ("q" org-set-tags-command)
   ("<escape>" hydra-esc/body :exit t))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hydra-esc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lzlvim-B ()
-  "打开并跳转到 ListBuffer"
-  (interactive)
-  (progn
-    (list-buffers)
-    (while (not (string-equal "*Buffer List*" (buffer-name)))
-      (other-window 1))))
-
-(defun lzl-look-forward-char (arg char)
-  "查找字符"
-  (interactive "*p\ncZap: ")
-  (search-forward
-   (char-to-string char) nil nil arg))
-
-(defhydra hydra-esc (:color pink
-			  :hint nil)
-  "
-   _<down>_: 取出右边的 s-exp   _<up>_: 去除两边的括号
-   _M-s_: (he wo)=>  (he) (wo)  _J_: 将其重新连接起来
-   _<left>_: 拿出左边的 s-exp   _<right>_: 拿出右边的 s-exp
-  "
-  ("SPC" hydra-SPC/body :exit t)
-  ("b" ivy-switch-buffer :exit t)
-  ("B" lzlvim-B :exit t)
-  ("f" counsel-find-file))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Info
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -196,10 +157,23 @@ Info-mode:
       ("q"   Info-exit "Info exit")
       ("C-g" nil "cancel" :color blue))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; hydra-esc
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun lzlvim-B ()
+  "打开并跳转到 ListBuffer"
+  (interactive)
+  (progn
+    (list-buffers)
+    (while (not (string-equal "*Buffer List*" (buffer-name)))
+      (other-window 1))))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; emacs move
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun lzl-look-forward-char (arg char)
+  "查找字符"
+  (interactive "*p\ncZap: ")
+  (search-forward
+   (char-to-string char) nil nil arg))
+
 (defun lzl-emacs-get (lzl-move lzl-arg2)
   "删除或者保存 region 中的数据"
   (setq emacs-ckm-point (point))
@@ -278,7 +252,7 @@ Info-mode:
   ("8" self-insert-command :exit t)
   ("9" self-insert-command :exit t)
   ("-" self-insert-command :exit t)
-  ("<f2>" hydra-move/body :exit t))
+  ("<escape>" hydra-move/body :exit t))
 
 (defhydra hydra-emacs/spc (:body-pre (progn
 				   (call-interactively #'set-mark-command)
@@ -364,12 +338,12 @@ Info-mode:
   ("8" self-insert-command)
   ("9" self-insert-command)
   ("-" self-insert-command)
-  ("<f2>"   (progn
+  ("<escape>"   (progn
 		  (overwrite-mode -1)
 		  (hydra-move/body)) :exit t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-move (:color pink
+(defhydra hydra-esc (:color pink
 			     :hint nil)
   "move"
   ("{" shrink-window-horizontally)
@@ -409,9 +383,6 @@ Info-mode:
   ("I" nil :exit t)
   ("j" paredit-close-round-and-newline :exit t)
   ("k" (emacs-ckm "k") :exit t)
-  ("M-k" (progn
-	   (kill-whole-line)
-	   (open-line 1)) :exit t)
   ("l" recenter-top-bottom)
   ("m" (emacs-ckm "m") :exit t)
   ("n" next-line)
@@ -443,6 +414,9 @@ Info-mode:
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
   ("s" lzl-look-forward-char)
+  ("S" (progn
+	   (kill-whole-line)
+	   (open-line 1)) :exit t)
   ("t" avy-goto-char-in-line)
   ("u" undo)
   ("v" scroll-up-command)
@@ -452,12 +426,13 @@ Info-mode:
   ("y" yank)
   ("z" save-buffer)
   ("/" isearch-forward-regexp :exit t)
-  ("SPC" hydra-emacs/spc/body :exit t)
+  ("<C-SPC>" hydra-emacs/spc/body :exit t)
   ("[" backward-sexp)
   ("]" forward-sexp)
   (";" eval-last-sexp)
   ("." lzl-push-mark-to-ring)
-  ("," lzl-get-mark-from-ring))
+  ("," lzl-get-mark-from-ring)
+  ("<escape>" nil))
 
 (defun lzl-move-n ()
 	(interactive)
@@ -472,6 +447,4 @@ Info-mode:
 (define-key prog-mode-map (kbd "C-p") #'lzl-move-p)
 (define-key text-mode-map (kbd "C-n") #'lzl-move-n)
 (define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
-(define-key prog-mode-map (kbd "<f2>") #'hydra-move/body)
-(define-key text-mode-map (kbd "<f2>") #'hydra-move/body)
-(global-set-key (kbd "<f1>") #'hydra-counsel/body)
+(global-set-key (kbd "<f1>") #'hydra-f1/body)
