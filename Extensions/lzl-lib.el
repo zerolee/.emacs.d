@@ -7,6 +7,25 @@
 (defvar lzl-pointer 0
   "当前所在 pointer")
 
+(defvar lzl-ring-mark-pointer nil
+  "当前所在 pointer")
+
+;;; 将 lzl-ring-mark-pointer 移动向 lzl-point-ring 的下 arg 个元素
+(defun rotate-mark-ring-pointer (arg)
+  "Rotate the mark point in the mark ring."
+  "interactive p"
+  (let ((length (length lzl-point-ring)))
+    (if (zerop length)
+	(error "Mark point ring is empty")
+
+      (setq lzl-ring-mark-pointer
+	    (nthcdr (% (+ arg
+			  (- length
+			     (length
+			      lzl-ring-mark-pointer)))
+		       length)
+		    lzl-point-ring)))))
+
 ;;; 比较两个 point 是否相等
 (defun struct-point-equal (sp1 sp2)
   (and (= (cdr sp2) (cdr sp1))

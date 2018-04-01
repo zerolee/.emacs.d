@@ -205,7 +205,7 @@ Info-mode:
       (goto-char emacs-ckm-point))
   (setq current-prefix-arg nil)
   (if lzl-esc
-      (hydra-move/body)))
+      (hydra-esc/body)))
 
 (defun emacs-ckm (which-ckm)
   (setq lzl-arg1 which-ckm)
@@ -238,21 +238,43 @@ Info-mode:
 
 
 (defhydra hydra-emacs/r (:body-pre (delete-char 1)
-				   :post hydra-move/body
+				   :post hydra-esc/body
 				   :color blue
 				   :hint nil)
-  ("0" self-insert-command :exit t)
-  ("1" self-insert-command :exit t)
-  ("2" self-insert-command :exit t)
-  ("3" self-insert-command :exit t)
-  ("4" self-insert-command :exit t)
-  ("5" self-insert-command :exit t)
-  ("6" self-insert-command :exit t)
-  ("7" self-insert-command :exit t)
-  ("8" self-insert-command :exit t)
-  ("9" self-insert-command :exit t)
-  ("-" self-insert-command :exit t)
-  ("<escape>" hydra-move/body :exit t))
+  ("0" (progn
+	 (insert-char ?0)
+	 (hydra-esc/body)) :exit t)
+  ("1" (progn
+	 (insert-char ?1)
+	 (hydra-esc/body)) :exit t)
+  ("2" (progn
+	 (insert-char ?2)
+	 (hydra-esc/body)) :exit t)
+  ("3" (progn
+	 (insert-char ?3)
+	 (hydra-esc/body)) :exit t)
+  ("4" (progn
+	 (insert-char ?4)
+	 (hydra-esc/body)) :exit t)
+  ("5" (progn
+	 (insert-char ?5)
+	 (hydra-esc/body)) :exit t)
+  ("6" (progn
+	 (insert-char ?6)
+	 (hydra-esc/body)) :exit t)
+  ("7" (progn
+	 (insert-char ?7)
+	 (hydra-esc/body)) :exit t)
+  ("8" (progn
+	 (insert-char ?8)
+	 (hydra-esc/body)) :exit t)
+  ("9" (progn
+	 (insert-char ?9)
+	 (hydra-esc/body)) :exit t)
+  ("-" (progn
+	 (insert-char ?-)
+	 (hydra-esc/body)) :exit t)
+  ("<escape>" hydra-esc/body :exit t))
 
 (defhydra hydra-emacs/spc (:body-pre (progn
 				   (call-interactively #'set-mark-command)
@@ -271,21 +293,21 @@ Info-mode:
   ("e" end-of-line)
   ("m" (progn
 	 (call-interactively #'kill-ring-save)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("M-w" (progn
 	 (call-interactively #'kill-ring-save)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("w" (progn
 	 (call-interactively #'kill-region)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("k" (progn
 	 (call-interactively #'kill-region)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("c" (progn
 	 (call-interactively #'kill-region)) :exit t)
   ("t" (progn
 	 (call-interactively #'string-rectangle)
-	 (hydra-move/body)) :exit t))
+	 (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/V (:body-pre (progn
 				   (rectangle-mark-mode)
@@ -305,21 +327,21 @@ Info-mode:
   ("e" end-of-line)
   ("m" (progn
 	 (call-interactively #'copy-region-as-kill)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("M-w" (progn
 	 (call-interactively #'copy-region-as-kill)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("w" (progn
 	 (call-interactively #'kill-region)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("k" (progn
 	 (call-interactively #'kill-rectangle)
-	 (hydra-move/body)) :exit t)
+	 (hydra-esc/body)) :exit t)
   ("c" (progn
 	 (call-interactively #'kill-rectangle)) :exit t)
   ("t" (progn
 	 (call-interactively #'string-rectangle)
-	 (hydra-move/body)) :exit t))
+	 (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/R (:body-pre (overwrite-mode)
 		       :color pink
@@ -340,7 +362,7 @@ Info-mode:
   ("-" self-insert-command)
   ("<escape>"   (progn
 		  (overwrite-mode -1)
-		  (hydra-move/body)) :exit t))
+		  (hydra-esc/body)) :exit t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-esc (:color pink
@@ -419,12 +441,14 @@ Info-mode:
 	   (open-line 1)) :exit t)
   ("t" avy-goto-char-in-line)
   ("u" undo)
+  ("U" winner-undo)
   ("v" scroll-up-command)
   ("V" hydra-emacs/V/body :exit t)
   ("w" avy-goto-word-1)
   ("x" lzl-look-forward-char :exit t)
   ("y" yank)
   ("z" save-buffer)
+  ("Z" save-buffers-kill-terminal)
   ("/" isearch-forward-regexp :exit t)
   ("<C-SPC>" hydra-emacs/spc/body :exit t)
   ("[" backward-sexp)
@@ -437,12 +461,12 @@ Info-mode:
 (defun lzl-move-n ()
 	(interactive)
 	(next-line)
-	(hydra-move/body))
+	(hydra-esc/body))
 
 (defun lzl-move-p ()
 	(interactive)
 	(previous-line)
-	(hydra-move/body))
+	(hydra-esc/body))
 (define-key text-mode-map (kbd "C-p") #'lzl-move-p)
 (define-key prog-mode-map (kbd "C-p") #'lzl-move-p)
 (define-key text-mode-map (kbd "C-n") #'lzl-move-n)
