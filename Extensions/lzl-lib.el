@@ -21,10 +21,24 @@
 	      (bury-dup-element-from-list (cdr list) element)))
     nil))
 
+;;; 去所在 buffer
+(defun lzl-goto-buffer (buffer)
+  (let ((list (window-list)))
+    (while list
+      (if (not (string-equal buffer (buffer-name)))
+	  (other-window 1))
+      (setq list (cdr list)))
+    (switch-to-buffer (get-buffer buffer))))
 ;;; 构造位置信息，(缓冲区对象 point)
 (defun lzl-struct-point ()
   (cons (buffer-name) (point)))
 
+(defun index-compute (arg length)
+  (let* ((ring-pointer-length (length lzl-ring-mark-pointer))
+	 (return-value (+ arg (- length ring-pointer-length))))
+    (cond  ((= return-value -1) (1- length))
+	   ((= return-value -2) (- length 2))
+	   (t return-value))))
 ;;; 将 lzl-ring-mark-pointer 移动向 lzl-point-ring 的下 arg 个元素
 (defun rotate-mark-ring-pointer (arg)
   "Rotate the mark point in the mark ring."
@@ -34,10 +48,7 @@
 	(error "Mark point ring is empty")
 
       (setq lzl-ring-mark-pointer
-	    (nthcdr (% (+ arg
-			  (- length
-			     (length
-			      lzl-ring-mark-pointer)))
+	    (nthcdr (% (index-compute arg length)
 		       length)
 		    lzl-point-ring)))))
 
@@ -68,8 +79,7 @@
 	  (rotate-mark-ring-pointer -2))
       (if (get-buffer (caar lzl-ring-mark-pointer))
 	  (progn
-	    (switch-to-buffer (get-buffer
-			       (caar lzl-ring-mark-pointer)))
+	    (lzl-goto-buffer (caar lzl-ring-mark-pointer))
 	    (goto-char (cdar lzl-ring-mark-pointer))
 	    (rotate-mark-ring-pointer 1))
 	(setq lzl-point-ring

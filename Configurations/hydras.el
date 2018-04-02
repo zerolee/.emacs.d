@@ -11,7 +11,7 @@
   "
   ("b" ivy-switch-buffer :exit t)
   ("B" lzlvim-B :exit t)
-  ("f" counsel-find-file)
+  ("f" counsel-find-file :exit t)
   ("l" counsel-locate :exit t)
   ("a" counsel-ag :exit t)
   ("z" counsel-fzf :exit t)
@@ -467,8 +467,7 @@ Info-mode:
 	(interactive)
 	(previous-line)
 	(hydra-esc/body))
-(define-key text-mode-map (kbd "C-p") #'lzl-move-p)
-(define-key prog-mode-map (kbd "C-p") #'lzl-move-p)
+
 (define-key text-mode-map (kbd "C-n") #'lzl-move-n)
 (define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
 (global-set-key (kbd "<f1>") #'hydra-f1/body)
