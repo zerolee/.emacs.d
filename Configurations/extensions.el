@@ -7,7 +7,6 @@
 (use-package company-lsp               :ensure t)
 (use-package smex                      :ensure t)
 (use-package yasnippet-snippets        :ensure t)
-(use-package groovy-mode               :ensure t)
 
 
 

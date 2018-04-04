@@ -1,7 +1,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 一个的保存 point 的实现
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (defvar lzl-point-ring nil
   "这是用来保存 mark 的，理论上无限制")
 
@@ -11,7 +10,7 @@
 ;;; 比较两个 point 是否相等
 (defun struct-point-equal (sp1 sp2)
   (and (string-equal (cadr sp1) (cadr sp2))
-       (= (cddr sp2) (cddr sp1))))
+       (equal (cddr sp2) (cddr sp1))))
 
 ;;; 舍弃重复的元素
 (defun bury-dup-element-from-list (list element)
@@ -48,10 +47,9 @@
     (goto-char current-point)
     (concat (buffer-name) " : " (number-to-string current-line) " : " context-string)))
 
-
 (defun lzl-point-info ()
   (cons (lzl-context-mark)
-	(cons (buffer-name) (point))))
+	(cons (buffer-name) (point-marker))))
 
 
 (defun index-compute (arg length)
@@ -100,7 +98,7 @@
       (if (get-buffer (cadar lzl-ring-mark-pointer))
 	  (progn
 	    (lzl-goto-buffer (cadar lzl-ring-mark-pointer))
-	    (goto-char (cddar lzl-ring-mark-pointer))
+	    (goto-char (marker-position (cddar lzl-ring-mark-pointer)))
 	    (rotate-mark-ring-pointer 1))
 	(setq lzl-point-ring
 	      (bury-dup-element-from-list lzl-point-ring
@@ -113,5 +111,5 @@
   (ivy-read "mark ring: " lzl-point-ring
 	    :action '(lambda (x)
 		       (lzl-goto-buffer (cadr x))
-		       (goto-char (cddr x)))))
+		       (goto-char (marker-position (cddr x))))))
 (provide 'lzl-lib)
