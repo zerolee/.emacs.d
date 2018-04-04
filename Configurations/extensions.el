@@ -36,7 +36,8 @@
   (progn
     (ivy-mode 1)
     ; 将最近的文件和书签加入到 ivy-switch-buffer
-    (setq ivy-use-virtual-buffers t)))
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-use-selectable-prompt t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode

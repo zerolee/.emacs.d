@@ -1,33 +1,35 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-f1 (:color pink
-				:hint nil)
+(defhydra hydra-f1 (:color teal
+			   :hint nil)
   "
                    counsel
    -------------------------------------------------------------
    _l_: locate  _p_: ivy-push-view    _o_: org
    _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
    _z_: fzf     _r_: ivy-resume       _d_: dired
-   _g_: git     _i_: imenu
+   _g_: git     _i_: imenu            _F_: recentf
   "
-  ("b" ivy-switch-buffer :exit t)
-  ("B" lzlvim-B :exit t)
-  ("f" counsel-find-file :exit t)
-  ("l" counsel-locate :exit t)
-  ("a" counsel-ag :exit t)
-  ("z" counsel-fzf :exit t)
-  ("i" counsel-imenu :exit t)
-  ("g" counsel-git :exit t)
-  ("o" hydra-org/body :exit t)
-  ("p" ivy-push-view :exit t)
-  ("P" ivy-pop-view :exit t)
-  ("y" hydra-yasnippet/body :exit t)
-  ("r" ivy-resume :exit t)
+  ("b" ivy-switch-buffer)
+  ("B" lzlvim-B)
+  ("f" counsel-find-file)
+  ("F" counsel-recentf)
+  ("l" counsel-locate)
+  ("a" counsel-ag)
+  ("z" counsel-fzf)
+  ("i" counsel-imenu)
+  ("g" counsel-git)
+  ("o" hydra-org/body)
+  ("p" ivy-push-view)
+  ("P" ivy-pop-view)
+  ("y" hydra-yasnippet/body)
+  ("r" ivy-resume)
   ("c" nil "cancel")
-  ("d" lzl-dired :exit t))
+  ("d" lzl-dired)
+  ("<escape>" hydra-esc/body))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-yasnippet (:color pink
+(defhydra hydra-yasnippet (:color teal
 				  :hint nil)
   "
                       yasnippet
@@ -35,12 +37,12 @@
    _y_: company-yasnippet  
    _i_: yas-insert-snippet _n_: yas-new-snippet _e_: yas-expand
   "
-  ("y" company-yasnippet :exit t)
-  ("i" yas-insert-snippet :exit t)
-  ("n" yas-new-snippet :exit t)
-  ("e" yas-expand :exit t)
+  ("y" company-yasnippet)
+  ("i" yas-insert-snippet)
+  ("n" yas-new-snippet)
+  ("e" yas-expand)
   ("c" nil "cancel")
-  ("q" kill-buffer "quit" :color blue))
+  ("q" kill-buffer "quit"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -164,8 +166,8 @@ Info-mode:
   "打开并跳转到 ListBuffer"
   (interactive)
   (progn
-    (list-buffers)
-    (while (not (string-equal "*Buffer List*" (buffer-name)))
+    (ibuffer-list-buffers)
+    (while (not (string-equal "*Ibuffer*" (buffer-name)))
       (other-window 1))))
 
 (defun lzl-look-forward-char (arg char)
@@ -277,11 +279,11 @@ Info-mode:
   ("<escape>" hydra-esc/body :exit t))
 
 (defhydra hydra-emacs/spc (:body-pre (progn
-				   (call-interactively #'set-mark-command)
-				   (setq-default cursor-type 'bar))
-				 :post (setq-default cursor-type t)
-				 :color pink
-				 :hint nil)
+				       (call-interactively #'set-mark-command)
+				       (setq-default cursor-type 'bar))
+				     :post (setq-default cursor-type t)
+				     :color pink
+				     :hint nil)
   "
    ---visual---
   "
@@ -295,8 +297,8 @@ Info-mode:
 	 (call-interactively #'kill-ring-save)
 	 (hydra-esc/body)) :exit t)
   ("M-w" (progn
-	 (call-interactively #'kill-ring-save)
-	 (hydra-esc/body)) :exit t)
+	   (call-interactively #'kill-ring-save)
+	   (hydra-esc/body)) :exit t)
   ("w" (progn
 	 (call-interactively #'kill-region)
 	 (hydra-esc/body)) :exit t)
@@ -403,7 +405,8 @@ Info-mode:
   ("h" delete-indentation)
   ("i" nil)
   ("I" nil :exit t)
-  ("j" paredit-close-round-and-newline :exit t)
+  ("j" avy-goto-char)
+  ("C-j" newline-and-indent :exit t)
   ("k" (emacs-ckm "k") :exit t)
   ("l" recenter-top-bottom)
   ("m" (emacs-ckm "m") :exit t)
@@ -424,6 +427,7 @@ Info-mode:
 	 (newline)
 	 (forward-line -1)) :exit t)
   ("p" previous-line)
+  ("C-p" previous-line :exit t)
   ("M-p" (progn
 	   (beginning-of-line)
 	   (open-line 1)
@@ -451,11 +455,12 @@ Info-mode:
   ("Z" save-buffers-kill-terminal)
   ("/" isearch-forward-regexp :exit t)
   ("<C-SPC>" hydra-emacs/spc/body :exit t)
-  ("[" backward-sexp)
-  ("]" forward-sexp)
+  ("[" paredit-backward)
+  ("]" paredit-forward)
   (";" eval-last-sexp)
   ("." lzl-push-mark-to-ring)
   ("," lzl-get-mark-from-ring)
+  ("?" lzl-show-all-mark-in-ring)
   ("<escape>" nil))
 
 (defun lzl-move-n ()
