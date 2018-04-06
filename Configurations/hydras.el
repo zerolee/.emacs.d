@@ -2,9 +2,7 @@
 (defhydra hydra-f1 (:color teal
 			   :hint nil)
   "
-                   counsel
-   -------------------------------------------------------------
-   _l_: locate  _p_: ivy-push-view    _o_: org
+   _l_: locate  _p_: ivy-push-view    _o_: org         _n_: neotree
    _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
    _z_: fzf     _r_: ivy-resume       _d_: dired
    _g_: git     _i_: imenu            _F_: recentf
@@ -22,11 +20,30 @@
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" hydra-yasnippet/body)
+  ("n" hydra-neotree/body)
   ("r" ivy-resume)
-  ("c" nil "cancel")
   ("d" lzl-dired)
-  ("<escape>" hydra-esc/body))
+  ("<escape>" hydra-esc/body)
+  ("<f1>" nil)
+  ("<f2>" nil))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defhydra hydra-neotree (:color teal
+				:hint nil)
+  "
+                         neotree
+  -------------------------------------------------------------
+  _t_oggle(开关 neotree)   _h_ide(隐藏 neotree)
+  _d_ir(指定一个目录)       _f_ind(当前 buffer)
+  _s_how(当前目录)
+  "
+  ("t" neotree-toggle)
+  ("d" neotree-dir)
+  ("s" neotree-show)
+  ("h" neotree-hide)
+  ("f" neotree-find)
+  ("<escape>" hydra-esc/body))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-yasnippet (:color teal
@@ -68,7 +85,6 @@
   ("a" forward-char :exit t)
   ("A" end-of-line :exit t)
   ("c" (emacs-ckm "c") :exit t)
-  ("k" (emacs-ckm "k") :exit t)
   ("y" (emacs-ckm "m") :exit t)
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
@@ -369,7 +385,9 @@ Info-mode:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-esc (:color pink
 			     :hint nil)
-  "move"
+  "
+   ------------------Emacs Hydra------------------
+  "
   ("{" shrink-window-horizontally)
   ("}" enlarge-window-horizontally)
   ("^" enlarge-window)
@@ -384,21 +402,16 @@ Info-mode:
   ("<left>"  paredit-splice-sexp-killing-forward)
   ("<right>" paredit-splice-sexp-killing-backward)
   ("a" beginning-of-line)
-  ("A" beginning-of-line :exit t)
   ("C-a" beginning-of-line :exit t)
   ("b" backward-char)
   ("B" lzlvim-B :exit t)
   ("C-b" backward-char :exit t)
   ("c" (emacs-ckm "c") :exit t)
-  ("C" kill-line :exit t)
   ("d" delete-char)
-  ("D" delete-char :exit t)
   ("C-d" delete-char :exit t)
   ("e" move-end-of-line)
-  ("E" move-end-of-line :exit t)
   ("C-e" move-end-of-line :exit t)
   ("f" forward-char)
-  ("F" forward-char :exit t)
   ("C-f" forward-char :exit t)
   ("g" avy-goto-line)
   ("G" goto-line)
@@ -440,9 +453,6 @@ Info-mode:
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
   ("s" lzl-look-forward-char)
-  ("S" (progn
-	   (kill-whole-line)
-	   (open-line 1)) :exit t)
   ("t" avy-goto-char-in-line)
   ("u" undo)
   ("U" winner-undo)
@@ -461,16 +471,12 @@ Info-mode:
   ("." lzl-push-mark-to-ring)
   ("," lzl-get-mark-from-ring)
   ("?" lzl-show-all-mark-in-ring)
+  ("M-x" counsel-M-x :exit t)
   ("<escape>" nil))
 
 (defun lzl-move-n ()
 	(interactive)
 	(next-line)
-	(hydra-esc/body))
-
-(defun lzl-move-p ()
-	(interactive)
-	(previous-line)
 	(hydra-esc/body))
 
 (define-key text-mode-map (kbd "C-n") #'lzl-move-n)

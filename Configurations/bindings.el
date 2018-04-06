@@ -106,3 +106,5 @@
 (global-set-key (kbd "M-k") 'windmove-up)
 (global-set-key (kbd "M-l") 'windmove-right)
 (global-set-key (kbd "M-m") 'downcase-word)
+
+(global-set-key (kbd "<f2>") 'neotree-toggle)
