@@ -7,7 +7,6 @@
 (use-package company-lsp               :ensure t)
 (use-package smex                      :ensure t)
 (use-package yasnippet-snippets        :ensure t)
-(use-package groovy-mode               :ensure t)
 
 
 
@@ -36,7 +35,8 @@
   (progn
     (ivy-mode 1)
     ; 将最近的文件和书签加入到 ivy-switch-buffer
-    (setq ivy-use-virtual-buffers t)))
+    (setq ivy-use-virtual-buffers t)
+    (setq ivy-use-selectable-prompt t)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode

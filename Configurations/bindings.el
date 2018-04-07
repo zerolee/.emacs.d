@@ -1,6 +1,7 @@
 ;; Keeping Points in Buffers for Current Session
 (global-set-key (kbd "s-.") 'lzl-push-mark-to-ring)
 (global-set-key (kbd "s-,") 'lzl-get-mark-from-ring)
+(global-set-key (kbd "s-?") 'lzl-show-all-mark-in-ring)
 
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%
@@ -79,7 +80,8 @@
 ;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
 (global-set-key (kbd "C-M-s") 'swiper)
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-(define-key ivy-minibuffer-map (kbd "C-l") 'counsel-up-directory)
+(with-eval-after-load 'counsel
+  (define-key counsel-find-file-map (kbd "C-l") 'counsel-up-directory))
 
 (global-set-key (kbd "C-c a") 'org-agenda)
 
@@ -116,3 +118,5 @@
 (global-set-key (kbd "M-k") 'windmove-up)
 (global-set-key (kbd "M-l") 'windmove-right)
 (global-set-key (kbd "M-m") 'downcase-word)
+
+(global-set-key (kbd "<f2>") 'neotree-toggle)

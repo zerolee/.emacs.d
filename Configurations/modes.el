@@ -27,7 +27,7 @@
 ;; xref-find-definitions ( M-. )
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
-(setq cquery-executable "/home/zmqc/backups/src/cquery/cquery/build/release/bin/cquery")
+(setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
 
 (add-hook 'c-mode-common-hook
 	  '(lambda ()

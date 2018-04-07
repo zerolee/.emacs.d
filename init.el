@@ -1,8 +1,7 @@
 ;; (counsel wgrep paredit geiser yasnippet-snippets markdown-mode exwm evil cquery company-quickhelp company-lsp ivy-xref smex)
 (setq load-path
-      (cons "~/.emacs.d/Extensions/emacs-groovy-mode"
-			(cons "~/.emacs.d/Configurations"
-			      (cons "~/.emacs.d/Extensions" load-path))))
+      (cons "~/.emacs.d/Configurations"
+	    (cons "~/.emacs.d/Extensions" load-path)))
 
 (setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
 
