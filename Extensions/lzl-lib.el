@@ -110,6 +110,8 @@
   (interactive)
   (ivy-read "mark ring: " lzl-point-ring
 	    :action '(lambda (x)
-		       (lzl-goto-buffer (cadr x))
-		       (goto-char (marker-position (cddr x))))))
+		       (if (zerop (length lzl-point-ring))
+			   (error "point-ring 为空，请先 mark")
+			 (lzl-goto-buffer (cadr x))
+			 (goto-char (marker-position (cddr x)))))))
 (provide 'lzl-lib)
