@@ -1,4 +1,3 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-f1 (:color teal
 			   :hint nil)
   "
@@ -309,16 +308,10 @@ Info-mode:
   ("f" forward-char)
   ("a" beginning-of-line)
   ("e" end-of-line)
-  ("m" (progn
-	 (call-interactively #'kill-ring-save)
-	 (hydra-esc/body)) :exit t)
   ("M-w" (progn
 	   (call-interactively #'kill-ring-save)
 	   (hydra-esc/body)) :exit t)
   ("w" (progn
-	 (call-interactively #'kill-region)
-	 (hydra-esc/body)) :exit t)
-  ("k" (progn
 	 (call-interactively #'kill-region)
 	 (hydra-esc/body)) :exit t)
   ("c" (progn
@@ -341,19 +334,11 @@ Info-mode:
   ("p" previous-line)
   ("b" backward-char)
   ("f" forward-char)
-  ("a" beginning-of-line)
-  ("e" end-of-line)
-  ("m" (progn
-	 (call-interactively #'copy-region-as-kill)
-	 (hydra-esc/body)) :exit t)
   ("M-w" (progn
 	 (call-interactively #'copy-region-as-kill)
 	 (hydra-esc/body)) :exit t)
   ("w" (progn
 	 (call-interactively #'kill-region)
-	 (hydra-esc/body)) :exit t)
-  ("k" (progn
-	 (call-interactively #'kill-rectangle)
 	 (hydra-esc/body)) :exit t)
   ("c" (progn
 	 (call-interactively #'kill-rectangle)) :exit t)
@@ -452,8 +437,10 @@ Info-mode:
   ("q" kill-buffer)
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
-  ("s" lzl-look-forward-char)
-  ("t" avy-goto-char-in-line)
+  ("s" isearch-forward-regexp :exit t)
+  ("t" (progn
+	 (call-interactively #'lzl-look-forward-char)
+	 (backward-char)))
   ("u" undo)
   ("U" winner-undo)
   ("v" scroll-up-command)
@@ -463,14 +450,13 @@ Info-mode:
   ("y" yank)
   ("z" save-buffer)
   ("Z" save-buffers-kill-terminal)
-  ("/" isearch-forward-regexp :exit t)
   ("<C-SPC>" hydra-emacs/spc/body :exit t)
   ("[" paredit-backward)
   ("]" paredit-forward)
   (";" eval-last-sexp)
   ("." lzl-push-mark-to-ring)
   ("," lzl-get-mark-from-ring)
-  ("?" lzl-show-all-mark-in-ring)
+  ("/" lzl-show-all-mark-in-ring)
   ("M-x" counsel-M-x :exit t)
   ("<escape>" nil))
 
