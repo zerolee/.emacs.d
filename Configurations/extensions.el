@@ -2,11 +2,14 @@
 (autoload 'lzl-push-mark-to-ring "lzl-lib")
 
 (use-package cquery                    :ensure t)
+(use-package lsp-java                  :ensure t)
 (use-package wgrep                     :ensure t)
 (use-package markdown-mode             :ensure t)
 (use-package company-lsp               :ensure t)
 (use-package smex                      :ensure t)
 (use-package yasnippet-snippets        :ensure t)
+(use-package hydra                     :ensure t)
+(use-package avy                       :ensure t)
 
 
 
@@ -58,17 +61,3 @@
 (use-package paredit
   :ensure t
   :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode))
-
-
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hydra
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package hydra
-  :ensure t)
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; avy
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package avy
-  :ensure t)

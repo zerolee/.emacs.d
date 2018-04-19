@@ -19,6 +19,16 @@
   :init
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; company-lsp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun company-lsp-common-set ()
+  (require 'company-lsp)
+  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
+  (set (make-local-variable 'company-backends)
+       '(company-lsp  company-dabbrev-code
+		      company-dabbrev
+		      company-files)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -29,17 +39,23 @@
 ;; xref-find-apropos     ( C-M-. )
 (setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
 
-(add-hook 'c-mode-common-hook
+(add-hook 'c-mode-hook
 	  '(lambda ()
 	     (lsp-cquery-enable)
-     	     (require 'company-lsp)
-     	     (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
 	     (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
-	     (set (make-local-variable 'company-backends)
-		  '(company-lsp  company-dabbrev-code
-				 company-dabbrev
-				 company-files))))
+	     (company-lsp-common-set)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; lsp-java
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq lsp-java--workspace-folders (list "/home/zmqc/study/java/tmp/"
+					"/home/zmqc/study/java/javaemacs/"))
+(setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
+
+(add-hook 'java-mode-hook
+	  '(lambda ()
+	     (lsp-java-enable)
+	     (company-lsp-common-set)))
 
 (use-package ivy-xref
   :ensure t
@@ -49,7 +65,6 @@
 (use-package lsp-imenu
   :init
   (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
-
 
 
 
