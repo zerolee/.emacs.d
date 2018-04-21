@@ -38,10 +38,10 @@
 	(current-line (progn
 			(beginning-of-line)
 			(1+ (count-lines 1 (point)))))
-	(beg (point))
+	(beg (progn
+	       (beginning-of-line-text)
+	       (point)))
 	context-string)
-    (goto-char current-point)
-    (forward-line 1)
     (end-of-line)
     (setq context-string (buffer-substring beg (point)))
     (goto-char current-point)
