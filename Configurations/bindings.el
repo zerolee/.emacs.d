@@ -107,4 +107,8 @@
 (global-set-key (kbd "M-l") 'windmove-right)
 (global-set-key (kbd "M-m") 'downcase-word)
 
-(global-set-key (kbd "<f2>") 'neotree-toggle)
+(global-set-key (kbd "<f2>") 'treemacs-toggle)
+(define-key treemacs-mode-map (kbd "m")
+  '(lambda () (interactive) (treemacs-RET-action) (other-window -1)))
+
+(global-set-key (kbd "C-=") 'er/expand-region)

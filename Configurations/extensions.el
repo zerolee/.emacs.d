@@ -7,6 +7,8 @@
 (use-package yasnippet-snippets        :ensure t)
 (use-package hydra                     :ensure t)
 (use-package avy                       :ensure t)
+(use-package expand-region             :ensure t)
+(use-package treemacs                  :ensure t)
 
 
 
@@ -18,7 +20,7 @@
 
 
 ;; yasnippet
-(use-package yasnippet
+(use-package yasnippet-snippets
   :after company
   :ensure t
   :config
@@ -29,8 +31,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package ivy
-  :ensure counsel
+(use-package counsel
+  :ensure t
   :config
   (progn
     (ivy-mode 1)

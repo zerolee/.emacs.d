@@ -46,9 +46,11 @@
   :init
   (add-hook 'c-mode-hook
 	    '(lambda ()
+	       (company-lsp-common-set)
 	       (lsp-cquery-enable)
-	       (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
-	       (company-lsp-common-set))))
+	       (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
@@ -62,8 +64,8 @@
   :init
   (add-hook 'java-mode-hook
 	    '(lambda ()
-	       (lsp-java-enable)
-	       (company-lsp-common-set))))
+	       (company-lsp-common-set)
+	       (lsp-java-enable))))
 
 (use-package ivy-xref
   :ensure t
