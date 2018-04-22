@@ -8,6 +8,7 @@
 
 (setq column-number-mode t)
 
+(setq-default cursor-type 'bar)
 
 ;; hippie-expand
 (setq hippie-expand-try-functions-list
