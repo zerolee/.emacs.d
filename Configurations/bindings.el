@@ -19,9 +19,6 @@
 (global-set-key [(meta left)] 'backward-sexp)
 (global-set-key [(meta right)] 'forward-sexp)
 
-;; Moving to a Line Specified by a Number
-(global-set-key [(meta g)] 'goto-line)
-
 
 ;; hippie-expand can expands almost anything. This include Lisp function names,
 ;; filenames from the hard disk, and text from the buffer.
@@ -112,3 +109,17 @@
   '(lambda () (interactive) (treemacs-RET-action) (other-window -1)))
 
 (global-set-key (kbd "C-=") 'er/expand-region)
+
+;;; lsp
+(with-eval-after-load 'lsp-ui
+  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
+  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+  (define-key lsp-ui-mode-map [remap xref-find-apropos] #'lsp-ui-peek-find-workspace-symbol))
+
+(global-set-key (kbd "S-<f2>") #'lsp-rename)
+
+;;; gdb
+(add-hook 'gdb-mode-hook '(lambda ()
+			    (define-key c-mode-base-map "<f5>" #'gud-go)
+			    (define-key c-mode-base-map "<f7>" #'gud-step)
+			    (define-key c-mode-base-map "<f8>" #'gud-next)))

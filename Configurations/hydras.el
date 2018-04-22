@@ -354,7 +354,7 @@ Info-mode:
 (defhydra hydra-esc (:color pink
 			     :hint nil)
   "
-   ------------------Emacs Hydra------------------
+   _<f3>_:gdb  _<f4>_:until  _<f5>_:go  _<f6>_:tool  _<f7>_:step  _<f8>_:next  _<f9>_:cont  _<f10>_:finish
   "
   ("{" shrink-window-horizontally)
   ("}" enlarge-window-horizontally)
@@ -444,6 +444,18 @@ Info-mode:
   ("," lzl-get-mark-from-ring)
   ("/" lzl-show-all-mark-in-ring)
   ("M-x" counsel-M-x :exit t)
+  ("M-h" windmove-left)
+  ("M-j" windmove-down)
+  ("M-k" windmove-up)
+  ("M-l" windmove-right)
+  ("<f3>" gdb-many-windows)
+  ("<f4>" gud-until)
+  ("<f5>" gud-go)
+  ("<f6>" tool-bar-mode)
+  ("<f7>" gud-step)
+  ("<f8>" gud-next)
+  ("<f9>" gud-cont)
+  ("<f10>" gud-finish)
   ("<escape>" nil))
 
 (defun lzl-move-n ()

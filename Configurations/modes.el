@@ -21,7 +21,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun company-lsp-common-set ()
+(defun lsp-common-set ()
   (use-package company-lsp
     :ensure t
     :config
@@ -30,7 +30,17 @@
     (set (make-local-variable 'company-backends)
 	 '(company-lsp  company-dabbrev-code
 			company-dabbrev
-			company-files))))
+			company-files)))
+  (use-package lsp-ui
+    :ensure t
+    :config
+    (lsp-ui-mode)
+    (setq lsp-ui-doc-enable nil)
+    (lsp-ui-sideline-toggle-symbols-info))
+  (use-package flycheck
+    :ensure t
+    :config
+    (flycheck-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -46,7 +56,7 @@
   :init
   (add-hook 'c-mode-hook
 	    '(lambda ()
-	       (company-lsp-common-set)
+	       (lsp-common-set)
 	       (lsp-cquery-enable)
 	       (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
 
@@ -64,7 +74,7 @@
   :init
   (add-hook 'java-mode-hook
 	    '(lambda ()
-	       (company-lsp-common-set)
+	       (lsp-common-set)
 	       (lsp-java-enable))))
 
 (use-package ivy-xref
