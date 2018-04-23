@@ -9,8 +9,6 @@
     (setq geiser-active-implementations '(chez))))
 
 
-
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common Lisp slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -19,16 +17,30 @@
   :init
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun company-lsp-common-set ()
-  (require 'company-lsp)
-  (setq company-transformers nil company-lsp-async t company-lsp-cache-candidates nil)
-  (set (make-local-variable 'company-backends)
-       '(company-lsp  company-dabbrev-code
-		      company-dabbrev
-		      company-files)))
+(defun lsp-common-set ()
+  (use-package company-lsp
+    :ensure t
+    :config
+    (setq company-transformers nil company-lsp-async t
+	  company-lsp-cache-candidates nil)
+    (set (make-local-variable 'company-backends)
+	 '(company-lsp  company-dabbrev-code
+			company-dabbrev
+			company-files)))
+  (use-package lsp-ui
+    :ensure t
+    :config
+    (lsp-ui-mode)
+    (setq lsp-ui-doc-enable nil)
+    (lsp-ui-sideline-toggle-symbols-info))
+  (use-package flycheck
+    :ensure t
+    :config
+    (flycheck-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -39,11 +51,16 @@
 ;; xref-find-apropos     ( C-M-. )
 (setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
 
-(add-hook 'c-mode-hook
-	  '(lambda ()
-	     (lsp-cquery-enable)
-	     (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
-	     (company-lsp-common-set)))
+(use-package cquery
+  :ensure t
+  :init
+  (add-hook 'c-mode-hook
+	    '(lambda ()
+	       (lsp-common-set)
+	       (lsp-cquery-enable)
+	       (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
+
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
@@ -52,10 +69,13 @@
 					"/home/zmqc/study/java/javaemacs/"))
 (setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
 
-(add-hook 'java-mode-hook
-	  '(lambda ()
-	     (lsp-java-enable)
-	     (company-lsp-common-set)))
+(use-package lsp-java
+  :ensure t
+  :init
+  (add-hook 'java-mode-hook
+	    '(lambda ()
+	       (lsp-common-set)
+	       (lsp-java-enable))))
 
 (use-package ivy-xref
   :ensure t
@@ -67,10 +87,8 @@
   (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package antlr-mode
   :mode ("\\.g4\\'" . antlr-v4-mode))
-

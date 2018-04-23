@@ -1,7 +1,8 @@
+(require 'lzl-lib)
 (defhydra hydra-f1 (:color teal
 			   :hint nil)
   "
-   _l_: locate  _p_: ivy-push-view    _o_: org         _n_: neotree
+   _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
    _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
    _z_: fzf     _r_: ivy-resume       _d_: dired
    _g_: git     _i_: imenu            _F_: recentf
@@ -19,30 +20,11 @@
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" hydra-yasnippet/body)
-  ("n" hydra-neotree/body)
+  ("t" treemacs)
   ("r" ivy-resume)
   ("d" lzl-dired)
   ("<escape>" hydra-esc/body)
-  ("<f1>" nil)
-  ("<f2>" nil))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-neotree (:color teal
-				:hint nil)
-  "
-                         neotree
-  -------------------------------------------------------------
-  _t_oggle(开关 neotree)   _h_ide(隐藏 neotree)
-  _d_ir(指定一个目录)       _f_ind(当前 buffer)
-  _s_how(当前目录)
-  "
-  ("t" neotree-toggle)
-  ("d" neotree-dir)
-  ("s" neotree-show)
-  ("h" neotree-hide)
-  ("f" neotree-find)
-  ("<escape>" hydra-esc/body))
+  ("<f1>" nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-yasnippet (:color teal
@@ -188,6 +170,7 @@ Info-mode:
 (defun lzl-look-forward-char (arg char)
   "查找字符"
   (interactive "*p\ncZap: ")
+  (setq search-forward-char char)
   (search-forward
    (char-to-string char) nil nil arg))
 
@@ -371,7 +354,7 @@ Info-mode:
 (defhydra hydra-esc (:color pink
 			     :hint nil)
   "
-   ------------------Emacs Hydra------------------
+   _<f3>_:gdb  _<f4>_:until  _<f5>_:go  _<f6>_:tool  _<f7>_:step  _<f8>_:next  _<f9>_:cont  _<f10>_:finish
   "
   ("{" shrink-window-horizontally)
   ("}" enlarge-window-horizontally)
@@ -380,6 +363,7 @@ Info-mode:
   (")" paredit-forward-slurp-sexp)
   ("<" paredit-backward-barf-sexp)
   (">" paredit-forward-barf-sexp)
+  ("=" er/expand-region)
   ("M-s" paredit-split-sexp)
   ("J" paredit-join-sexps)
   ("<up>" paredit-splice-sexp)
@@ -400,13 +384,17 @@ Info-mode:
   ("C-f" forward-char :exit t)
   ("g" avy-goto-line)
   ("G" goto-line)
-  ("h" delete-indentation)
+  ("h" paredit-backward-up)
+  ("H" delete-indentation)
   ("i" nil)
-  ("I" nil :exit t)
-  ("j" avy-goto-char)
+  ("I" beginning-of-line-text)
+  ("j" (progn
+	 (forward-word 2)
+	 (backward-word)))
   ("C-j" newline-and-indent :exit t)
   ("k" (emacs-ckm "k") :exit t)
-  ("l" recenter-top-bottom)
+  ("l" paredit-forward-up)
+  ("L" recenter-top-bottom)
   ("m" (emacs-ckm "m") :exit t)
   ("n" next-line)
   ("N" (progn
@@ -439,7 +427,9 @@ Info-mode:
   ("R" hydra-emacs/R/body :exit t)
   ("s" isearch-forward-regexp :exit t)
   ("t" (progn
-	 (call-interactively #'lzl-look-forward-char)
+	 (if (equal 'hydra-esc/lambda-t last-command)
+	     (lzl-look-forward-char 2 search-forward-char)
+	   (call-interactively #'lzl-look-forward-char))
 	 (backward-char)))
   ("u" undo)
   ("U" winner-undo)
@@ -458,6 +448,18 @@ Info-mode:
   ("," lzl-get-mark-from-ring)
   ("/" lzl-show-all-mark-in-ring)
   ("M-x" counsel-M-x :exit t)
+  ("M-h" windmove-left)
+  ("M-j" windmove-down)
+  ("M-k" windmove-up)
+  ("M-l" windmove-right)
+  ("<f3>" gdb-many-windows)
+  ("<f4>" gud-until)
+  ("<f5>" gud-go)
+  ("<f6>" tool-bar-mode)
+  ("<f7>" gud-step)
+  ("<f8>" gud-next)
+  ("<f9>" gud-cont)
+  ("<f10>" gud-finish)
   ("<escape>" nil))
 
 (defun lzl-move-n ()

@@ -1,6 +1,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; 一个的保存 point 的实现
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(require 'ivy)
 (defvar lzl-point-ring nil
   "这是用来保存 mark 的，理论上无限制")
 
@@ -38,10 +39,10 @@
 	(current-line (progn
 			(beginning-of-line)
 			(1+ (count-lines 1 (point)))))
-	(beg (point))
+	(beg (progn
+	       (beginning-of-line-text)
+	       (point)))
 	context-string)
-    (goto-char current-point)
-    (forward-line 1)
     (end-of-line)
     (setq context-string (buffer-substring beg (point)))
     (goto-char current-point)
