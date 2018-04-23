@@ -50,6 +50,8 @@
 
 (delete-selection-mode t)
 
+(electric-pair-mode 1)
+
 ;;; org
 (setq org-agenda-files
       '("~/note/plan"  "~/note/emacs"))
