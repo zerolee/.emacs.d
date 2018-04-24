@@ -4,7 +4,7 @@
   "
    _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
    _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
-   _z_: fzf     _r_: ivy-resume       _d_: dired
+   _z_: fzf     _r_: ivy-resume       _c_: flycheck
    _g_: git     _i_: imenu            _F_: recentf
   "
   ("b" ivy-switch-buffer)
@@ -22,6 +22,7 @@
   ("y" hydra-yasnippet/body)
   ("t" treemacs)
   ("r" ivy-resume)
+  ("c" flycheck-list-errors)
   ("d" lzl-dired)
   ("<escape>" hydra-esc/body)
   ("<f1>" nil))

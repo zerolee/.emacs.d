@@ -34,9 +34,9 @@
   (use-package lsp-ui
     :ensure t
     :config
-    (lsp-ui-mode)
     (setq lsp-ui-doc-enable nil)
-    (lsp-ui-sideline-toggle-symbols-info))
+    (setq lsp-ui-sideline-enable nil)
+    (lsp-ui-mode))
   (use-package flycheck
     :ensure t
     :config

@@ -9,6 +9,7 @@
 (use-package avy                       :ensure t)
 (use-package expand-region             :ensure t)
 (use-package treemacs                  :ensure t)
+(use-package iedit                     :ensure t)
 
 
 

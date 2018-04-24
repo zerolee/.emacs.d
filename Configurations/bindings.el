@@ -123,3 +123,6 @@
 			    (define-key c-mode-base-map (kbd "<f5>") #'gud-go)
 			    (define-key c-mode-base-map (kbd "<f7>") #'gud-step)
 			    (define-key c-mode-base-map (kbd "<f8>") #'gud-next)))
+
+;;; iedit
+(global-set-key (kbd "M-i") #'iedit-mode)

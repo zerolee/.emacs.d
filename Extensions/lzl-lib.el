@@ -40,13 +40,17 @@
 			(beginning-of-line)
 			(1+ (count-lines 1 (point)))))
 	(beg (progn
-	       (beginning-of-line-text)
+	       (beginning-of-line)
 	       (point)))
 	context-string)
     (end-of-line)
     (setq context-string (buffer-substring beg (point)))
     (goto-char current-point)
-    (concat (buffer-name) " : " (number-to-string current-line) " : " context-string)))
+    (concat (buffer-name)
+	    ":"
+	    (let ((str (number-to-string current-line)))
+	      (put-text-property 0 (length str) 'face 'font-lock-keyword-face str) str)
+	    ": " context-string)))
 
 (defun lzl-point-info ()
   (cons (lzl-context-mark)
