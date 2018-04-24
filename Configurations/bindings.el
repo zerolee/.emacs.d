@@ -84,8 +84,11 @@
 
 ;;; hydra
 (global-set-key (kbd "<escape>") 'hydra-esc/body)
+(global-set-key (kbd "<f3>") 'hydra-esc/body)
 (define-key Info-mode-map (kbd "?") #'hydra-info/body)
-
+(define-key text-mode-map (kbd "C-n") #'lzl-move-n)
+(define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
+(global-set-key (kbd "<f1>") #'hydra-f1/body)
 
 
 ;;; 键盘宏
@@ -106,7 +109,10 @@
 
 (global-set-key (kbd "<f2>") 'treemacs-toggle)
 (define-key treemacs-mode-map (kbd "m")
-  '(lambda () (interactive) (treemacs-RET-action) (other-window -1)))
+  '(lambda () (interactive)
+     (let ((bname (buffer-name)))
+       (treemacs-RET-action)
+       (or (string-equal bname (buffer-name)) (other-window -1)))))
 
 (global-set-key (kbd "C-=") 'er/expand-region)
 

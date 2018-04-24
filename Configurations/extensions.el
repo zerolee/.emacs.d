@@ -4,7 +4,6 @@
 (use-package wgrep                     :ensure t)
 (use-package markdown-mode             :ensure t)
 (use-package smex                      :ensure t)
-(use-package yasnippet-snippets        :ensure t)
 (use-package hydra                     :ensure t)
 (use-package avy                       :ensure t)
 (use-package expand-region             :ensure t)
@@ -15,6 +14,7 @@
 
 ;; 使用主题
 (use-package solarized-theme
+  :if window-system
   :ensure t
   :config
   (load-theme 'solarized-light t))
@@ -22,7 +22,7 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :after company
+  :if window-system
   :ensure t
   :config
   (progn

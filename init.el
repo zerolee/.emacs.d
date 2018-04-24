@@ -8,12 +8,11 @@
 ;; This file is for standard Emacs option.
 (load "emacs-std")
 
-
 ;; This can contain extensions you have use
 (load "extensions")
 
 ;; This can contain configuration for the different major modes
-(load "modes")
+(if window-system  (load "modes"))
 
 ;; This file can contain all the macros you have developed
 (load "my-macros")

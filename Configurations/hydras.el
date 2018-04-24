@@ -474,7 +474,5 @@ Info-mode:
   (interactive)
   (next-line)
   (hydra-esc/body))
-
-(define-key text-mode-map (kbd "C-n") #'lzl-move-n)
-(define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
-(global-set-key (kbd "<f1>") #'hydra-f1/body)
+(unless window-system
+    (hydra-esc/body))
