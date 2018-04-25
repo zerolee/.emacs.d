@@ -3,8 +3,8 @@
 			   :hint nil)
   "
    _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
-   _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
-   _z_: fzf     _r_: ivy-resume       _c_: flycheck
+   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet   _h_: hs
+   _z_: fzf     _r_: rg               _c_: flycheck
    _g_: git     _i_: imenu            _F_: recentf
   "
   ("b" ivy-switch-buffer)
@@ -19,29 +19,18 @@
   ("o" hydra-org/body)
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
-  ("y" hydra-yasnippet/body)
+  ("y" company-yasnippet)
   ("t" treemacs)
-  ("r" ivy-resume)
+  ("H" (hs-minor-mode -1))
+  ("h" (progn
+	 (hs-minor-mode)
+	 (hs-toggle-hiding)
+	 (hydra-esc/body)))
+  ("r" counsel-rg)
   ("c" flycheck-list-errors)
   ("d" lzl-dired)
   ("<escape>" hydra-esc/body)
   ("<f1>" nil))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-yasnippet (:color teal
-				  :hint nil)
-  "
-                      yasnippet
-   -------------------------------------------------------------
-   _y_: company-yasnippet  
-   _i_: yas-insert-snippet _n_: yas-new-snippet _e_: yas-expand
-  "
-  ("y" company-yasnippet)
-  ("i" yas-insert-snippet)
-  ("n" yas-new-snippet)
-  ("e" yas-expand)
-  ("c" nil "cancel")
-  ("q" kill-buffer "quit"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

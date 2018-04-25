@@ -75,7 +75,7 @@
 
 
 ;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
-(global-set-key (kbd "C-M-s") 'swiper)
+(global-set-key (kbd "C-M-s") 'counsel-grep-or-swiper)
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 (with-eval-after-load 'counsel
   (define-key counsel-find-file-map (kbd "C-l") 'counsel-up-directory))

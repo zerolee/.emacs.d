@@ -37,9 +37,11 @@
   :config
   (progn
     (ivy-mode 1)
-    ; 将最近的文件和书签加入到 ivy-switch-buffer
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-use-selectable-prompt t)))
+          ; 将最近的文件和书签加入到 ivy-switch-buffer
+    (setq ivy-use-virtual-buffers t
+	  ivy-use-selectable-prompt t
+	  counsel-grep-base-command
+	  "rg -i -M 120 --no-heading --line-number --color never '%s' %s")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode
