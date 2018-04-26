@@ -4,16 +4,17 @@
 (use-package wgrep                     :ensure t)
 (use-package markdown-mode             :ensure t)
 (use-package smex                      :ensure t)
-(use-package yasnippet-snippets        :ensure t)
 (use-package hydra                     :ensure t)
 (use-package avy                       :ensure t)
 (use-package expand-region             :ensure t)
 (use-package treemacs                  :ensure t)
+(use-package iedit                     :ensure t)
 
 
 
 ;; 使用主题
 (use-package solarized-theme
+  :if window-system
   :ensure t
   :config
   (load-theme 'solarized-light t))
@@ -21,7 +22,7 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :after company
+  :if window-system
   :ensure t
   :config
   (progn
@@ -36,9 +37,10 @@
   :config
   (progn
     (ivy-mode 1)
-    ; 将最近的文件和书签加入到 ivy-switch-buffer
-    (setq ivy-use-virtual-buffers t)
-    (setq ivy-use-selectable-prompt t)))
+    (setq ivy-use-virtual-buffers t    ; 将最近的文件和书签加入到 ivy-switch-buffer
+	  ivy-use-selectable-prompt t
+	  counsel-grep-base-command
+	  "rg -i -M 120 --no-heading --line-number --color never '%s' %s")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode
@@ -60,3 +62,10 @@
 (use-package paredit
   :ensure t
   :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode))
+
+(use-package key-chord
+  :ensure t
+  :config
+  (progn
+    (key-chord-mode 1)
+    (key-chord-define-global "df" 'hydra-esc/body)))

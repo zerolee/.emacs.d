@@ -14,23 +14,12 @@
 ;; just-one-space
 (global-set-key (kbd "<M-backspace>") 'just-one-space)
 
-;; There are two functions for going to the matching starting or
-;; ending brace called forwarf-sexp and backward-sexp
-(global-set-key [(meta left)] 'backward-sexp)
-(global-set-key [(meta right)] 'forward-sexp)
-
-
 ;; hippie-expand can expands almost anything. This include Lisp function names,
 ;; filenames from the hard disk, and text from the buffer.
 (global-set-key (kbd "s-SPC") 'hippie-expand)
 
 ;; Compile
 (global-set-key (kbd "<C-f9>") 'compile)
-
-;; C-return
-;; I use it to instead C-o
-(global-set-key (kbd "<C-return>") 'open-line)
-
 
 ;; input-method
 ;; 取消掉默认的输入法快捷键
@@ -75,7 +64,7 @@
 
 
 ;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
-(global-set-key (kbd "C-M-s") 'swiper)
+(global-set-key (kbd "C-M-s") 'counsel-grep-or-swiper)
 (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
 (with-eval-after-load 'counsel
   (define-key counsel-find-file-map (kbd "C-l") 'counsel-up-directory))
@@ -85,13 +74,8 @@
 ;;; hydra
 (global-set-key (kbd "<escape>") 'hydra-esc/body)
 (define-key Info-mode-map (kbd "?") #'hydra-info/body)
-
-
-
-;;; 键盘宏
-(global-set-key (kbd "C-o")   'lzl-cool-newline)
-(global-set-key (kbd "C-x d") 'lzl-dired)
-
+(global-set-key (kbd "<f1>") #'hydra-f1/body)
+(global-set-key (kbd "M-<SPC>") #'hydra-f1/body)
 
 
 
@@ -110,15 +94,13 @@
 (global-set-key (kbd "M-1") 'delete-other-windows)
 (global-set-key (kbd "M-2") 'split-window-below)
 (global-set-key (kbd "M-3") 'split-window-right)
-(global-set-key (kbd "M-h") 'windmove-left)
-(global-set-key (kbd "M-j") 'windmove-down)
-(global-set-key (kbd "M-k") 'windmove-up)
-(global-set-key (kbd "M-l") 'windmove-right)
-(global-set-key (kbd "M-m") 'downcase-word)
 
 (global-set-key (kbd "<f2>") 'treemacs-toggle)
 (define-key treemacs-mode-map (kbd "m")
-  '(lambda () (interactive) (treemacs-RET-action) (other-window -1)))
+  '(lambda () (interactive)
+     (let ((bname (buffer-name)))
+       (treemacs-RET-action)
+       (or (string-equal bname (buffer-name)) (other-window -1)))))
 
 (global-set-key (kbd "C-=") 'er/expand-region)
 
@@ -135,3 +117,6 @@
 			    (define-key c-mode-base-map (kbd "<f5>") #'gud-go)
 			    (define-key c-mode-base-map (kbd "<f7>") #'gud-step)
 			    (define-key c-mode-base-map (kbd "<f8>") #'gud-next)))
+
+;;; iedit
+(global-set-key (kbd "M-i") #'iedit-mode)

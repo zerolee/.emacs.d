@@ -40,13 +40,17 @@
 			(beginning-of-line)
 			(1+ (count-lines 1 (point)))))
 	(beg (progn
-	       (beginning-of-line-text)
+	       (beginning-of-line)
 	       (point)))
 	context-string)
     (end-of-line)
     (setq context-string (buffer-substring beg (point)))
     (goto-char current-point)
-    (concat (buffer-name) " : " (number-to-string current-line) " : " context-string)))
+    (concat (buffer-name)
+	    ":"
+	    (let ((str (number-to-string current-line)))
+	      (put-text-property 0 (length str) 'face 'font-lock-keyword-face str) str)
+	    ": " context-string)))
 
 (defun lzl-point-info ()
   (cons (lzl-context-mark)
@@ -66,7 +70,6 @@
   (let ((length (length lzl-point-ring)))
     (if (zerop length)
 	(error "Mark point ring is empty")
-
       (setq lzl-ring-mark-pointer
 	    (nthcdr (% (index-compute arg length)
 		       length)
@@ -81,11 +84,10 @@
     (if (= (length pointer) (length lzl-point-ring))
 	(progn
 	  (setq lzl-point-ring (cons (lzl-point-info) lzl-point-ring))
-	  (rotate-mark-ring-pointer 0)
+	  (setq lzl-ring-mark-pointer lzl-point-ring)
 	  (message "添加当前位置的 point"))
       (progn
 	(setq lzl-point-ring pointer)
-	(rotate-mark-ring-pointer 1)
 	(message "移除当前所在位置的 markpoint")))))
 
 (defun lzl-get-mark-from-ring (&optional arg)
@@ -95,7 +97,10 @@
       (error "point-ring 为空，请先 mark")
     (progn
       (if (eq arg '-)
-	  (rotate-mark-ring-pointer -2))
+	  (rotate-mark-ring-pointer -2)
+	(if (struct-point-equal (car lzl-ring-mark-pointer)
+				(lzl-point-info))
+	    (rotate-mark-ring-pointer 1)))
       (if (get-buffer (cadar lzl-ring-mark-pointer))
 	  (progn
 	    (lzl-goto-buffer (cadar lzl-ring-mark-pointer))

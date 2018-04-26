@@ -3,8 +3,8 @@
 			   :hint nil)
   "
    _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
-   _a_: ag      _P_: ivy-pop-view     _y_: yasnippetb
-   _z_: fzf     _r_: ivy-resume       _d_: dired
+   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet   _h_: hs
+   _z_: fzf     _r_: rg               _c_: flycheck
    _g_: git     _i_: imenu            _F_: recentf
   "
   ("b" ivy-switch-buffer)
@@ -19,28 +19,19 @@
   ("o" hydra-org/body)
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
-  ("y" hydra-yasnippet/body)
-  ("t" treemacs)
-  ("r" ivy-resume)
-  ("d" lzl-dired)
-  ("<escape>" hydra-esc/body)
-  ("<f1>" nil))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-yasnippet (:color teal
-				  :hint nil)
-  "
-                      yasnippet
-   -------------------------------------------------------------
-   _y_: company-yasnippet  
-   _i_: yas-insert-snippet _n_: yas-new-snippet _e_: yas-expand
-  "
   ("y" company-yasnippet)
-  ("i" yas-insert-snippet)
-  ("n" yas-new-snippet)
-  ("e" yas-expand)
-  ("c" nil "cancel")
-  ("q" kill-buffer "quit"))
+  ("t" treemacs)
+  ("H" (hs-minor-mode -1))
+  ("h" (progn
+	 (hs-minor-mode)
+	 (hs-toggle-hiding)
+	 (hydra-esc/body)))
+  ("r" counsel-rg)
+  ("c" flycheck-list-errors)
+  ("d" dired-jump)
+  ("<escape>" hydra-esc/body)
+  ("<f1>" nil)
+  ("M-<SPC>" nil))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -96,8 +87,8 @@
 ;; Info
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-info (:color red
-                      :hint nil)
-      "
+			     :hint nil)
+  "
 Info-mode:
 
   ^^_]_ forward  (next logical node)       ^^_l_ast (←)        _u_p (↑)                             _f_ollow reference       _T_OC
@@ -109,52 +100,52 @@ Info-mode:
   _1_ .. _9_ Pick first .. ninth item in the node's menu.
 
 "
-      ("]"   Info-forward-node)
-      ("["   Info-backward-node)
-      ("n"   Info-next)
-      ("p"   Info-prev)
-      ("s"   Info-search)
-      ("S"   Info-search-case-sensitively)
+  ("]"   Info-forward-node)
+  ("["   Info-backward-node)
+  ("n"   Info-next)
+  ("p"   Info-prev)
+  ("s"   Info-search)
+  ("S"   Info-search-case-sensitively)
 
-      ("l"   Info-history-back)
-      ("r"   Info-history-forward)
-      ("H"   Info-history)
-      ("t"   Info-top-node)
-      ("<"   Info-top-node)
-      (">"   Info-final-node)
+  ("l"   Info-history-back)
+  ("r"   Info-history-forward)
+  ("H"   Info-history)
+  ("t"   Info-top-node)
+  ("<"   Info-top-node)
+  (">"   Info-final-node)
 
-      ("u"   Info-up)
-      ("^"   Info-up)
-      ("m"   Info-menu)
-      ("g"   Info-goto-node)
-      ("b"   beginning-of-buffer)
-      ("e"   end-of-buffer)
+  ("u"   Info-up)
+  ("^"   Info-up)
+  ("m"   Info-menu)
+  ("g"   Info-goto-node)
+  ("b"   beginning-of-buffer)
+  ("e"   end-of-buffer)
 
-      ("f"   Info-follow-reference)
-      ("i"   Info-index)
-      (","   Info-index-next)
-      ("I"   Info-virtual-index)
+  ("f"   Info-follow-reference)
+  ("i"   Info-index)
+  (","   Info-index-next)
+  ("I"   Info-virtual-index)
 
-      ("T"   Info-toc)
-      ("d"   Info-directory)
-      ("c"   Info-copy-current-node-name)
-      ("C"   clone-buffer)
-      ("a"   info-apropos)
+  ("T"   Info-toc)
+  ("d"   Info-directory)
+  ("c"   Info-copy-current-node-name)
+  ("C"   clone-buffer)
+  ("a"   info-apropos)
 
-      ("1"   Info-nth-menu-item)
-      ("2"   Info-nth-menu-item)
-      ("3"   Info-nth-menu-item)
-      ("4"   Info-nth-menu-item)
-      ("5"   Info-nth-menu-item)
-      ("6"   Info-nth-menu-item)
-      ("7"   Info-nth-menu-item)
-      ("8"   Info-nth-menu-item)
-      ("9"   Info-nth-menu-item)
+  ("1"   Info-nth-menu-item)
+  ("2"   Info-nth-menu-item)
+  ("3"   Info-nth-menu-item)
+  ("4"   Info-nth-menu-item)
+  ("5"   Info-nth-menu-item)
+  ("6"   Info-nth-menu-item)
+  ("7"   Info-nth-menu-item)
+  ("8"   Info-nth-menu-item)
+  ("9"   Info-nth-menu-item)
 
-      ("?"   Info-summary "Info summary")
-      ("h"   Info-help "Info help")
-      ("q"   Info-exit "Info exit")
-      ("C-g" nil "cancel" :color blue))
+  ("?"   Info-summary "Info summary")
+  ("h"   Info-help "Info help")
+  ("q"   Info-exit "Info exit")
+  ("C-g" nil "cancel" :color blue))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra-esc
@@ -218,7 +209,7 @@ Info-mode:
   (hydra-emacs/ckm/body))
 
 (defhydra hydra-emacs/ckm (:color blue
-				:hint nil)
+				  :hint nil)
   ("<" (let ((current-prefix-arg (point-min)))
 	 (lzl-emacs-get #'goto-char "<")))
   (">" (let ((current-prefix-arg (point-max)))
@@ -304,11 +295,11 @@ Info-mode:
 	 (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/V (:body-pre (progn
-				   (rectangle-mark-mode)
-				   (setq-default cursor-type 'bar))
-				 :post (setq-default cursor-type t)
-				 :color pink
-				 :hint nil)
+				     (rectangle-mark-mode)
+				     (setq-default cursor-type 'bar))
+				   :post (setq-default cursor-type t)
+				   :color pink
+				   :hint nil)
 
   "
    ---rectangle---
@@ -318,8 +309,8 @@ Info-mode:
   ("b" backward-char)
   ("f" forward-char)
   ("M-w" (progn
-	 (call-interactively #'copy-region-as-kill)
-	 (hydra-esc/body)) :exit t)
+	   (call-interactively #'copy-region-as-kill)
+	   (hydra-esc/body)) :exit t)
   ("w" (progn
 	 (call-interactively #'kill-region)
 	 (hydra-esc/body)) :exit t)
@@ -330,8 +321,8 @@ Info-mode:
 	 (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/R (:body-pre (overwrite-mode)
-		       :color pink
-			      :hint nil)
+				   :color pink
+				   :hint nil)
   "
    --REPLACE--
   "
@@ -350,11 +341,12 @@ Info-mode:
 		  (overwrite-mode -1)
 		  (hydra-esc/body)) :exit t))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-esc (:color pink
-			     :hint nil)
+			    :hint nil)
   "
-   _<f3>_:gdb  _<f4>_:until  _<f5>_:go  _<f6>_:tool  _<f7>_:step  _<f8>_:next  _<f9>_:cont  _<f10>_:finish
+   _<f3>_:gdb  _<f4>_:until  _<f5>_:go  _<f6>_:stop  _<f7>_:step  _<f8>_:next  _<f9>_:cont  _<f10>_:finish
   "
   ("{" shrink-window-horizontally)
   ("}" enlarge-window-horizontally)
@@ -381,10 +373,11 @@ Info-mode:
   ("e" move-end-of-line)
   ("C-e" move-end-of-line :exit t)
   ("f" forward-char)
+  ("F" lsp-format-buffer)
   ("C-f" forward-char :exit t)
   ("g" avy-goto-line)
   ("G" goto-line)
-  ("h" paredit-backward-up)
+  ("h" paredit-backward)
   ("H" delete-indentation)
   ("i" nil)
   ("I" beginning-of-line-text)
@@ -393,30 +386,35 @@ Info-mode:
 	 (backward-word)))
   ("C-j" newline-and-indent :exit t)
   ("k" (emacs-ckm "k") :exit t)
-  ("l" paredit-forward-up)
+  ("l" paredit-forward)
   ("L" recenter-top-bottom)
   ("m" (emacs-ckm "m") :exit t)
+  ("M" (save-excursion
+	 (call-interactively #'mark-whole-buffer)
+	 (call-interactively #'indent-for-tab-command)))
   ("n" next-line)
+  ("C-n" next-line :exit t)
   ("N" (progn
 	 (save-excursion
 	   (end-of-line)
 	   (open-line 1))))
   ("M-n" (progn
 	   (end-of-line)
-	   (newline)
+	   (newline-and-indent)
 	   (yank)))
   ("o" (progn
 	 (end-of-line)
 	 (newline-and-indent)) :exit t)
   ("O" (progn
 	 (beginning-of-line)
-	 (newline)
-	 (forward-line -1)) :exit t)
+	 (open-line 1)
+	 (call-interactively #'indent-for-tab-command)) :exit t)
   ("p" previous-line)
   ("C-p" previous-line :exit t)
   ("M-p" (progn
 	   (beginning-of-line)
 	   (open-line 1)
+	   (call-interactively #'indent-for-tab-command)
 	   (yank)))
   ("P" (progn
 	 (save-excursion
@@ -436,13 +434,13 @@ Info-mode:
   ("v" scroll-up-command)
   ("V" hydra-emacs/V/body :exit t)
   ("w" avy-goto-word-1)
-  ("x" lzl-look-forward-char :exit t)
+  ("x" (insert-char ?x) :exit t)
   ("y" yank)
   ("z" save-buffer)
   ("Z" save-buffers-kill-terminal)
   ("<C-SPC>" hydra-emacs/spc/body :exit t)
-  ("[" paredit-backward)
-  ("]" paredit-forward)
+  ("[" paredit-backward-up)
+  ("]" paredit-forward-up)
   (";" eval-last-sexp)
   ("." lzl-push-mark-to-ring)
   ("," lzl-get-mark-from-ring)
@@ -452,21 +450,18 @@ Info-mode:
   ("M-j" windmove-down)
   ("M-k" windmove-up)
   ("M-l" windmove-right)
-  ("<f3>" gdb-many-windows)
+  ("M-<SPC>" hydra-f1/body :exit t)
+  ("<f3>" (progn
+	    (call-interactively #'gdb-many-windows)
+	    (call-interactively #'tool-bar-mode)))
   ("<f4>" gud-until)
   ("<f5>" gud-go)
-  ("<f6>" tool-bar-mode)
+  ("<f6>" gud-stop-subjob)
   ("<f7>" gud-step)
   ("<f8>" gud-next)
   ("<f9>" gud-cont)
   ("<f10>" gud-finish)
   ("<escape>" nil))
 
-(defun lzl-move-n ()
-	(interactive)
-	(next-line)
-	(hydra-esc/body))
-
-(define-key text-mode-map (kbd "C-n") #'lzl-move-n)
-(define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
-(global-set-key (kbd "<f1>") #'hydra-f1/body)
+(unless window-system
+  (hydra-esc/body))
