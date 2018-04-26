@@ -70,7 +70,6 @@
   (let ((length (length lzl-point-ring)))
     (if (zerop length)
 	(error "Mark point ring is empty")
-
       (setq lzl-ring-mark-pointer
 	    (nthcdr (% (index-compute arg length)
 		       length)
@@ -85,7 +84,7 @@
     (if (= (length pointer) (length lzl-point-ring))
 	(progn
 	  (setq lzl-point-ring (cons (lzl-point-info) lzl-point-ring))
-	  (rotate-mark-ring-pointer 0)
+	  (setq lzl-ring-mark-pointer lzl-point-ring)
 	  (message "添加当前位置的 point"))
       (progn
 	(setq lzl-point-ring pointer)
@@ -99,7 +98,10 @@
       (error "point-ring 为空，请先 mark")
     (progn
       (if (eq arg '-)
-	  (rotate-mark-ring-pointer -2))
+	  (rotate-mark-ring-pointer -2)
+	(if (struct-point-equal (car lzl-ring-mark-pointer)
+				(lzl-point-info))
+	    (rotate-mark-ring-pointer 1)))
       (if (get-buffer (cadar lzl-ring-mark-pointer))
 	  (progn
 	    (lzl-goto-buffer (cadar lzl-ring-mark-pointer))
