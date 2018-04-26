@@ -63,3 +63,11 @@
 (use-package paredit
   :ensure t
   :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode))
+
+(use-package key-chord
+  :ensure t
+  :config
+  (progn
+    (key-chord-mode 1)
+    (key-chord-define-global "jk" 'hydra-f1/body)
+    (key-chord-define-global "df" 'hydra-esc/body)))

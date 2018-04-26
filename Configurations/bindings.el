@@ -84,7 +84,6 @@
 
 ;;; hydra
 (global-set-key (kbd "<escape>") 'hydra-esc/body)
-(global-set-key (kbd "<f3>") 'hydra-esc/body)
 (define-key Info-mode-map (kbd "?") #'hydra-info/body)
 (define-key text-mode-map (kbd "C-n") #'lzl-move-n)
 (define-key prog-mode-map (kbd "C-n") #'lzl-move-n)

@@ -30,7 +30,8 @@
   ("c" flycheck-list-errors)
   ("d" lzl-dired)
   ("<escape>" hydra-esc/body)
-  ("<f1>" nil))
+  ("<f1>" nil)
+  ("<SPC>" nil))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
