@@ -37,8 +37,7 @@
   :config
   (progn
     (ivy-mode 1)
-          ; 将最近的文件和书签加入到 ivy-switch-buffer
-    (setq ivy-use-virtual-buffers t
+    (setq ivy-use-virtual-buffers t    ; 将最近的文件和书签加入到 ivy-switch-buffer
 	  ivy-use-selectable-prompt t
 	  counsel-grep-base-command
 	  "rg -i -M 120 --no-heading --line-number --color never '%s' %s")))
@@ -69,5 +68,4 @@
   :config
   (progn
     (key-chord-mode 1)
-    (key-chord-define-global "jk" 'hydra-f1/body)
     (key-chord-define-global "df" 'hydra-esc/body)))

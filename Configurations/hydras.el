@@ -28,10 +28,10 @@
 	 (hydra-esc/body)))
   ("r" counsel-rg)
   ("c" flycheck-list-errors)
-  ("d" lzl-dired)
+  ("d" dired-jump)
   ("<escape>" hydra-esc/body)
   ("<f1>" nil)
-  ("<SPC>" nil))
+  ("M-<SPC>" nil))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -341,6 +341,7 @@ Info-mode:
 		  (overwrite-mode -1)
 		  (hydra-esc/body)) :exit t))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-esc (:color pink
 			    :hint nil)
@@ -392,6 +393,7 @@ Info-mode:
 	 (call-interactively #'mark-whole-buffer)
 	 (call-interactively #'indent-for-tab-command)))
   ("n" next-line)
+  ("C-n" next-line :exit t)
   ("N" (progn
 	 (save-excursion
 	   (end-of-line)
@@ -432,7 +434,7 @@ Info-mode:
   ("v" scroll-up-command)
   ("V" hydra-emacs/V/body :exit t)
   ("w" avy-goto-word-1)
-  ("x" lzl-look-forward-char :exit t)
+  ("x" (insert-char ?x) :exit t)
   ("y" yank)
   ("z" save-buffer)
   ("Z" save-buffers-kill-terminal)
@@ -448,6 +450,7 @@ Info-mode:
   ("M-j" windmove-down)
   ("M-k" windmove-up)
   ("M-l" windmove-right)
+  ("M-<SPC>" hydra-f1/body :exit t)
   ("<f3>" (progn
 	    (call-interactively #'gdb-many-windows)
 	    (call-interactively #'tool-bar-mode)))
@@ -460,9 +463,5 @@ Info-mode:
   ("<f10>" gud-finish)
   ("<escape>" nil))
 
-(defun lzl-move-n ()
-  (interactive)
-  (next-line)
-  (hydra-esc/body))
 (unless window-system
-    (hydra-esc/body))
+  (hydra-esc/body))

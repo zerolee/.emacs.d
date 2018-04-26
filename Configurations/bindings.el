@@ -14,23 +14,12 @@
 ;; just-one-space
 (global-set-key (kbd "<M-backspace>") 'just-one-space)
 
-;; There are two functions for going to the matching starting or
-;; ending brace called forwarf-sexp and backward-sexp
-(global-set-key [(meta left)] 'backward-sexp)
-(global-set-key [(meta right)] 'forward-sexp)
-
-
 ;; hippie-expand can expands almost anything. This include Lisp function names,
 ;; filenames from the hard disk, and text from the buffer.
 (global-set-key (kbd "s-SPC") 'hippie-expand)
 
 ;; Compile
 (global-set-key (kbd "<C-f9>") 'compile)
-
-;; C-return
-;; I use it to instead C-o
-(global-set-key (kbd "<C-return>") 'open-line)
-
 
 ;; input-method
 ;; 取消掉默认的输入法快捷键
@@ -85,26 +74,14 @@
 ;;; hydra
 (global-set-key (kbd "<escape>") 'hydra-esc/body)
 (define-key Info-mode-map (kbd "?") #'hydra-info/body)
-(define-key text-mode-map (kbd "C-n") #'lzl-move-n)
-(define-key prog-mode-map (kbd "C-n") #'lzl-move-n)
 (global-set-key (kbd "<f1>") #'hydra-f1/body)
-
-
-;;; 键盘宏
-(global-set-key (kbd "C-o")   'lzl-cool-newline)
-(global-set-key (kbd "C-x d") 'lzl-dired)
-
+(global-set-key (kbd "M-<SPC>") #'hydra-f1/body)
 
 ;;;
 (global-set-key (kbd "M-0") 'delete-window)
 (global-set-key (kbd "M-1") 'delete-other-windows)
 (global-set-key (kbd "M-2") 'split-window-below)
 (global-set-key (kbd "M-3") 'split-window-right)
-(global-set-key (kbd "M-h") 'windmove-left)
-(global-set-key (kbd "M-j") 'windmove-down)
-(global-set-key (kbd "M-k") 'windmove-up)
-(global-set-key (kbd "M-l") 'windmove-right)
-(global-set-key (kbd "M-m") 'downcase-word)
 
 (global-set-key (kbd "<f2>") 'treemacs-toggle)
 (define-key treemacs-mode-map (kbd "m")

@@ -88,7 +88,6 @@
 	  (message "添加当前位置的 point"))
       (progn
 	(setq lzl-point-ring pointer)
-	(rotate-mark-ring-pointer 1)
 	(message "移除当前所在位置的 markpoint")))))
 
 (defun lzl-get-mark-from-ring (&optional arg)
