@@ -108,3 +108,18 @@
 
 ;;; iedit
 (global-set-key (kbd "M-i") #'iedit-mode)
+
+;;; avy
+(global-set-key (kbd "M-g 1") 'avy-goto-char)
+(global-set-key (kbd "M-g 2") 'avy-goto-char-2)
+(global-set-key (kbd "M-g t") 'avy-goto-char-timer)
+(global-set-key (kbd "M-g f") 'avy-goto-char-in-line)
+(global-set-key (kbd "M-g l") 'avy-goto-line)
+(global-set-key (kbd "M-g s") 'avy-goto-symbol-1)
+(global-set-key (kbd "M-g 0") 'avy-goto-word-0)
+(global-set-key (kbd "M-g w") 'avy-goto-word-1)
+
+(global-set-key (kbd "s-h") 'windmove-left)
+(global-set-key (kbd "s-l") 'windmove-right)
+(global-set-key (kbd "s-j") 'windmove-down)
+(global-set-key (kbd "s-k") 'windmove-up)

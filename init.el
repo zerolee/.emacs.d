@@ -3,6 +3,8 @@
       (cons "~/.emacs.d/Configurations"
 	    (cons "~/.emacs.d/Extensions" load-path)))
 
+(setq gc-cons-threshold 100000000)
+
 (setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
 
 ;; This file is for standard Emacs option.
@@ -24,3 +26,4 @@
 (load "bindings")
 
 (load-file custom-file)
+(setq gc-cons-threshold 800000)

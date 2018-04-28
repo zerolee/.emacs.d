@@ -391,7 +391,7 @@ Info-mode:
   ("m" (emacs-ckm "m") :exit t)
   ("M" (save-excursion
 	 (call-interactively #'mark-whole-buffer)
-	 (call-interactively #'indent-for-tab-command)))
+	 (mytab)))
   ("n" next-line)
   ("C-n" next-line :exit t)
   ("N" (progn
@@ -408,13 +408,13 @@ Info-mode:
   ("O" (progn
 	 (beginning-of-line)
 	 (open-line 1)
-	 (call-interactively #'indent-for-tab-command)) :exit t)
+	 (mytab)) :exit t)
   ("p" previous-line)
   ("C-p" previous-line :exit t)
   ("M-p" (progn
 	   (beginning-of-line)
 	   (open-line 1)
-	   (call-interactively #'indent-for-tab-command)
+	   (mytab)
 	   (yank)))
   ("P" (progn
 	 (save-excursion
@@ -446,10 +446,14 @@ Info-mode:
   ("," lzl-get-mark-from-ring)
   ("/" lzl-show-all-mark-in-ring)
   ("M-x" counsel-M-x :exit t)
-  ("M-h" windmove-left)
-  ("M-j" windmove-down)
-  ("M-k" windmove-up)
-  ("M-l" windmove-right)
+  ("M-g 1" avy-goto-char)
+  ("M-g 2" avy-goto-char-2)
+  ("M-g t" avy-goto-char-timer)
+  ("M-g f" avy-goto-char-in-line)
+  ("M-g l" avy-goto-line)
+  ("M-g s" avy-goto-symbol-1)
+  ("M-g 0" avy-goto-word-0)
+  ("M-g w" avy-goto-word-1)
   ("M-<SPC>" hydra-f1/body :exit t)
   ("<f3>" (progn
 	    (call-interactively #'gdb-many-windows)
