@@ -12,15 +12,15 @@
 ;; hippie-expand
 (setq hippie-expand-try-functions-list
       '(try-expand-dabbrev
-	try-complete-file-name-partially
-	try-complete-file-name
-	try-expand-line
-	try-expand-list
-	try-expand-all-abbrevs
-	try-expand-dabbrev-all-buffers
-	try-complete-lisp-symbol-partially
-	try-complete-lisp-symbol
-	try-expand-dabbrev-from-kill))
+        try-complete-file-name-partially
+        try-complete-file-name
+        try-expand-line
+        try-expand-list
+        try-expand-all-abbrevs
+        try-expand-dabbrev-all-buffers
+        try-complete-lisp-symbol-partially
+        try-complete-lisp-symbol
+        try-expand-dabbrev-from-kill))
 
 
 ;; 在重名buffer前面加上其父目录的名字
@@ -62,10 +62,10 @@
 
 ;;; .cquery 导入
 (add-hook 'before-save-hook
-	  '(lambda ()
-	     (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
-		 (unless (file-exists-p (buffer-file-name))
-		     (insert-file-contents "~/模板/.cquery")))))
- 
+          '(lambda ()
+             (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
+                 (unless (file-exists-p (buffer-file-name))
+                   (insert-file-contents "~/模板/.cquery")))))
+
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))

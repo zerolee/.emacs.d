@@ -17,9 +17,9 @@
 (defun bury-dup-element-from-list (list element)
   (if list
       (if (struct-point-equal (car list) element)
-	  (cdr list)
-	(cons (car list)
-	      (bury-dup-element-from-list (cdr list) element)))
+          (cdr list)
+        (cons (car list)
+              (bury-dup-element-from-list (cdr list) element)))
     nil))
 
 ;;; 去所在 buffer
@@ -27,7 +27,7 @@
   (let ((list (window-list)))
     (while list
       (if (not (string-equal buffer (buffer-name)))
-	  (other-window 1))
+          (other-window 1))
       (setq list (cdr list)))
     (switch-to-buffer (get-buffer buffer))))
 
@@ -36,32 +36,32 @@
 ;;;                位置信息：(buffer-name . name))
 (defun lzl-context-mark ()
   (let ((current-point (point))
-	(current-line (progn
-			(beginning-of-line)
-			(1+ (count-lines 1 (point)))))
-	(beg (progn
-	       (beginning-of-line)
-	       (point)))
-	context-string)
+        (current-line (progn
+                        (beginning-of-line)
+                        (1+ (count-lines 1 (point)))))
+        (beg (progn
+               (beginning-of-line)
+               (point)))
+        context-string)
     (end-of-line)
     (setq context-string (buffer-substring beg (point)))
     (goto-char current-point)
     (concat (buffer-name)
-	    ":"
-	    (let ((str (number-to-string current-line)))
-	      (put-text-property 0 (length str) 'face 'font-lock-keyword-face str) str)
-	    ": " context-string)))
+            ":"
+            (let ((str (number-to-string current-line)))
+              (put-text-property 0 (length str) 'face 'font-lock-keyword-face str) str)
+            ": " context-string)))
 
 (defun lzl-point-info ()
   (cons (lzl-context-mark)
-	(cons (buffer-name) (point-marker))))
+        (cons (buffer-name) (point-marker))))
 
 
 (defun index-compute (arg length)
   (let* ((ring-pointer-length (length lzl-ring-mark-pointer))
-	 (return-value (+ arg (- length ring-pointer-length))))
+         (return-value (+ arg (- length ring-pointer-length))))
     (if (< return-value 0)
-	(+ return-value length)
+        (+ return-value length)
       return-value)))
 ;;; 将 lzl-ring-mark-pointer 移动向 lzl-point-ring 的下 arg 个元素
 (defun rotate-mark-ring-pointer (arg)
@@ -69,26 +69,26 @@
   "interactive p"
   (let ((length (length lzl-point-ring)))
     (if (zerop length)
-	(error "Mark point ring is empty")
+        (error "Mark point ring is empty")
       (setq lzl-ring-mark-pointer
-	    (nthcdr (% (index-compute arg length)
-		       length)
-		    lzl-point-ring)))))
+            (nthcdr (% (index-compute arg length)
+                       length)
+                    lzl-point-ring)))))
 
 
 (defun lzl-push-mark-to-ring ()
   "将当前位置的 point 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除"
   (interactive)
   (let ((pointer
-	 (bury-dup-element-from-list lzl-point-ring (lzl-point-info))))
+         (bury-dup-element-from-list lzl-point-ring (lzl-point-info))))
     (if (= (length pointer) (length lzl-point-ring))
-	(progn
-	  (setq lzl-point-ring (cons (lzl-point-info) lzl-point-ring))
-	  (setq lzl-ring-mark-pointer lzl-point-ring)
-	  (message "添加当前位置的 point"))
+        (progn
+          (setq lzl-point-ring (cons (lzl-point-info) lzl-point-ring))
+          (setq lzl-ring-mark-pointer lzl-point-ring)
+          (message "添加当前位置的 point"))
       (progn
-	(setq lzl-point-ring pointer)
-	(message "移除当前所在位置的 markpoint")))))
+        (setq lzl-point-ring pointer)
+        (message "移除当前所在位置的 markpoint")))))
 
 (defun lzl-get-mark-from-ring (&optional arg)
   "得到 lzl-pointer 所指向的 ring 同时，将其往后移动一次"
@@ -97,27 +97,27 @@
       (error "point-ring 为空，请先 mark")
     (progn
       (if (eq arg '-)
-	  (rotate-mark-ring-pointer -2)
-	(if (struct-point-equal (car lzl-ring-mark-pointer)
-				(lzl-point-info))
-	    (rotate-mark-ring-pointer 1)))
+          (rotate-mark-ring-pointer -2)
+        (if (struct-point-equal (car lzl-ring-mark-pointer)
+                                (lzl-point-info))
+            (rotate-mark-ring-pointer 1)))
       (if (get-buffer (cadar lzl-ring-mark-pointer))
-	  (progn
-	    (lzl-goto-buffer (cadar lzl-ring-mark-pointer))
-	    (goto-char (marker-position (cddar lzl-ring-mark-pointer)))
-	    (rotate-mark-ring-pointer 1))
-	(setq lzl-point-ring
-	      (bury-dup-element-from-list lzl-point-ring
-					  (car  lzl-ring-mark-pointer)))
-	(rotate-mark-ring-pointer 1)
-	(lzl-get-mark-from-ring)))))
+          (progn
+            (lzl-goto-buffer (cadar lzl-ring-mark-pointer))
+            (goto-char (marker-position (cddar lzl-ring-mark-pointer)))
+            (rotate-mark-ring-pointer 1))
+        (setq lzl-point-ring
+              (bury-dup-element-from-list lzl-point-ring
+                                          (car  lzl-ring-mark-pointer)))
+        (rotate-mark-ring-pointer 1)
+        (lzl-get-mark-from-ring)))))
 
 (defun lzl-show-all-mark-in-ring ()
   (interactive)
   (ivy-read "mark ring: " lzl-point-ring
-	    :action '(lambda (x)
-		       (if (zerop (length lzl-point-ring))
-			   (error "point-ring 为空，请先 mark")
-			 (lzl-goto-buffer (cadr x))
-			 (goto-char (marker-position (cddr x)))))))
+            :action '(lambda (x)
+                       (if (zerop (length lzl-point-ring))
+                           (error "point-ring 为空，请先 mark")
+                         (lzl-goto-buffer (cadr x))
+                         (goto-char (marker-position (cddr x)))))))
 (provide 'lzl-lib)
