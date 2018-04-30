@@ -247,6 +247,9 @@ Info-mode:
           (lzl-look-forward-char -1 ?{)
           (lzl-emacs-get #'(lambda () (interactive)
                              (lzl-look-forward-char 1 ?\})) "a\}")))
+  ("at" (progn
+          (web-mode-element-beginning)
+          (lzl-emacs-get #'web-mode-element-end "at")))
   ("e\"" (progn
            (lzl-look-forward-char -1 ?\")
            (forward-char 1)
@@ -283,6 +286,13 @@ Info-mode:
           (lzl-emacs-get #'(lambda () (interactive)
                              (lzl-look-forward-char 1 ?\})
                              (backward-char 1)) "e\}")))
+  ("et" (progn
+          (web-mode-element-beginning)
+          (web-mode-tag-end)
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (web-mode-element-end)
+			     (backward-char 1)
+			     (web-mode-tag-beginning)) "at")))
   ("l" (progn
          (paredit-backward-up)
          (lzl-emacs-get #'forward-sexp "s")))
@@ -460,7 +470,7 @@ Info-mode:
   ("C-j" newline-and-indent :exit t)
   ("k" (emacs-ckm "k") :exit t)
   ("l" paredit-forward)
-  ("L" recenter-top-bottom)
+  ("L" (delete-indentation 1))
   ("m" (emacs-ckm "m") :exit t)
   ("M" (save-excursion
          (call-interactively #'mark-whole-buffer)
