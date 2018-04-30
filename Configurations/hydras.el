@@ -215,6 +215,81 @@ Info-mode:
   (">" (let ((current-prefix-arg (point-max)))
 	 (lzl-emacs-get #'goto-char ">")))
   ("i" (lzl-emacs-get #'beginning-of-line "i"))
+  ("aw" (progn
+	  (forward-word)
+	  (backward-word)
+	  (lzl-emacs-get #'forward-word "aw")))
+  ("as" (progn
+	  (forward-sexp)
+	  (backward-sexp)
+	  (lzl-emacs-get #'forward-sexp "as")))
+  ("a\"" (progn
+	   (lzl-look-forward-char -1 ?\")
+	   (lzl-emacs-get #'(lambda () (interactive)
+			      (lzl-look-forward-char 2 ?\")) "a\"")))
+  ("a'" (progn
+	  (lzl-look-forward-char -1 ?')
+	  (lzl-emacs-get #'(lambda () (interactive)
+			     (lzl-look-forward-char 2 ?\')) "a'")))
+  ("a\(" (progn
+	   (lzl-look-forward-char -1 ?\()
+	   (lzl-emacs-get #'(lambda () (interactive)
+			      (lzl-look-forward-char 1 ?\))) "a\)")))
+  ("a\[" (progn
+	   (lzl-look-forward-char -1 ?\[)
+	   (lzl-emacs-get #'(lambda () (interactive)
+			      (lzl-look-forward-char 1 ?\])) "a\]")))
+  ("a<" (progn
+	  (lzl-look-forward-char -1 ?<)
+	  (lzl-emacs-get #'(lambda () (interactive)
+			     (lzl-look-forward-char 1 ?>)) "a>")))
+  ("a{" (progn
+	  (lzl-look-forward-char -1 ?{)
+	  (lzl-emacs-get #'(lambda () (interactive)
+			     (lzl-look-forward-char 1 ?\})) "a\}")))
+  ("e\"" (progn
+	   (lzl-look-forward-char -1 ?\")
+	   (forward-char 1)
+	   (lzl-emacs-get #'(lambda () (interactive)
+			      (lzl-look-forward-char 1 ?\")
+			      (backward-char 1)) "e\"")))
+  ("e'" (progn
+	  (lzl-look-forward-char -1 ?')
+	  (forward-char 1)
+	  (lzl-emacs-get #'(lambda () (interactive)
+			     (lzl-look-forward-char 1 ?\')
+			     (backward-char 1)) "e'")))
+  ("e\(" (progn
+	   (lzl-look-forward-char -1 ?\()
+	   (forward-char 1)
+	   (lzl-emacs-get #'(lambda () (interactive)
+			      (lzl-look-forward-char 1 ?\))
+			      (backward-char 1)) "e\)")))
+  ("e\[" (progn
+	   (lzl-look-forward-char -1 ?\[)
+	   (forward-char 1)
+	   (lzl-emacs-get #'(lambda () (interactive)
+			      (lzl-look-forward-char 1 ?\])
+			      (backward-char 1)) "e\]")))
+  ("e<" (progn
+	  (lzl-look-forward-char -1 ?<)
+	  (forward-char 1)
+	  (lzl-emacs-get #'(lambda () (interactive)
+			     (lzl-look-forward-char 1 ?>)
+			     (backward-char 1)) "e>")))
+  ("e{" (progn
+	  (lzl-look-forward-char -1 ?{)
+	  (forward-char 1)
+	  (lzl-emacs-get #'(lambda () (interactive)
+			     (lzl-look-forward-char 1 ?\})
+			     (backward-char 1)) "e\}")))
+  ("l" (progn
+	 (paredit-backward-up)
+	 (lzl-emacs-get #'forward-sexp "s")))
+  ("d" (progn
+	 (end-of-defun)
+	 (beginning-of-defun)
+	 (lzl-emacs-get #'forward-sexp "s")))
   ("w" (lzl-emacs-get #'forward-word "w"))
   ("s" (lzl-emacs-get #'forward-sexp "s"))
   (";" (lzl-emacs-get #'end-of-line ";"))
@@ -381,9 +456,7 @@ Info-mode:
   ("H" delete-indentation)
   ("i" nil)
   ("I" beginning-of-line-text)
-  ("j" (progn
-	 (forward-word 2)
-	 (backward-word)))
+  ("j" forward-to-indentation)
   ("C-j" newline-and-indent :exit t)
   ("k" (emacs-ckm "k") :exit t)
   ("l" paredit-forward)
@@ -391,7 +464,8 @@ Info-mode:
   ("m" (emacs-ckm "m") :exit t)
   ("M" (save-excursion
 	 (call-interactively #'mark-whole-buffer)
-	 (mytab)))
+	 (mytab)
+	 (call-interactively #'untabify)))
   ("n" next-line)
   ("C-n" next-line :exit t)
   ("N" (progn
@@ -433,7 +507,7 @@ Info-mode:
   ("U" winner-undo)
   ("v" scroll-up-command)
   ("V" hydra-emacs/V/body :exit t)
-  ("w" avy-goto-word-1)
+  ("w" forward-to-word)
   ("x" (insert-char ?x) :exit t)
   ("y" yank)
   ("z" save-buffer)
