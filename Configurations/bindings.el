@@ -88,6 +88,10 @@
 
 (define-key exwm-mode-map (kbd "<XF86AudioMute>")
   (lambda () (interactive) (shell-command "amixer set Master 1+ toggle &> /dev/null")))
+(define-key exwm-mode-map (kbd "s-h") 'windmove-left)
+(define-key exwm-mode-map (kbd "s-l") 'windmove-right)
+(define-key exwm-mode-map (kbd "s-j") 'windmove-down)
+(define-key exwm-mode-map (kbd "s-k") 'windmove-up)
 
 ;;;
 (global-set-key (kbd "M-0") 'delete-window)
