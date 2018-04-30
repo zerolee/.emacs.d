@@ -26,11 +26,11 @@
     :ensure t
     :config
     (setq company-transformers nil company-lsp-async t
-	  company-lsp-cache-candidates nil)
+          company-lsp-cache-candidates nil)
     (set (make-local-variable 'company-backends)
-	 '(company-lsp  company-dabbrev-code
-			company-dabbrev
-			company-files)))
+         '(company-lsp  company-dabbrev-code
+                        company-dabbrev
+                        company-files)))
   (use-package lsp-ui
     :ensure t
     :config
@@ -55,10 +55,10 @@
   :ensure t
   :init
   (add-hook 'c-mode-hook
-	    '(lambda ()
-	       (lsp-common-set)
-	       (lsp-cquery-enable)
-	       (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
+            '(lambda ()
+               (lsp-common-set)
+               (lsp-cquery-enable)
+               (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
 
 
 
@@ -66,16 +66,16 @@
 ;; lsp-java
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (setq lsp-java--workspace-folders (list "/home/zmqc/study/java/tmp/"
-					"/home/zmqc/study/java/javaemacs/"))
+                                        "/home/zmqc/study/java/javaemacs/"))
 (setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
 
 (use-package lsp-java
   :ensure t
   :init
   (add-hook 'java-mode-hook
-	    '(lambda ()
-	       (lsp-common-set)
-	       (lsp-java-enable))))
+            '(lambda ()
+               (lsp-common-set)
+               (lsp-java-enable))))
 
 (use-package ivy-xref
   :ensure t

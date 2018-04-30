@@ -1,6 +1,6 @@
 (require 'lzl-lib)
 (defhydra hydra-f1 (:color teal
-			   :hint nil)
+                           :hint nil)
   "
    _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
    _a_: ag      _P_: ivy-pop-view     _y_: yasnippet   _h_: hs
@@ -23,9 +23,9 @@
   ("t" treemacs)
   ("H" (hs-minor-mode -1))
   ("h" (progn
-	 (hs-minor-mode)
-	 (hs-toggle-hiding)
-	 (hydra-esc/body)))
+         (hs-minor-mode)
+         (hs-toggle-hiding)
+         (hydra-esc/body)))
   ("r" counsel-rg)
   ("c" flycheck-list-errors)
   ("d" dired-jump)
@@ -36,7 +36,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-org (:color pink
-			    :hint nil)
+                            :hint nil)
   "
                           Org
    -------------------------------------------------------------
@@ -87,7 +87,7 @@
 ;; Info
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-info (:color red
-			     :hint nil)
+                             :hint nil)
   "
 Info-mode:
 
@@ -173,24 +173,24 @@ Info-mode:
   (if (string-match lzl-arg2 ">nckm")
       (beginning-of-line))
   (funcall lzl-kill-or-save (point)
-	   (progn
-	     (call-interactively lzl-move)
-	     (point)))
+           (progn
+             (call-interactively lzl-move)
+             (point)))
   (let ((num (prefix-numeric-value current-prefix-arg)))
     (if (<= num 0)
-	(setq num (- 1 num)))
+        (setq num (- 1 num)))
     (if (string-equal lzl-arg2 "n")
-	(setq num (- num 1)))
+        (setq num (- num 1)))
     (message "%s%d%s" lzl-arg1 num lzl-arg2))
 
   ;; k
   (if (and (string-match lzl-arg1 "k")
-	   (string-match lzl-arg2 "<>npk"))
+           (string-match lzl-arg2 "<>npk"))
       (let ((pp (point)))
-	(if (and  (search-forward "\n" nil  t 1)
-		  (= (1+ pp) (point)))
-	    (delete-char -1))
-	(goto-char pp)))
+        (if (and  (search-forward "\n" nil  t 1)
+                  (= (1+ pp) (point)))
+            (delete-char -1))
+        (goto-char pp)))
   ;; 如果复制的话，回复其位置
   (if (string-equal lzl-arg1 "m")
       (goto-char emacs-ckm-point))
@@ -209,19 +209,94 @@ Info-mode:
   (hydra-emacs/ckm/body))
 
 (defhydra hydra-emacs/ckm (:color blue
-				  :hint nil)
+                                  :hint nil)
   ("<" (let ((current-prefix-arg (point-min)))
-	 (lzl-emacs-get #'goto-char "<")))
+         (lzl-emacs-get #'goto-char "<")))
   (">" (let ((current-prefix-arg (point-max)))
-	 (lzl-emacs-get #'goto-char ">")))
+         (lzl-emacs-get #'goto-char ">")))
   ("i" (lzl-emacs-get #'beginning-of-line "i"))
+  ("aw" (progn
+          (forward-word)
+          (backward-word)
+          (lzl-emacs-get #'forward-word "aw")))
+  ("as" (progn
+          (forward-sexp)
+          (backward-sexp)
+          (lzl-emacs-get #'forward-sexp "as")))
+  ("a\"" (progn
+           (lzl-look-forward-char -1 ?\")
+           (lzl-emacs-get #'(lambda () (interactive)
+                              (lzl-look-forward-char 2 ?\")) "a\"")))
+  ("a'" (progn
+          (lzl-look-forward-char -1 ?')
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (lzl-look-forward-char 2 ?\')) "a'")))
+  ("a\(" (progn
+           (lzl-look-forward-char -1 ?\()
+           (lzl-emacs-get #'(lambda () (interactive)
+                              (lzl-look-forward-char 1 ?\))) "a\)")))
+  ("a\[" (progn
+           (lzl-look-forward-char -1 ?\[)
+           (lzl-emacs-get #'(lambda () (interactive)
+                              (lzl-look-forward-char 1 ?\])) "a\]")))
+  ("a<" (progn
+          (lzl-look-forward-char -1 ?<)
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (lzl-look-forward-char 1 ?>)) "a>")))
+  ("a{" (progn
+          (lzl-look-forward-char -1 ?{)
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (lzl-look-forward-char 1 ?\})) "a\}")))
+  ("e\"" (progn
+           (lzl-look-forward-char -1 ?\")
+           (forward-char 1)
+           (lzl-emacs-get #'(lambda () (interactive)
+                              (lzl-look-forward-char 1 ?\")
+                              (backward-char 1)) "e\"")))
+  ("e'" (progn
+          (lzl-look-forward-char -1 ?')
+          (forward-char 1)
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (lzl-look-forward-char 1 ?\')
+                             (backward-char 1)) "e'")))
+  ("e\(" (progn
+           (lzl-look-forward-char -1 ?\()
+           (forward-char 1)
+           (lzl-emacs-get #'(lambda () (interactive)
+                              (lzl-look-forward-char 1 ?\))
+                              (backward-char 1)) "e\)")))
+  ("e\[" (progn
+           (lzl-look-forward-char -1 ?\[)
+           (forward-char 1)
+           (lzl-emacs-get #'(lambda () (interactive)
+                              (lzl-look-forward-char 1 ?\])
+                              (backward-char 1)) "e\]")))
+  ("e<" (progn
+          (lzl-look-forward-char -1 ?<)
+          (forward-char 1)
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (lzl-look-forward-char 1 ?>)
+                             (backward-char 1)) "e>")))
+  ("e{" (progn
+          (lzl-look-forward-char -1 ?{)
+          (forward-char 1)
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (lzl-look-forward-char 1 ?\})
+                             (backward-char 1)) "e\}")))
+  ("l" (progn
+         (paredit-backward-up)
+         (lzl-emacs-get #'forward-sexp "s")))
+  ("d" (progn
+         (end-of-defun)
+         (beginning-of-defun)
+         (lzl-emacs-get #'forward-sexp "s")))
   ("w" (lzl-emacs-get #'forward-word "w"))
   ("s" (lzl-emacs-get #'forward-sexp "s"))
   (";" (lzl-emacs-get #'end-of-line ";"))
   ("n" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-	 (lzl-emacs-get #'end-of-line "n")))
+         (lzl-emacs-get #'end-of-line "n")))
   ("p" (let ((current-prefix-arg (- 1  (prefix-numeric-value current-prefix-arg))))
-	 (lzl-emacs-get #'beginning-of-line "p")))
+         (lzl-emacs-get #'beginning-of-line "p")))
   ("c" (lzl-emacs-get #'end-of-line "c"))
   ("k" (lzl-emacs-get #'end-of-line "k"))
   ("m" (lzl-emacs-get #'end-of-line "m"))
@@ -229,50 +304,50 @@ Info-mode:
 
 
 (defhydra hydra-emacs/r (:body-pre (delete-char 1)
-				   :post hydra-esc/body
-				   :color blue
-				   :hint nil)
+                                   :post hydra-esc/body
+                                   :color blue
+                                   :hint nil)
   ("0" (progn
-	 (insert-char ?0)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?0)
+         (hydra-esc/body)) :exit t)
   ("1" (progn
-	 (insert-char ?1)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?1)
+         (hydra-esc/body)) :exit t)
   ("2" (progn
-	 (insert-char ?2)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?2)
+         (hydra-esc/body)) :exit t)
   ("3" (progn
-	 (insert-char ?3)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?3)
+         (hydra-esc/body)) :exit t)
   ("4" (progn
-	 (insert-char ?4)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?4)
+         (hydra-esc/body)) :exit t)
   ("5" (progn
-	 (insert-char ?5)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?5)
+         (hydra-esc/body)) :exit t)
   ("6" (progn
-	 (insert-char ?6)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?6)
+         (hydra-esc/body)) :exit t)
   ("7" (progn
-	 (insert-char ?7)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?7)
+         (hydra-esc/body)) :exit t)
   ("8" (progn
-	 (insert-char ?8)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?8)
+         (hydra-esc/body)) :exit t)
   ("9" (progn
-	 (insert-char ?9)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?9)
+         (hydra-esc/body)) :exit t)
   ("-" (progn
-	 (insert-char ?-)
-	 (hydra-esc/body)) :exit t)
+         (insert-char ?-)
+         (hydra-esc/body)) :exit t)
   ("<escape>" hydra-esc/body :exit t))
 
 (defhydra hydra-emacs/spc (:body-pre (progn
-				       (call-interactively #'set-mark-command)
-				       (setq-default cursor-type 'bar))
-				     :post (setq-default cursor-type t)
-				     :color pink
-				     :hint nil)
+                                       (call-interactively #'set-mark-command)
+                                       (setq-default cursor-type 'bar))
+                                     :post (setq-default cursor-type t)
+                                     :color pink
+                                     :hint nil)
   "
    ---visual---
   "
@@ -283,23 +358,23 @@ Info-mode:
   ("a" beginning-of-line)
   ("e" end-of-line)
   ("M-w" (progn
-	   (call-interactively #'kill-ring-save)
-	   (hydra-esc/body)) :exit t)
+           (call-interactively #'kill-ring-save)
+           (hydra-esc/body)) :exit t)
   ("w" (progn
-	 (call-interactively #'kill-region)
-	 (hydra-esc/body)) :exit t)
+         (call-interactively #'kill-region)
+         (hydra-esc/body)) :exit t)
   ("c" (progn
-	 (call-interactively #'kill-region)) :exit t)
+         (call-interactively #'kill-region)) :exit t)
   ("t" (progn
-	 (call-interactively #'string-rectangle)
-	 (hydra-esc/body)) :exit t))
+         (call-interactively #'string-rectangle)
+         (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/V (:body-pre (progn
-				     (rectangle-mark-mode)
-				     (setq-default cursor-type 'bar))
-				   :post (setq-default cursor-type t)
-				   :color pink
-				   :hint nil)
+                                     (rectangle-mark-mode)
+                                     (setq-default cursor-type 'bar))
+                                   :post (setq-default cursor-type t)
+                                   :color pink
+                                   :hint nil)
 
   "
    ---rectangle---
@@ -309,20 +384,20 @@ Info-mode:
   ("b" backward-char)
   ("f" forward-char)
   ("M-w" (progn
-	   (call-interactively #'copy-region-as-kill)
-	   (hydra-esc/body)) :exit t)
+           (call-interactively #'copy-region-as-kill)
+           (hydra-esc/body)) :exit t)
   ("w" (progn
-	 (call-interactively #'kill-region)
-	 (hydra-esc/body)) :exit t)
+         (call-interactively #'kill-region)
+         (hydra-esc/body)) :exit t)
   ("c" (progn
-	 (call-interactively #'kill-rectangle)) :exit t)
+         (call-interactively #'kill-rectangle)) :exit t)
   ("t" (progn
-	 (call-interactively #'string-rectangle)
-	 (hydra-esc/body)) :exit t))
+         (call-interactively #'string-rectangle)
+         (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/R (:body-pre (overwrite-mode)
-				   :color pink
-				   :hint nil)
+                                   :color pink
+                                   :hint nil)
   "
    --REPLACE--
   "
@@ -338,13 +413,13 @@ Info-mode:
   ("9" self-insert-command)
   ("-" self-insert-command)
   ("<escape>"   (progn
-		  (overwrite-mode -1)
-		  (hydra-esc/body)) :exit t))
+                  (overwrite-mode -1)
+                  (hydra-esc/body)) :exit t))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-esc (:color pink
-			    :hint nil)
+                            :hint nil)
   "
    _<f3>_:gdb  _<f4>_:until  _<f5>_:go  _<f6>_:stop  _<f7>_:step  _<f8>_:next  _<f9>_:cont  _<f10>_:finish
   "
@@ -381,59 +456,58 @@ Info-mode:
   ("H" delete-indentation)
   ("i" nil)
   ("I" beginning-of-line-text)
-  ("j" (progn
-	 (forward-word 2)
-	 (backward-word)))
+  ("j" forward-to-indentation)
   ("C-j" newline-and-indent :exit t)
   ("k" (emacs-ckm "k") :exit t)
   ("l" paredit-forward)
   ("L" recenter-top-bottom)
   ("m" (emacs-ckm "m") :exit t)
   ("M" (save-excursion
-	 (call-interactively #'mark-whole-buffer)
-	 (call-interactively #'indent-for-tab-command)))
+         (call-interactively #'mark-whole-buffer)
+         (mytab)
+         (call-interactively #'untabify)))
   ("n" next-line)
   ("C-n" next-line :exit t)
   ("N" (progn
-	 (save-excursion
-	   (end-of-line)
-	   (open-line 1))))
+         (save-excursion
+           (end-of-line)
+           (open-line 1))))
   ("M-n" (progn
-	   (end-of-line)
-	   (newline-and-indent)
-	   (yank)))
+           (end-of-line)
+           (newline-and-indent)
+           (yank)))
   ("o" (progn
-	 (end-of-line)
-	 (newline-and-indent)) :exit t)
+         (end-of-line)
+         (newline-and-indent)) :exit t)
   ("O" (progn
-	 (beginning-of-line)
-	 (open-line 1)
-	 (call-interactively #'indent-for-tab-command)) :exit t)
+         (beginning-of-line)
+         (open-line 1)
+         (mytab)) :exit t)
   ("p" previous-line)
   ("C-p" previous-line :exit t)
   ("M-p" (progn
-	   (beginning-of-line)
-	   (open-line 1)
-	   (call-interactively #'indent-for-tab-command)
-	   (yank)))
+           (beginning-of-line)
+           (open-line 1)
+           (mytab)
+           (yank)))
   ("P" (progn
-	 (save-excursion
-	   (beginning-of-line)
-	   (open-line 1))))
+         (save-excursion
+           (beginning-of-line)
+           (open-line 1))))
   ("q" kill-buffer)
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
   ("s" isearch-forward-regexp :exit t)
   ("t" (progn
-	 (if (equal 'hydra-esc/lambda-t last-command)
-	     (lzl-look-forward-char 2 search-forward-char)
-	   (call-interactively #'lzl-look-forward-char))
-	 (backward-char)))
+         (if (equal 'hydra-esc/lambda-t last-command)
+             (lzl-look-forward-char 2 search-forward-char)
+           (call-interactively #'lzl-look-forward-char))
+         (backward-char)))
   ("u" undo)
   ("U" winner-undo)
   ("v" scroll-up-command)
   ("V" hydra-emacs/V/body :exit t)
-  ("w" avy-goto-word-1)
+  ("w" forward-to-word)
   ("x" (insert-char ?x) :exit t)
   ("y" yank)
   ("z" save-buffer)
@@ -446,14 +520,18 @@ Info-mode:
   ("," lzl-get-mark-from-ring)
   ("/" lzl-show-all-mark-in-ring)
   ("M-x" counsel-M-x :exit t)
-  ("M-h" windmove-left)
-  ("M-j" windmove-down)
-  ("M-k" windmove-up)
-  ("M-l" windmove-right)
+  ("M-g 1" avy-goto-char)
+  ("M-g 2" avy-goto-char-2)
+  ("M-g t" avy-goto-char-timer)
+  ("M-g f" avy-goto-char-in-line)
+  ("M-g l" avy-goto-line)
+  ("M-g s" avy-goto-symbol-1)
+  ("M-g 0" avy-goto-word-0)
+  ("M-g w" avy-goto-word-1)
   ("M-<SPC>" hydra-f1/body :exit t)
   ("<f3>" (progn
-	    (call-interactively #'gdb-many-windows)
-	    (call-interactively #'tool-bar-mode)))
+            (call-interactively #'gdb-many-windows)
+            (call-interactively #'tool-bar-mode)))
   ("<f4>" gud-until)
   ("<f5>" gud-go)
   ("<f6>" gud-stop-subjob)

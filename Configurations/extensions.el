@@ -24,10 +24,9 @@
 (use-package yasnippet-snippets
   :if window-system
   :ensure t
-  :config
-  (progn
-    (yas-reload-all)
-    (add-hook 'prog-mode-hook #'yas-minor-mode)))
+  :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet)
+  :init
+  (add-hook 'prog-mode-hook #'yas-minor-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
