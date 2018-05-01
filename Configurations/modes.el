@@ -40,7 +40,8 @@
   (use-package flycheck
     :ensure t
     :config
-    (flycheck-mode)))
+    (flycheck-mode))
+  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -82,16 +83,13 @@
   :init
   (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-(use-package lsp-imenu
-  :init
-  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package antlr-mode
-  :mode ("\\.g4\\'" . antlr-v4-mode))
+(autoload 'antlr-v4-mode "antlr-mode" nil t)
+(push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; web-mode
@@ -99,4 +97,4 @@
 (use-package web-mode
   :ensure t
   :mode (("\\.html\\'" . web-mode)
-	 ("\\.htm\\'" . web-mode)))
+         ("\\.htm\\'" . web-mode)))

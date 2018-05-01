@@ -1,4 +1,4 @@
-;; sams-lib
+;; lzl-lib
 (autoload 'lzl-push-mark-to-ring "lzl-lib")
 
 (use-package wgrep                     :ensure t)
@@ -9,7 +9,10 @@
 (use-package expand-region             :ensure t)
 (use-package treemacs                  :ensure t)
 (use-package iedit                     :ensure t)
-
+(use-package projectile                :ensure t)
+(use-package auto-yasnippet
+  :commands (aya-create aya-expand)
+  :ensure t)
 
 
 ;; 使用主题
@@ -37,9 +40,9 @@
   (progn
     (ivy-mode 1)
     (setq ivy-use-virtual-buffers t    ; 将最近的文件和书签加入到 ivy-switch-buffer
-	  ivy-use-selectable-prompt t
-	  counsel-grep-base-command
-	  "rg -i -M 120 --no-heading --line-number --color never '%s' %s")))
+          ivy-use-selectable-prompt t
+          counsel-grep-base-command
+          "rg -i -M 120 --no-heading --line-number --color never '%s' %s")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode

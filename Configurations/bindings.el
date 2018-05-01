@@ -123,3 +123,6 @@
 (global-set-key (kbd "s-l") 'windmove-right)
 (global-set-key (kbd "s-j") 'windmove-down)
 (global-set-key (kbd "s-k") 'windmove-up)
+
+(global-set-key (kbd "M-g c") #'aya-create)
+(global-set-key (kbd "M-g e") #'aya-expand)
