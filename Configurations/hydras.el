@@ -223,6 +223,12 @@ Info-mode:
           (forward-sexp)
           (backward-sexp)
           (lzl-emacs-get #'forward-sexp "as")))
+  ("aS" (progn
+	  (backward-sentence)
+	  (lzl-emacs-get #'forward-sentence "aS")))
+  ("aP" (progn
+	  (backward-paragraph)
+	  (lzl-emacs-get #'forward-paragraph "aP")))
   ("a\"" (progn
            (lzl-look-forward-char -1 ?\")
            (lzl-emacs-get #'(lambda () (interactive)
@@ -300,6 +306,8 @@ Info-mode:
          (end-of-defun)
          (beginning-of-defun)
          (lzl-emacs-get #'forward-sexp "s")))
+  ("S" (lzl-emacs-get #'forward-sentence "S"))
+  ("P" (lzl-emacs-get #'forward-paragraph "P"))
   ("w" (lzl-emacs-get #'forward-word "w"))
   ("s" (lzl-emacs-get #'forward-sexp "s"))
   (";" (lzl-emacs-get #'end-of-line ";"))
