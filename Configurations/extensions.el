@@ -124,8 +124,18 @@
 ;;; exwm
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package exwm
-  :ensure t
+  :demand
   :config
-  (use-package exwm-config
-    :config
-    (exwm-config-default)))
+  (require 'exwm-config)
+  (exwm-config-default)
+  :bind (:map exwm-mode-map
+              ("<XF86AudioLowerVolume>" .
+               (lambda () (interactive) (shell-command "amixer set Master 5%- &> /dev/null")))
+              ("<XF86AudioRaiseVolume>" .
+               (lambda () (interactive) (shell-command "amixer set Master 5%+ &> /dev/null")))
+              ("<XF86AudioMute>" .
+               (lambda () (interactive) (shell-command "amixer set Master 1+ toggle &> /dev/null")))
+              ("s-h" . windmove-left)
+              ("s-l" . windmove-right)
+              ("s-j" . windmove-down)
+              ("s-k" . windmove-up)))
