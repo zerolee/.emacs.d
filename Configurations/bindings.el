@@ -45,30 +45,6 @@
 (global-set-key (kbd "C-x /") 'winner-undo)
 (global-set-key (kbd "C-x s-r") 'winner-redo)
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ivy
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(global-set-key (kbd "C-x C-f") 'counsel-find-file)
-(global-set-key (kbd "M-x")     'counsel-M-x)
-(global-set-key (kbd "M-y")     'counsel-yank-pop)
-(global-set-key (kbd "C-x b")   'ivy-switch-buffer)
-
-
-(global-set-key (kbd "C-h f")   'counsel-describe-function)
-(global-set-key (kbd "C-h v")   'counsel-describe-variable)
-(global-set-key (kbd "C-h S")   'counsel-info-lookup-symbol)
-(global-set-key (kbd "C-h a")   'counsel-apropos)
-
-;;(global-set-key (kbd "M-w")   'ivy-kill-ring-save)
-
-
-;; C-c C-o ivy-occur, C-x C-q 开始编辑, C-x C-s 保存编辑， C-c C-c 退出
-(global-set-key (kbd "C-M-s") 'counsel-grep-or-swiper)
-(define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
-(with-eval-after-load 'counsel
-  (define-key counsel-find-file-map (kbd "C-l") 'counsel-up-directory))
-
 (global-set-key (kbd "C-c a") 'org-agenda)
 
 ;;; hydra
@@ -83,14 +59,7 @@
 (global-set-key (kbd "M-2") 'split-window-below)
 (global-set-key (kbd "M-3") 'split-window-right)
 
-(global-set-key (kbd "<f2>") 'treemacs-toggle)
-(define-key treemacs-mode-map (kbd "m")
-  '(lambda () (interactive)
-     (let ((bname (buffer-name)))
-       (treemacs-RET-action)
-       (or (string-equal bname (buffer-name)) (other-window -1)))))
 
-(global-set-key (kbd "C-=") 'er/expand-region)
 
 ;;; lsp
 (with-eval-after-load 'lsp-ui
@@ -106,23 +75,7 @@
                             (define-key c-mode-base-map (kbd "<f7>") #'gud-step)
                             (define-key c-mode-base-map (kbd "<f8>") #'gud-next)))
 
-;;; iedit
-(global-set-key (kbd "M-i") #'iedit-mode)
-
-;;; avy
-(global-set-key (kbd "M-g 1") 'avy-goto-char)
-(global-set-key (kbd "M-g 2") 'avy-goto-char-2)
-(global-set-key (kbd "M-g t") 'avy-goto-char-timer)
-(global-set-key (kbd "M-g f") 'avy-goto-char-in-line)
-(global-set-key (kbd "M-g l") 'avy-goto-line)
-(global-set-key (kbd "M-g s") 'avy-goto-symbol-1)
-(global-set-key (kbd "M-g 0") 'avy-goto-word-0)
-(global-set-key (kbd "M-g w") 'avy-goto-word-1)
-
 (global-set-key (kbd "s-h") 'windmove-left)
 (global-set-key (kbd "s-l") 'windmove-right)
 (global-set-key (kbd "s-j") 'windmove-down)
 (global-set-key (kbd "s-k") 'windmove-up)
-
-(global-set-key (kbd "M-g c") #'aya-create)
-(global-set-key (kbd "M-g e") #'aya-expand)

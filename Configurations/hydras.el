@@ -359,6 +359,9 @@
   ("w" (progn
          (call-interactively #'kill-region)
          (hydra-esc/body)) :exit t)
+  ("k" (progn
+         (call-interactively #'kill-rectangle)
+	 (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-region)) :exit t)
   ("t" (progn
@@ -385,6 +388,9 @@
   ("w" (progn
          (call-interactively #'kill-region)
          (hydra-esc/body)) :exit t)
+  ("k" (progn
+         (call-interactively #'kill-rectangle)
+	 (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-rectangle)) :exit t)
   ("t" (progn
