@@ -1,10 +1,10 @@
 ;; save-position
 (autoload 'sp-push-position-to-ring "save-position")
 
-(if (getenv "EMACS_INSTAlL")
-    (progn
-      (package-refresh-contents)
-      (package-install 'use-package)))
+;;; 第一次安装时去掉注释
+;;;(progn
+;;;  (package-refresh-contents)
+;;;  (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
 
@@ -13,7 +13,6 @@
 (use-package projectile)
 
 (use-package treemacs
-  :commands (treemacs-toggle)
   :bind (("<f2>" . treemacs-toggle)
          :map treemacs-mode-map
          ("m" . (lambda () (interactive)
@@ -22,19 +21,13 @@
                     (or (string-equal bname (buffer-name)) (other-window -1)))))))
 
 (use-package expand-region
-  :commands (er/expand-region)
   :bind ("C-=" . er/expand-region))
 
 
 (use-package iedit
-  :commands (iedit-mode)
   :bind ("M-i" . iedit-mode))
 
-
 (use-package avy
-  :commands (avy-goto-char avy-goto-char-2  avy-goto-word-1
-                           avy-goto-char-in-line avy-goto-char-timer
-                           avy-goto-symbol-1 avy-goto-word-0 avy-goto-line)
   :bind (("M-g 1" . avy-goto-char)
          ("M-g 2" . avy-goto-char-2)
          ("M-g t" . avy-goto-char-timer)
@@ -45,7 +38,6 @@
          ("M-g w" . avy-goto-word-1)))
 
 (use-package auto-yasnippet
-  :commands (aya-create aya-expand)
   :bind (("M-g c" . aya-create)
          ("M-g e" . aya-expand)))
 
@@ -73,9 +65,6 @@
         ivy-use-selectable-prompt t
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
-  :commands (counsel-find-file counsel-apropos ivy-switch-buffer
-                               counsel-describe-function counsel-describe-variable
-                               counsel-info-lookup-symbol counsel-M-x counsel-yank-pop)
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . counsel-M-x)
          ("M-y"     . counsel-yank-pop)
