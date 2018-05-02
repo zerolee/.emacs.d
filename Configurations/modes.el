@@ -2,7 +2,6 @@
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package geiser
-  :ensure t
   :config
   (progn
     (setq scheme-program-name "scheme")        
@@ -13,7 +12,6 @@
 ;; Common Lisp slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package slime
-  :ensure t
   :init
   (setq inferior-lisp-program "/usr/bin/sbcl"))
 
@@ -23,7 +21,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lsp-common-set ()
   (use-package company-lsp
-    :ensure t
     :config
     (setq company-transformers nil company-lsp-async t
           company-lsp-cache-candidates nil)
@@ -32,15 +29,14 @@
                         company-dabbrev
                         company-files)))
   (use-package lsp-ui
-    :ensure t
     :config
     (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-sideline-enable nil)
     (lsp-ui-mode))
   (use-package flycheck
-    :ensure t
     :config
-    (flycheck-mode)))
+    (flycheck-mode))
+  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -52,7 +48,6 @@
 (setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
 
 (use-package cquery
-  :ensure t
   :init
   (add-hook 'c-mode-hook
             '(lambda ()
@@ -70,7 +65,6 @@
 (setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
 
 (use-package lsp-java
-  :ensure t
   :init
   (add-hook 'java-mode-hook
             '(lambda ()
@@ -78,25 +72,20 @@
                (lsp-java-enable))))
 
 (use-package ivy-xref
-  :ensure t
   :init
   (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
 
-(use-package lsp-imenu
-  :init
-  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package antlr-mode
-  :mode ("\\.g4\\'" . antlr-v4-mode))
+(autoload 'antlr-v4-mode "antlr-mode" nil t)
+(push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; web-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package web-mode
-  :ensure t
   :mode (("\\.html\\'" . web-mode)
-	 ("\\.htm\\'" . web-mode)))
+         ("\\.htm\\'" . web-mode)))

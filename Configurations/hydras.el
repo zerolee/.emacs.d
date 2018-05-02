@@ -1,4 +1,4 @@
-(require 'lzl-lib)
+(require 'save-position)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
@@ -89,17 +89,12 @@
 (defhydra hydra-info (:color red
                              :hint nil)
   "
-Info-mode:
-
-  ^^_]_ forward  (next logical node)       ^^_l_ast (←)        _u_p (↑)                             _f_ollow reference       _T_OC
-  ^^_[_ backward (prev logical node)       ^^_r_eturn (→)      _m_enu (↓) (C-u for new window)      _i_ndex                  _d_irectory
-  ^^_n_ext (same level only)               ^^_H_istory         _g_oto (C-u for new window)          _,_ next index item      _c_opy node name
-  ^^_p_rev (same level only)               _<_/_t_op           _b_eginning of buffer                virtual _I_ndex          _C_lone buffer
-  regex _s_earch (_S_ case sensitive)      ^^_>_ final         _e_nd of buffer                      ^^                       _a_propos
-
-  _1_ .. _9_ Pick first .. ninth item in the node's menu.
-
-"
+  _]_ forward  (next logical node)       _l_ast (←)                 _u_p (↑)                           _f_ollow reference
+  _[_ backward (prev logical node)       _r_eturn (→)               _m_enu (↓) (C-u for new window)    _d_irectory
+  _n_ext (same level only)               _H_istory                  _g_oto (C-u for new window)        _a_propos
+  _p_rev (same level only)               _b_eginning of buffer      _e_nd of buffer                    _s_earch (_S_ case sensitive)
+  _i_dex item                            _,_ next index item        virtual _I_ndex
+ "
   ("]"   Info-forward-node)
   ("["   Info-backward-node)
   ("n"   Info-next)
@@ -110,12 +105,8 @@ Info-mode:
   ("l"   Info-history-back)
   ("r"   Info-history-forward)
   ("H"   Info-history)
-  ("t"   Info-top-node)
-  ("<"   Info-top-node)
-  (">"   Info-final-node)
 
   ("u"   Info-up)
-  ("^"   Info-up)
   ("m"   Info-menu)
   ("g"   Info-goto-node)
   ("b"   beginning-of-buffer)
@@ -126,21 +117,8 @@ Info-mode:
   (","   Info-index-next)
   ("I"   Info-virtual-index)
 
-  ("T"   Info-toc)
   ("d"   Info-directory)
-  ("c"   Info-copy-current-node-name)
-  ("C"   clone-buffer)
   ("a"   info-apropos)
-
-  ("1"   Info-nth-menu-item)
-  ("2"   Info-nth-menu-item)
-  ("3"   Info-nth-menu-item)
-  ("4"   Info-nth-menu-item)
-  ("5"   Info-nth-menu-item)
-  ("6"   Info-nth-menu-item)
-  ("7"   Info-nth-menu-item)
-  ("8"   Info-nth-menu-item)
-  ("9"   Info-nth-menu-item)
 
   ("?"   Info-summary "Info summary")
   ("h"   Info-help "Info help")
@@ -223,6 +201,12 @@ Info-mode:
           (forward-sexp)
           (backward-sexp)
           (lzl-emacs-get #'forward-sexp "as")))
+  ("aS" (progn
+          (backward-sentence)
+          (lzl-emacs-get #'forward-sentence "aS")))
+  ("aP" (progn
+          (backward-paragraph)
+          (lzl-emacs-get #'forward-paragraph "aP")))
   ("a\"" (progn
            (lzl-look-forward-char -1 ?\")
            (lzl-emacs-get #'(lambda () (interactive)
@@ -291,8 +275,8 @@ Info-mode:
           (web-mode-tag-end)
           (lzl-emacs-get #'(lambda () (interactive)
                              (web-mode-element-end)
-			     (backward-char 1)
-			     (web-mode-tag-beginning)) "at")))
+                             (backward-char 1)
+                             (web-mode-tag-beginning)) "at")))
   ("l" (progn
          (paredit-backward-up)
          (lzl-emacs-get #'forward-sexp "s")))
@@ -300,6 +284,8 @@ Info-mode:
          (end-of-defun)
          (beginning-of-defun)
          (lzl-emacs-get #'forward-sexp "s")))
+  ("S" (lzl-emacs-get #'forward-sentence "S"))
+  ("P" (lzl-emacs-get #'forward-paragraph "P"))
   ("w" (lzl-emacs-get #'forward-word "w"))
   ("s" (lzl-emacs-get #'forward-sexp "s"))
   (";" (lzl-emacs-get #'end-of-line ";"))
@@ -373,6 +359,9 @@ Info-mode:
   ("w" (progn
          (call-interactively #'kill-region)
          (hydra-esc/body)) :exit t)
+  ("k" (progn
+         (call-interactively #'kill-rectangle)
+	 (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-region)) :exit t)
   ("t" (progn
@@ -399,6 +388,9 @@ Info-mode:
   ("w" (progn
          (call-interactively #'kill-region)
          (hydra-esc/body)) :exit t)
+  ("k" (progn
+         (call-interactively #'kill-rectangle)
+	 (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-rectangle)) :exit t)
   ("t" (progn
@@ -526,9 +518,9 @@ Info-mode:
   ("[" paredit-backward-up)
   ("]" paredit-forward-up)
   (";" eval-last-sexp)
-  ("." lzl-push-mark-to-ring)
-  ("," lzl-get-mark-from-ring)
-  ("/" lzl-show-all-mark-in-ring)
+  ("." sp-push-position-to-ring)
+  ("," sp-get-position-from-ring)
+  ("/" sp-show-all-position-in-ring)
   ("M-x" counsel-M-x :exit t)
   ("M-g 1" avy-goto-char)
   ("M-g 2" avy-goto-char-2)
