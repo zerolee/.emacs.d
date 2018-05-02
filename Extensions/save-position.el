@@ -2,10 +2,10 @@
 ;; 一个的保存 point 的实现
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (require 'ivy)
-(defvar lzl-point-ring nil
-  "这是用来保存 mark 的，理论上无限制")
+(defvar sp-position-ring nil
+  "这是用来保存 markpoint 的，理论上无限制")
 
-(defvar lzl-ring-mark-pointer nil
+(defvar sp-ring-position-pointer nil
   "当前所在 pointer")
 
 ;;; 比较两个 point 是否相等
@@ -23,7 +23,7 @@
     nil))
 
 ;;; 去所在 buffer
-(defun lzl-goto-buffer (buffer)
+(defun sp-goto-buffer (buffer)
   (let ((list (window-list)))
     (while list
       (if (not (string-equal buffer (buffer-name)))
@@ -34,7 +34,7 @@
 
 ;;; 当前位置相关信息 (展示信息：字符串，为了给 ivy 提供显示使用
 ;;;                位置信息：(buffer-name . name))
-(defun lzl-context-mark ()
+(defun sp-context-mark ()
   (let ((current-point (point))
         (current-line (progn
                         (beginning-of-line)
@@ -52,72 +52,72 @@
               (put-text-property 0 (length str) 'face 'font-lock-keyword-face str) str)
             ": " context-string)))
 
-(defun lzl-point-info ()
-  (cons (lzl-context-mark)
+(defun sp-position-info ()
+  (cons (sp-context-mark)
         (cons (buffer-name) (point-marker))))
 
 
 (defun index-compute (arg length)
-  (let* ((ring-pointer-length (length lzl-ring-mark-pointer))
+  (let* ((ring-pointer-length (length sp-ring-position-pointer))
          (return-value (+ arg (- length ring-pointer-length))))
     (if (< return-value 0)
         (+ return-value length)
       return-value)))
-;;; 将 lzl-ring-mark-pointer 移动向 lzl-point-ring 的下 arg 个元素
+;;; 将 sp-ring-position-pointer 移动向 sp-position-ring 的下 arg 个元素
 (defun rotate-mark-ring-pointer (arg)
   "Rotate the mark point in the mark ring."
   "interactive p"
-  (let ((length (length lzl-point-ring)))
+  (let ((length (length sp-position-ring)))
     (if (zerop length)
         (error "Mark point ring is empty")
-      (setq lzl-ring-mark-pointer
+      (setq sp-ring-position-pointer
             (nthcdr (% (index-compute arg length)
                        length)
-                    lzl-point-ring)))))
+                    sp-position-ring)))))
 
 
-(defun lzl-push-mark-to-ring ()
-  "将当前位置的 point 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除"
+(defun sp-push-position-to-ring ()
+  "将当前位置的 markpoint 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除"
   (interactive)
   (let ((pointer
-         (bury-dup-element-from-list lzl-point-ring (lzl-point-info))))
-    (if (= (length pointer) (length lzl-point-ring))
+         (bury-dup-element-from-list sp-position-ring (sp-position-info))))
+    (if (= (length pointer) (length sp-position-ring))
         (progn
-          (setq lzl-point-ring (cons (lzl-point-info) lzl-point-ring))
-          (setq lzl-ring-mark-pointer lzl-point-ring)
+          (setq sp-position-ring (cons (sp-position-info) sp-position-ring))
+          (setq sp-ring-position-pointer sp-position-ring)
           (message "添加当前位置的 point"))
       (progn
-        (setq lzl-point-ring pointer)
+        (setq sp-position-ring pointer)
         (message "移除当前所在位置的 markpoint")))))
 
-(defun lzl-get-mark-from-ring (&optional arg)
-  "得到 lzl-pointer 所指向的 ring 同时，将其往后移动一次"
+(defun sp-get-position-from-ring (&optional arg)
+  "得到 sp-ring-position-pointer 所指向的 ring 同时，将其往后移动一次"
   (interactive "P")
-  (if (zerop (length lzl-point-ring))
-      (error "point-ring 为空，请先 mark")
+  (if (zerop (length sp-position-ring))
+      (error "position-ring 为空，请先 mark")
     (progn
       (if (eq arg '-)
           (rotate-mark-ring-pointer -2)
-        (if (struct-point-equal (car lzl-ring-mark-pointer)
-                                (lzl-point-info))
+        (if (struct-point-equal (car sp-ring-position-pointer)
+                                (sp-position-info))
             (rotate-mark-ring-pointer 1)))
-      (if (get-buffer (cadar lzl-ring-mark-pointer))
+      (if (get-buffer (cadar sp-ring-position-pointer))
           (progn
-            (lzl-goto-buffer (cadar lzl-ring-mark-pointer))
-            (goto-char (marker-position (cddar lzl-ring-mark-pointer)))
+            (sp-goto-buffer (cadar sp-ring-position-pointer))
+            (goto-char (marker-position (cddar sp-ring-position-pointer)))
             (rotate-mark-ring-pointer 1))
-        (setq lzl-point-ring
-              (bury-dup-element-from-list lzl-point-ring
-                                          (car  lzl-ring-mark-pointer)))
+        (setq sp-position-ring
+              (bury-dup-element-from-list sp-position-ring
+                                          (car  sp-ring-position-pointer)))
         (rotate-mark-ring-pointer 1)
-        (lzl-get-mark-from-ring)))))
+        (sp-get-position-from-ring)))))
 
-(defun lzl-show-all-mark-in-ring ()
+(defun sp-show-all-position-in-ring ()
   (interactive)
-  (ivy-read "mark ring: " lzl-point-ring
+  (ivy-read "mark ring: " sp-position-ring
             :action '(lambda (x)
-                       (if (zerop (length lzl-point-ring))
-                           (error "point-ring 为空，请先 mark")
-                         (lzl-goto-buffer (cadr x))
+                       (if (zerop (length sp-position-ring))
+                           (error "position-ring 为空，请先 mark")
+                         (sp-goto-buffer (cadr x))
                          (goto-char (marker-position (cddr x)))))))
-(provide 'lzl-lib)
+(provide 'save-position)

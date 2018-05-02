@@ -1,7 +1,7 @@
 ;; Keeping Points in Buffers for Current Session
-(global-set-key (kbd "s-.") 'lzl-push-mark-to-ring)
-(global-set-key (kbd "s-,") 'lzl-get-mark-from-ring)
-(global-set-key (kbd "s-/") 'lzl-show-all-mark-in-ring)
+(global-set-key (kbd "s-.") 'sp-push-position-to-ring)
+(global-set-key (kbd "s-,") 'sp-get-position-from-ring)
+(global-set-key (kbd "s-/") 'sp-show-all-position-in-ring)
 
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%

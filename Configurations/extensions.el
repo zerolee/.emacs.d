@@ -1,5 +1,5 @@
-;; lzl-lib
-(autoload 'lzl-push-mark-to-ring "lzl-lib")
+;; save-position
+(autoload 'sp-push-position-to-ring "save-position")
 
 (use-package wgrep                     :ensure t)
 (use-package markdown-mode             :ensure t)

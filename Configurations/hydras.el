@@ -1,4 +1,4 @@
-(require 'lzl-lib)
+(require 'save-position)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
@@ -512,9 +512,9 @@
   ("[" paredit-backward-up)
   ("]" paredit-forward-up)
   (";" eval-last-sexp)
-  ("." lzl-push-mark-to-ring)
-  ("," lzl-get-mark-from-ring)
-  ("/" lzl-show-all-mark-in-ring)
+  ("." sp-push-position-to-ring)
+  ("," sp-get-position-from-ring)
+  ("/" sp-show-all-position-in-ring)
   ("M-x" counsel-M-x :exit t)
   ("M-g 1" avy-goto-char)
   ("M-g 2" avy-goto-char-2)
