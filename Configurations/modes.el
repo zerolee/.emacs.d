@@ -4,8 +4,8 @@
 (use-package geiser
   :config
   (progn
-    (setq scheme-program-name "scheme")        
-    (setq geiser-active-implementations '(chez))))
+    (setq scheme-program-name "scheme"
+          geiser-active-implementations '(chez))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,6 +36,9 @@
   (use-package flycheck
     :config
     (flycheck-mode))
+  (use-package ivy-xref
+    :init
+    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
   (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -70,12 +73,6 @@
             '(lambda ()
                (lsp-common-set)
                (lsp-java-enable))))
-
-(use-package ivy-xref
-  :init
-  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode

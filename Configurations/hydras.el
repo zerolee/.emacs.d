@@ -361,7 +361,7 @@
          (hydra-esc/body)) :exit t)
   ("k" (progn
          (call-interactively #'kill-rectangle)
-	 (hydra-esc/body)) :exit t)
+         (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-region)) :exit t)
   ("t" (progn
@@ -390,7 +390,7 @@
          (hydra-esc/body)) :exit t)
   ("k" (progn
          (call-interactively #'kill-rectangle)
-	 (hydra-esc/body)) :exit t)
+         (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-rectangle)) :exit t)
   ("t" (progn
@@ -467,6 +467,7 @@
   ("M" (save-excursion
          (call-interactively #'mark-whole-buffer)
          (mytab)
+         (whitespace-cleanup)
          (call-interactively #'untabify)))
   ("n" next-line)
   ("C-n" next-line :exit t)

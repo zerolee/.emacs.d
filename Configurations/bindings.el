@@ -33,11 +33,6 @@
 ;; remeber
 (global-set-key (kbd "<C-f5>") 'remember)
 
-
-;; windmove
-(windmove-default-keybindings)
-;;(global-set-key (kbd "<s-S-left>") 'windmove-left)
-
 ;; winner-mode
 ;; 主要用来撤销动作的
 (setq winner-dont-bind-my-keys t)
