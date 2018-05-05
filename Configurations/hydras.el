@@ -368,34 +368,6 @@
          (call-interactively #'string-rectangle)
          (hydra-esc/body)) :exit t))
 
-(defhydra hydra-emacs/V (:body-pre (progn
-                                     (rectangle-mark-mode)
-                                     (setq-default cursor-type 'bar))
-                                   :post (setq-default cursor-type t)
-                                   :color pink
-                                   :hint nil)
-
-  "
-   ---rectangle---
-  "
-  ("n" next-line)
-  ("p" previous-line)
-  ("b" backward-char)
-  ("f" forward-char)
-  ("M-w" (progn
-           (call-interactively #'copy-region-as-kill)
-           (hydra-esc/body)) :exit t)
-  ("w" (progn
-         (call-interactively #'kill-region)
-         (hydra-esc/body)) :exit t)
-  ("k" (progn
-         (call-interactively #'kill-rectangle)
-         (hydra-esc/body)) :exit t)
-  ("c" (progn
-         (call-interactively #'kill-rectangle)) :exit t)
-  ("t" (progn
-         (call-interactively #'string-rectangle)
-         (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/R (:body-pre (overwrite-mode)
                                    :color pink
@@ -509,7 +481,6 @@
   ("u" undo)
   ("U" winner-undo)
   ("v" scroll-up-command)
-  ("V" hydra-emacs/V/body :exit t)
   ("w" forward-to-word)
   ("x" (insert-char ?x) :exit t)
   ("y" yank)
