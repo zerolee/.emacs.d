@@ -12,7 +12,8 @@
 (use-package hydra)
 (use-package projectile)
 
-(use-package multiple-cursors
+(use-package multiple-cursors-core
+  :ensure multiple-cursors
   :bind (("M-g m" . mc/edit-lines)
          ("M-g r" . mc/mark-all-in-region-regexp)
          ("M-g a" . mc/mark-all-like-this)
@@ -28,7 +29,7 @@
          ("M-i" . mc/insert-numbers)))
 
 (use-package treemacs
-  :bind (("<f2>" . treemacs-toggle)
+  :bind (("<f2>" . treemacs)
          :map treemacs-mode-map
          ("m" . (lambda () (interactive)
                   (let ((bname (buffer-name)))

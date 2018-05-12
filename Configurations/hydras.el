@@ -2,8 +2,8 @@
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
-   _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
-   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet   _h_: hs
+   _l_: locate  _p_: ivy-push-view    _o_: org          _h_: hs
+   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet
    _z_: fzf     _r_: rg               _c_: flycheck
    _g_: git     _i_: imenu            _F_: recentf
   "
@@ -20,7 +20,6 @@
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" company-yasnippet)
-  ("t" treemacs)
   ("H" (hs-minor-mode -1))
   ("h" (progn
          (hs-minor-mode)
