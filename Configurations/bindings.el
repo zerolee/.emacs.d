@@ -64,11 +64,6 @@
 
 (global-set-key (kbd "S-<f2>") #'lsp-rename)
 
-;;; gdb
-(add-hook 'gdb-mode-hook '(lambda ()
-                            (define-key c-mode-base-map (kbd "<f5>") #'gud-go)
-                            (define-key c-mode-base-map (kbd "<f7>") #'gud-step)
-                            (define-key c-mode-base-map (kbd "<f8>") #'gud-next)))
 
 (global-set-key (kbd "s-h") 'windmove-left)
 (global-set-key (kbd "s-l") 'windmove-right)

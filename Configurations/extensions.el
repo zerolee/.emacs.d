@@ -12,6 +12,10 @@
 (use-package hydra)
 (use-package projectile)
 
+(use-package goto-chg
+  :bind (("C-." . goto-last-change)
+         ("C-," . goto-last-change-reverse)))
+
 (use-package multiple-cursors-core
   :ensure multiple-cursors
   :bind (("M-g m" . mc/edit-lines)

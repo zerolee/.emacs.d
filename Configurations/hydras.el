@@ -8,7 +8,7 @@
    _g_: git     _i_: imenu            _F_: recentf
   "
   ("b" ivy-switch-buffer)
-  ("B" lzlvim-B)
+  ("B" goto-ibuffer)
   ("f" counsel-find-file)
   ("F" counsel-recentf)
   ("l" counsel-locate)
@@ -127,8 +127,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra-esc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lzlvim-B ()
-  "打开并跳转到 ListBuffer"
+(defun goto-ibuffer ()
+  "打开并跳转到 Ibuffer"
   (interactive)
   (progn
     (ibuffer-list-buffers)
@@ -168,7 +168,7 @@
                   (= (1+ pp) (point)))
             (delete-char -1))
         (goto-char pp)))
-  ;; 如果复制的话，回复其位置
+  ;; 如果复制的话，恢复其位置
   (if (string-equal lzl-arg1 "m")
       (goto-char emacs-ckm-point))
   (setq current-prefix-arg nil)
@@ -403,7 +403,6 @@
   (")" paredit-forward-slurp-sexp)
   ("<" paredit-backward-barf-sexp)
   (">" paredit-forward-barf-sexp)
-  ("=" er/expand-region)
   ("M-s" paredit-split-sexp)
   ("J" paredit-join-sexps)
   ("<up>" paredit-splice-sexp)
@@ -413,7 +412,7 @@
   ("a" beginning-of-line)
   ("C-a" beginning-of-line :exit t)
   ("b" backward-char)
-  ("B" lzlvim-B :exit t)
+  ("B" goto-ibuffer :exit t)
   ("C-b" backward-char :exit t)
   ("c" (emacs-ckm "c") :exit t)
   ("d" delete-char)
@@ -493,14 +492,6 @@
   ("," sp-get-position-from-ring)
   ("/" sp-show-all-position-in-ring)
   ("M-x" counsel-M-x :exit t)
-  ("M-g 1" avy-goto-char)
-  ("M-g 2" avy-goto-char-2)
-  ("M-g t" avy-goto-char-timer)
-  ("M-g f" avy-goto-char-in-line)
-  ("M-g l" avy-goto-line)
-  ("M-g s" avy-goto-symbol-1)
-  ("M-g 0" avy-goto-word-0)
-  ("M-g w" avy-goto-word-1)
   ("M-<SPC>" hydra-f1/body :exit t)
   ("<f3>" (progn
             (call-interactively #'gdb-many-windows)
