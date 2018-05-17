@@ -13,7 +13,7 @@
 (load "extensions")
 
 ;; This can contain configuration for the different major modes
-(if window-system  (load "modes"))
+(load "modes")
 
 ;; This file can contain all the macros you have developed
 (load "my-macros")

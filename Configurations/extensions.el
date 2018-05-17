@@ -64,14 +64,12 @@
 
 ;; 使用主题
 (use-package solarized-theme
-  :if window-system
   :config
   (load-theme 'solarized-light t))
 
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :if window-system
   :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet)
   :init
   (add-hook 'prog-mode-hook #'yas-minor-mode))

@@ -92,4 +92,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package eglot
   :bind (:map eglot-mode-map
-              ("S-<f2>" . eglot-rename)))
+              ("S-<f2>" . eglot-rename)
+              ("M-." . xref-find-definitions)
+              ("M-?" . xref-find-references)
+              ("M-g p" . flymake-goto-prev-error)
+              ("M-g n" . flymake-goto-next-error)))

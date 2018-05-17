@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 (require 'save-position)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
@@ -504,6 +505,3 @@
   ("<f9>" gud-cont)
   ("<f10>" gud-finish)
   ("<escape>" nil))
-
-(unless window-system
-  (hydra-esc/body))
