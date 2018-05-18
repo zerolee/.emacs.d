@@ -33,7 +33,8 @@
     :config
     (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-sideline-enable nil)
-    (lsp-ui-mode))
+    (lsp-ui-mode)
+    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
   (use-package flycheck
     :config
     (flycheck-mode))
@@ -58,7 +59,8 @@
             '(lambda ()
                (lsp-common-set)
                (lsp-cquery-enable)
-               (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
+               (setq cquery--get-init-params
+                     '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
 
 
 

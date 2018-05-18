@@ -406,7 +406,10 @@
   (">" paredit-forward-barf-sexp)
   ("M-s" paredit-split-sexp)
   ("J" paredit-join-sexps)
-  ("<up>" paredit-splice-sexp)
+  ("M-<up>" paredit-splice-sexp)
+  ("<up>" (progn
+            (paredit-backward)
+            (paredit-raise-sexp)))
   ("<down>" paredit-raise-sexp)
   ("<left>"  paredit-splice-sexp-killing-forward)
   ("<right>" paredit-splice-sexp-killing-backward)

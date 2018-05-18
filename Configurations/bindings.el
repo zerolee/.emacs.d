@@ -55,13 +55,6 @@
 (global-set-key (kbd "M-3") 'split-window-right)
 
 
-
-;;; lsp
-(with-eval-after-load 'lsp-ui
-  (define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-  (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
-  (define-key lsp-ui-mode-map [remap xref-find-apropos] #'lsp-ui-peek-find-workspace-symbol))
-
 (global-set-key (kbd "S-<f2>") #'lsp-rename)
 (global-set-key (kbd "M-g l") #'flycheck-list-errors)
 

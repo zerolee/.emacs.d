@@ -15,9 +15,11 @@
 
 (use-package hydra)
 
-(use-package projectile
+(use-package counsel-projectile
   :bind-keymap
-  ("C-c p" . projectile-command-map))
+  ("C-c p" . counsel-projectile-command-map)
+  :config
+  (counsel-projectile-mode))
 
 (use-package goto-chg
   :bind (("C-." . goto-last-change)
@@ -25,6 +27,8 @@
 
 (use-package multiple-cursors-core
   :ensure multiple-cursors
+  :init
+  (autoload 'mc/mark-next-like-this-symbol "mc-mark-more")
   :bind (("M-g m" . mc/edit-lines)
          ("M-g r" . mc/mark-all-in-region-regexp)
          ("M-g a" . mc/mark-all-like-this)
@@ -88,6 +92,7 @@
   :init
   (setq ivy-use-virtual-buffers t
         ivy-use-selectable-prompt t
+        recentf-max-saved-items 100
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   :bind (("C-x C-f" . counsel-find-file)
