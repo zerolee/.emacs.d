@@ -33,11 +33,6 @@
 ;; remeber
 (global-set-key (kbd "<C-f5>") 'remember)
 
-
-;; windmove
-(windmove-default-keybindings 'super)
-;;(global-set-key (kbd "<s-S-left>") 'windmove-left)
-
 ;; winner-mode
 ;; 主要用来撤销动作的
 (setq winner-dont-bind-my-keys t)
@@ -68,12 +63,8 @@
   (define-key lsp-ui-mode-map [remap xref-find-apropos] #'lsp-ui-peek-find-workspace-symbol))
 
 (global-set-key (kbd "S-<f2>") #'lsp-rename)
+(global-set-key (kbd "M-g l") #'flycheck-list-errors)
 
-;;; gdb
-(add-hook 'gdb-mode-hook '(lambda ()
-                            (define-key c-mode-base-map (kbd "<f5>") #'gud-go)
-                            (define-key c-mode-base-map (kbd "<f7>") #'gud-step)
-                            (define-key c-mode-base-map (kbd "<f8>") #'gud-next)))
 
 (global-set-key (kbd "s-h") 'windmove-left)
 (global-set-key (kbd "s-l") 'windmove-right)

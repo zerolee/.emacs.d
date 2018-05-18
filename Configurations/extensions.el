@@ -1,19 +1,46 @@
 ;; save-position
 (autoload 'sp-push-position-to-ring "save-position")
 
-;;; 第一次安装时去掉注释
-;;;(progn
-;;;  (package-refresh-contents)
-;;;  (package-install 'use-package))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package markdown-mode)
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
 (use-package hydra)
-(use-package projectile)
+
+(use-package projectile
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
+
+(use-package goto-chg
+  :bind (("C-." . goto-last-change)
+         ("C-," . goto-last-change-reverse)))
+
+(use-package multiple-cursors-core
+  :ensure multiple-cursors
+  :bind (("M-g m" . mc/edit-lines)
+         ("M-g r" . mc/mark-all-in-region-regexp)
+         ("M-g a" . mc/mark-all-like-this)
+         ("M-g W" . mc/mark-next-like-this-word)
+         ("M-g S" . mc/mark-next-like-this-symbol)
+         :map mc/keymap
+         ("M-p" . mc/mark-previous-like-this)
+         ("M-P" . mc/unmark-previous-like-this)
+         ("M-n" . mc/mark-next-like-this)
+         ("M-N" . mc/unmark-next-like-this)
+         ("M-s" . mc/skip-to-next-like-this)
+         ("M-S" . mc/skip-to-previous-like-this)
+         ("M-i" . mc/insert-numbers)))
 
 (use-package treemacs
-  :bind (("<f2>" . treemacs-toggle)
+  :bind (("<f2>" . treemacs)
          :map treemacs-mode-map
          ("m" . (lambda () (interactive)
                   (let ((bname (buffer-name)))
@@ -32,7 +59,7 @@
          ("M-g 2" . avy-goto-char-2)
          ("M-g t" . avy-goto-char-timer)
          ("M-g f" . avy-goto-char-in-line)
-         ("M-g l" . avy-goto-line)
+         ("M-g g" . avy-goto-line)
          ("M-g s" . avy-goto-symbol-1)
          ("M-g 0" . avy-goto-word-0)
          ("M-g w" . avy-goto-word-1)))
@@ -44,14 +71,12 @@
 
 ;; 使用主题
 (use-package solarized-theme
-  :if window-system
   :config
   (load-theme 'solarized-light t))
 
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :if window-system
   :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet)
   :init
   (add-hook 'prog-mode-hook #'yas-minor-mode))

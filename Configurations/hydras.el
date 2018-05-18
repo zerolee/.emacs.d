@@ -1,14 +1,15 @@
+;;; -*- lexical-binding: t; -*-
 (require 'save-position)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
-   _l_: locate  _p_: ivy-push-view    _o_: org         _t_: treemacs
-   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet   _h_: hs
+   _l_: locate  _p_: ivy-push-view    _o_: org          _h_: hs
+   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet
    _z_: fzf     _r_: rg               _c_: flycheck
    _g_: git     _i_: imenu            _F_: recentf
   "
   ("b" ivy-switch-buffer)
-  ("B" lzlvim-B)
+  ("B" goto-ibuffer)
   ("f" counsel-find-file)
   ("F" counsel-recentf)
   ("l" counsel-locate)
@@ -20,7 +21,6 @@
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" company-yasnippet)
-  ("t" treemacs)
   ("H" (hs-minor-mode -1))
   ("h" (progn
          (hs-minor-mode)
@@ -128,8 +128,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; hydra-esc
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lzlvim-B ()
-  "打开并跳转到 ListBuffer"
+(defun goto-ibuffer ()
+  "打开并跳转到 Ibuffer"
   (interactive)
   (progn
     (ibuffer-list-buffers)
@@ -169,7 +169,7 @@
                   (= (1+ pp) (point)))
             (delete-char -1))
         (goto-char pp)))
-  ;; 如果复制的话，回复其位置
+  ;; 如果复制的话，恢复其位置
   (if (string-equal lzl-arg1 "m")
       (goto-char emacs-ckm-point))
   (setq current-prefix-arg nil)
@@ -361,41 +361,13 @@
          (hydra-esc/body)) :exit t)
   ("k" (progn
          (call-interactively #'kill-rectangle)
-	 (hydra-esc/body)) :exit t)
+         (hydra-esc/body)) :exit t)
   ("c" (progn
          (call-interactively #'kill-region)) :exit t)
   ("t" (progn
          (call-interactively #'string-rectangle)
          (hydra-esc/body)) :exit t))
 
-(defhydra hydra-emacs/V (:body-pre (progn
-                                     (rectangle-mark-mode)
-                                     (setq-default cursor-type 'bar))
-                                   :post (setq-default cursor-type t)
-                                   :color pink
-                                   :hint nil)
-
-  "
-   ---rectangle---
-  "
-  ("n" next-line)
-  ("p" previous-line)
-  ("b" backward-char)
-  ("f" forward-char)
-  ("M-w" (progn
-           (call-interactively #'copy-region-as-kill)
-           (hydra-esc/body)) :exit t)
-  ("w" (progn
-         (call-interactively #'kill-region)
-         (hydra-esc/body)) :exit t)
-  ("k" (progn
-         (call-interactively #'kill-rectangle)
-	 (hydra-esc/body)) :exit t)
-  ("c" (progn
-         (call-interactively #'kill-rectangle)) :exit t)
-  ("t" (progn
-         (call-interactively #'string-rectangle)
-         (hydra-esc/body)) :exit t))
 
 (defhydra hydra-emacs/R (:body-pre (overwrite-mode)
                                    :color pink
@@ -432,7 +404,6 @@
   (")" paredit-forward-slurp-sexp)
   ("<" paredit-backward-barf-sexp)
   (">" paredit-forward-barf-sexp)
-  ("=" er/expand-region)
   ("M-s" paredit-split-sexp)
   ("J" paredit-join-sexps)
   ("<up>" paredit-splice-sexp)
@@ -442,7 +413,7 @@
   ("a" beginning-of-line)
   ("C-a" beginning-of-line :exit t)
   ("b" backward-char)
-  ("B" lzlvim-B :exit t)
+  ("B" goto-ibuffer :exit t)
   ("C-b" backward-char :exit t)
   ("c" (emacs-ckm "c") :exit t)
   ("d" delete-char)
@@ -467,6 +438,7 @@
   ("M" (save-excursion
          (call-interactively #'mark-whole-buffer)
          (mytab)
+         (whitespace-cleanup)
          (call-interactively #'untabify)))
   ("n" next-line)
   ("C-n" next-line :exit t)
@@ -496,7 +468,7 @@
          (save-excursion
            (beginning-of-line)
            (open-line 1))))
-  ("q" kill-buffer)
+  ("q" (kill-buffer (current-buffer)))
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
   ("s" isearch-forward-regexp :exit t)
@@ -508,7 +480,6 @@
   ("u" undo)
   ("U" winner-undo)
   ("v" scroll-up-command)
-  ("V" hydra-emacs/V/body :exit t)
   ("w" forward-to-word)
   ("x" (insert-char ?x) :exit t)
   ("y" yank)
@@ -522,14 +493,6 @@
   ("," sp-get-position-from-ring)
   ("/" sp-show-all-position-in-ring)
   ("M-x" counsel-M-x :exit t)
-  ("M-g 1" avy-goto-char)
-  ("M-g 2" avy-goto-char-2)
-  ("M-g t" avy-goto-char-timer)
-  ("M-g f" avy-goto-char-in-line)
-  ("M-g l" avy-goto-line)
-  ("M-g s" avy-goto-symbol-1)
-  ("M-g 0" avy-goto-word-0)
-  ("M-g w" avy-goto-word-1)
   ("M-<SPC>" hydra-f1/body :exit t)
   ("<f3>" (progn
             (call-interactively #'gdb-many-windows)
@@ -542,6 +505,3 @@
   ("<f9>" gud-cont)
   ("<f10>" gud-finish)
   ("<escape>" nil))
-
-(unless window-system
-  (hydra-esc/body))

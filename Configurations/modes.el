@@ -4,17 +4,18 @@
 (use-package geiser
   :config
   (progn
-    (setq scheme-program-name "scheme")        
-    (setq geiser-active-implementations '(chez))))
+    (setq scheme-program-name "scheme"
+          geiser-active-implementations '(chez))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common Lisp slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package slime
-  :init
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
-
+  :hook (lisp-mode . slime-lisp-mode-hook)
+  :config
+  (setq inferior-lisp-program "/usr/bin/sbcl"
+        slime-contribs '(slime-fancy)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp
@@ -36,6 +37,9 @@
   (use-package flycheck
     :config
     (flycheck-mode))
+  (use-package ivy-xref
+    :init
+    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
   (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -48,6 +52,7 @@
 (setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
 
 (use-package cquery
+  :commands lsp-cquey-enable
   :init
   (add-hook 'c-mode-hook
             '(lambda ()
@@ -65,17 +70,12 @@
 (setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
 
 (use-package lsp-java
+  :commands lsp-java-enable
   :init
   (add-hook 'java-mode-hook
             '(lambda ()
                (lsp-common-set)
                (lsp-java-enable))))
-
-(use-package ivy-xref
-  :init
-  (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-
-
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
@@ -89,3 +89,15 @@
 (use-package web-mode
   :mode (("\\.html\\'" . web-mode)
          ("\\.htm\\'" . web-mode)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; eglot
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package eglot
+  :bind (:map eglot-mode-map
+              ("S-<f2>" . eglot-rename)
+              ("M-." . xref-find-definitions)
+              ("M-?" . xref-find-references)
+              ("M-g p" . flymake-goto-prev-error)
+              ("M-g n" . flymake-goto-next-error)
+              ("M-g l" . flymake-show-diagnostics-buffer)))

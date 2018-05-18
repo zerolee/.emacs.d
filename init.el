@@ -1,4 +1,3 @@
-;; (counsel wgrep paredit geiser yasnippet-snippets markdown-mode exwm evil cquery company-quickhelp company-lsp ivy-xref smex)
 (setq load-path
       (cons "~/.emacs.d/Configurations"
             (cons "~/.emacs.d/Extensions" load-path)))
@@ -14,7 +13,7 @@
 (load "extensions")
 
 ;; This can contain configuration for the different major modes
-(if window-system  (load "modes"))
+(load "modes")
 
 ;; This file can contain all the macros you have developed
 (load "my-macros")
@@ -26,4 +25,4 @@
 (load "bindings")
 
 (load-file custom-file)
-(setq gc-cons-threshold 800000)
+(setq gc-cons-threshold 4000000)

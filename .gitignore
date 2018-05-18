@@ -19,3 +19,5 @@ pyim/
 workspace/
 projectile-bookmarks.eld
 projectile.cache
+.cache
+.mc-lists.el

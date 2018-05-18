@@ -43,7 +43,9 @@
 ;;;display and open image
 (auto-image-file-mode)
 
-
+;;; C-x C-l downcase-region: 文本块全部改为小写，该命令默认是 disabled
+;;; C-x C-u upcase-region: 文本块全部改为大写， 该命令默认是 disabled
+;;; 启用该命令
 (put 'upcase-region 'disabled 0)
 (put 'downcase-region 'disabled 0)
 
@@ -69,3 +71,8 @@
 
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+
+;;; 配置 dired-x
+(autoload 'dired-jump "dired-x")
+;;; 设置隐藏模式下要隐藏的文件
+(setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\.")
