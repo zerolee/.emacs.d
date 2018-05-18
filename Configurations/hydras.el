@@ -468,7 +468,7 @@
          (save-excursion
            (beginning-of-line)
            (open-line 1))))
-  ("q" kill-buffer)
+  ("q" (kill-buffer (current-buffer)))
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
   ("s" isearch-forward-regexp :exit t)

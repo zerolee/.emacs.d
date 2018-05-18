@@ -12,9 +12,10 @@
 ;; Common Lisp slime
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package slime
-  :init
-  (setq inferior-lisp-program "/usr/bin/sbcl"))
-
+  :hook (lisp-mode . slime-lisp-mode-hook)
+  :config
+  (setq inferior-lisp-program "/usr/bin/sbcl"
+        slime-contribs '(slime-fancy)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp
@@ -51,6 +52,7 @@
 (setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
 
 (use-package cquery
+  :commands lsp-cquey-enable
   :init
   (add-hook 'c-mode-hook
             '(lambda ()
@@ -68,6 +70,7 @@
 (setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
 
 (use-package lsp-java
+  :commands lsp-java-enable
   :init
   (add-hook 'java-mode-hook
             '(lambda ()
@@ -96,4 +99,5 @@
               ("M-." . xref-find-definitions)
               ("M-?" . xref-find-references)
               ("M-g p" . flymake-goto-prev-error)
-              ("M-g n" . flymake-goto-next-error)))
+              ("M-g n" . flymake-goto-next-error)
+              ("M-g l" . flymake-show-diagnostics-buffer)))

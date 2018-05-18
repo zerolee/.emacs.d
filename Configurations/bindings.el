@@ -63,6 +63,7 @@
   (define-key lsp-ui-mode-map [remap xref-find-apropos] #'lsp-ui-peek-find-workspace-symbol))
 
 (global-set-key (kbd "S-<f2>") #'lsp-rename)
+(global-set-key (kbd "M-g l") #'flycheck-list-errors)
 
 
 (global-set-key (kbd "s-h") 'windmove-left)

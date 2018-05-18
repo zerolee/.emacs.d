@@ -1,16 +1,23 @@
 ;; save-position
 (autoload 'sp-push-position-to-ring "save-position")
 
-;;; 第一次安装时去掉注释
-;;;(progn
-;;;  (package-refresh-contents)
-;;;  (package-install 'use-package))
+(unless (package-installed-p 'use-package)
+  (package-refresh-contents)
+  (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package markdown-mode)
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
 (use-package hydra)
-(use-package projectile)
+
+(use-package projectile
+  :bind-keymap
+  ("C-c p" . projectile-command-map))
 
 (use-package goto-chg
   :bind (("C-." . goto-last-change)
@@ -52,7 +59,7 @@
          ("M-g 2" . avy-goto-char-2)
          ("M-g t" . avy-goto-char-timer)
          ("M-g f" . avy-goto-char-in-line)
-         ("M-g l" . avy-goto-line)
+         ("M-g g" . avy-goto-line)
          ("M-g s" . avy-goto-symbol-1)
          ("M-g 0" . avy-goto-word-0)
          ("M-g w" . avy-goto-word-1)))
