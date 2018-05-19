@@ -70,7 +70,7 @@
                    (insert-file-contents "~/模板/.cquery")))))
 
 ;; Using MELPA
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
 
 ;;; 配置 dired-x
 (autoload 'dired-jump "dired-x")

@@ -404,7 +404,7 @@
   (")" paredit-forward-slurp-sexp)
   ("<" paredit-backward-barf-sexp)
   (">" paredit-forward-barf-sexp)
-  ("M-s" paredit-split-sexp)
+  ("S" paredit-split-sexp)
   ("J" paredit-join-sexps)
   ("M-<up>" paredit-splice-sexp)
   ("<up>" (progn

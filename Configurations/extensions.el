@@ -35,12 +35,12 @@
          ("M-g W" . mc/mark-next-like-this-word)
          ("M-g S" . mc/mark-next-like-this-symbol)
          :map mc/keymap
-         ("M-p" . mc/mark-previous-like-this)
-         ("M-P" . mc/unmark-previous-like-this)
+         ("M-b" . mc/mark-previous-like-this)
+         ("M-f" . mc/unmark-previous-like-this)
          ("M-n" . mc/mark-next-like-this)
-         ("M-N" . mc/unmark-next-like-this)
+         ("M-p" . mc/unmark-next-like-this)
          ("M-s" . mc/skip-to-next-like-this)
-         ("M-S" . mc/skip-to-previous-like-this)
+         ("M-g" . mc/skip-to-previous-like-this)
          ("M-i" . mc/insert-numbers)))
 
 (use-package treemacs
@@ -131,7 +131,10 @@
 ;; M-r 跳出外围块(去掉外层代码)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package paredit
-  :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode))
+  :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode)
+  :config
+  (define-key paredit-mode-map (kbd "M-s") nil)
+  (define-key paredit-mode-map (kbd "M-r") nil))
 
 (use-package key-chord
   :config
