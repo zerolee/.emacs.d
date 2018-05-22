@@ -1,7 +1,10 @@
+(setq display-time-default-load-average nil)
 (display-time)
 ;; 关掉开机信息
 (setq inhibit-startup-message t)
 
+;;; mode-line 上取消 eldoc 显示
+(setq eldoc-minor-mode-string "")
 (menu-bar-mode -1)
 (tool-bar-mode -1)
 (scroll-bar-mode -1)

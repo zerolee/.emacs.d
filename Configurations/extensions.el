@@ -19,7 +19,11 @@
   :bind-keymap
   ("C-c p" . counsel-projectile-command-map)
   :config
+  (setq projectile-mode-line
+        '(:eval (format " P[%s]" (projectile-project-name))))
   (counsel-projectile-mode))
+
+
 
 (use-package goto-chg
   :bind (("C-." . goto-last-change)
@@ -133,6 +137,7 @@
 (use-package paredit
   :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode)
   :config
+  (setq paredit-lighter nil)
   (define-key paredit-mode-map (kbd "M-s") nil)
   (define-key paredit-mode-map (kbd "M-r") nil))
 
