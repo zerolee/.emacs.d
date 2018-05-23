@@ -5,9 +5,6 @@
 
 ;;; mode-line 上取消 eldoc 显示
 (setq eldoc-minor-mode-string "")
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
 
 (setq column-number-mode t)
 

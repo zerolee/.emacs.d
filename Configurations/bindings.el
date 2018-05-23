@@ -11,6 +11,7 @@
 (global-set-key (kbd "M-%") 'query-replace-regexp)
 (global-set-key (kbd "C-M-%") 'query-replace)
 
+(global-set-key (kbd "C-M-]") 'up-list)
 ;; just-one-space
 (global-set-key (kbd "<M-backspace>") 'just-one-space)
 
