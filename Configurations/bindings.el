@@ -48,6 +48,22 @@
 (define-key Info-mode-map (kbd "?") #'hydra-info/body)
 (global-set-key (kbd "<f1>") #'hydra-f1/body)
 (global-set-key (kbd "M-<SPC>") #'hydra-f1/body)
+(global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
+(global-set-key (kbd "M-s w") '(lambda () (interactive)
+                                 (backward-word)
+                                 (kill-word 1)))
+(global-set-key (kbd "M-s s") '(lambda () (interactive)
+                                 (backward-sexp)
+                                 (kill-sexp)))
+(global-set-key (kbd "M-s l") '(lambda () (interactive)
+                                 (paredit-backward-up)
+                                 (kill-sexp)))
+(global-set-key (kbd "M-s i") '(lambda () (interactive)
+                                 (paredit-backward-up)
+                                 (kill-region (1+ (point))
+                                              (progn (forward-sexp)
+                                                     (backward-char)
+                                                     (point)))))
 
 ;;;
 (global-set-key (kbd "M-0") 'delete-window)
@@ -55,11 +71,7 @@
 (global-set-key (kbd "M-2") 'split-window-below)
 (global-set-key (kbd "M-3") 'split-window-right)
 
-
-(global-set-key (kbd "S-<f2>") #'lsp-rename)
-(global-set-key (kbd "M-g l") #'flycheck-list-errors)
-
-
+;;;
 (global-set-key (kbd "s-h") 'windmove-left)
 (global-set-key (kbd "s-l") 'windmove-right)
 (global-set-key (kbd "s-j") 'windmove-down)

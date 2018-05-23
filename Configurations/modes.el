@@ -36,12 +36,15 @@
     (lsp-ui-mode)
     (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
   (use-package flycheck
+    :bind (:map flycheck-mode-map
+                ("M-g l" . flycheck-list-errors))
     :config
     (flycheck-mode))
   (use-package ivy-xref
     :init
     (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
+  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
+  (global-set-key (kbd "S-<f2>") #'lsp-rename))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -50,11 +53,11 @@
 ;; xref-find-definitions ( M-. )
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
-(setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
-
 (use-package cquery
   :commands lsp-cquey-enable
   :init
+  (setq cquery-executable
+        "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
   (add-hook 'c-mode-hook
             '(lambda ()
                (lsp-common-set)
@@ -67,13 +70,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq lsp-java--workspace-folders (list "/home/zmqc/study/java/tmp/"
-                                        "/home/zmqc/study/java/javaemacs/"))
-(setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
-
 (use-package lsp-java
   :commands lsp-java-enable
   :init
+  (setq lsp-java--workspace-folders
+        (list "/home/zmqc/study/java/tmp/"
+              "/home/zmqc/study/java/javaemacs/")
+        lsp-java-server-install-dir
+        "/home/zmqc/backups/src/jdt-language-server-latest/")
   (add-hook 'java-mode-hook
             '(lambda ()
                (lsp-common-set)
