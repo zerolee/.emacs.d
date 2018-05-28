@@ -1,6 +1,8 @@
 * init.el
   Emacs 启动时默认读取的配置文件，
   这个文件会读取 Configurations 下的相关文件，以及保存了 elpa 的一些相关设置
+* early-init.el
+  在一些图形元素(比如 tool-bar)加载、包管理初始化之前启动
 * Configurations
   该文件夹下存放 Emacs 的配置文件
 ** bindings.el

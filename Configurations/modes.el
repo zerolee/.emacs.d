@@ -3,9 +3,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package geiser
   :config
-  (progn
-    (setq scheme-program-name "scheme"
-          geiser-active-implementations '(chez))))
+  (setq scheme-program-name "scheme"
+        geiser-active-implementations '(chez)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -21,14 +20,6 @@
 ;; company-lsp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lsp-common-set ()
-  (use-package company-lsp
-    :config
-    (setq company-transformers nil company-lsp-async t
-          company-lsp-cache-candidates nil)
-    (set (make-local-variable 'company-backends)
-         '(company-lsp  company-dabbrev-code
-                        company-dabbrev
-                        company-files)))
   (use-package lsp-ui
     :config
     (setq lsp-ui-doc-enable nil)
@@ -43,6 +34,10 @@
   (use-package ivy-xref
     :init
     (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+  (set (make-local-variable 'company-backends)
+       '(company-lsp  company-dabbrev-code
+                      company-dabbrev
+                      company-files))
   (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
   (global-set-key (kbd "S-<f2>") #'lsp-rename))
 
@@ -60,10 +55,14 @@
         "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
   (add-hook 'c-mode-hook
             '(lambda ()
-               (lsp-common-set)
+               (use-package company-lsp
+                 :config
+                 (setq company-transformers nil company-lsp-async t
+                       company-lsp-cache-candidates nil))
                (lsp-cquery-enable)
                (setq cquery--get-init-params
-                     '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
+                     '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
+               (lsp-common-set))))
 
 
 
@@ -80,8 +79,9 @@
         "/home/zmqc/backups/src/jdt-language-server-latest/")
   (add-hook 'java-mode-hook
             '(lambda ()
-               (lsp-common-set)
-               (lsp-java-enable))))
+               (use-package company-lsp)
+               (lsp-java-enable)
+               (lsp-common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
@@ -106,4 +106,9 @@
               ("M-?" . xref-find-references)
               ("M-g p" . flymake-goto-prev-error)
               ("M-g n" . flymake-goto-next-error)
-              ("M-g l" . flymake-show-diagnostics-buffer)))
+              ("M-g l" . flymake-show-diagnostics-buffer))
+  :config
+  (set (make-local-variable 'company-backends)
+       '(company-capf  company-dabbrev-code
+                       company-dabbrev
+                       company-files)))

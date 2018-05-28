@@ -97,7 +97,7 @@
   (setq ivy-use-virtual-buffers t
         ivy-use-selectable-prompt t
         recentf-max-saved-items 100
-        recentf-exclude '("/tmp/" "/ssh:" "/sudo:" "\.gz$"
+        recentf-exclude '("/tmp/" "/ssh:" "/sudo:" "\.gz$" "\.elc$"
                           "COMMIT_EDITMSG" "/elpa/" "\.gitignore")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
