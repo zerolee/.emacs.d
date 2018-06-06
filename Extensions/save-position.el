@@ -1,20 +1,49 @@
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; 一个的保存 point 的实现
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; save-position.el --- 一个的保存 point 的实现 -*- lexical-binding: t; -*-
+
+;; This program is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation, either version 3 of the License, or
+;; (at your option) any later version.
+
+;; This program is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; 使用 sp-push-position-to-ring     来保存或者删除一个位置
+;; 使用 sp-get-position-from-ring    来跳转不同的位置
+;; 使用 sp-show-all-position-in-ring 来查看所有的位置
+;; 你可以将他们绑定到你喜欢的按键上
+
+;;; Code:
+
 (require 'ivy)
+
+
 (defvar sp-position-ring nil
-  "这是用来保存 markpoint 的，理论上无限制")
+  "这是用来保存 markpoint 的，理论上无限制.")
 
 (defvar sp-ring-position-pointer nil
-  "当前所在 pointer")
+  "当前所在 pointer.")
 
-;;; 比较两个 point 是否相等
+
 (defun struct-point-equal (sp1 sp2)
+  "比较两个 point 是否相等.
+
+SP1 和 SP2 是由 `sp-position-info' 构造而成."
   (and (string-equal (cadr sp1) (cadr sp2))
        (equal (cddr sp2) (cddr sp1))))
 
-;;; 舍弃重复的元素
+
 (defun bury-dup-element-from-list (list element)
+  "舍弃重复的元素.
+
+将 ELEMENT 从 LIST 中移除开去."
   (if list
       (if (struct-point-equal (car list) element)
           (cdr list)
@@ -22,8 +51,10 @@
               (bury-dup-element-from-list (cdr list) element)))
     nil))
 
-;;; 去所在 buffer
 (defun sp-goto-buffer (buffer)
+  "去所在 buffer.
+
+BUFFER 即所要去的地方."
   (let ((list (window-list)))
     (while list
       (if (not (string-equal buffer (buffer-name)))
@@ -32,9 +63,12 @@
     (switch-to-buffer (get-buffer buffer))))
 
 
-;;; 当前位置相关信息 (展示信息：字符串，为了给 ivy 提供显示使用
-;;;                位置信息：(buffer-name . name))
+
 (defun sp-context-mark ()
+  "当前位置相关信息.
+
+展示信息：字符串，为了给 ivy 提供显示使用
+位置信息：(buffer-name . name)"
   (let ((current-point (point))
         (current-line (progn
                         (beginning-of-line)
@@ -53,11 +87,15 @@
             ": " context-string)))
 
 (defun sp-position-info ()
+  "位置信息."
   (cons (sp-context-mark)
         (cons (buffer-name) (point-marker))))
 
 
 (defun index-compute (arg length)
+  "计算 mark ring 下标.
+
+ARG 为指针移动的次数， LENGTH 为 mark ring 的长度."
   (let* ((ring-pointer-length (length sp-ring-position-pointer))
          (return-value (+ arg (- length ring-pointer-length))))
     (if (< return-value 0)
@@ -65,7 +103,9 @@
       return-value)))
 ;;; 将 sp-ring-position-pointer 移动向 sp-position-ring 的下 arg 个元素
 (defun rotate-mark-ring-pointer (arg)
-  "Rotate the mark point in the mark ring."
+  "Rotate the mark point in the mark ring.
+
+ARG 为指针移动的次数"
   "interactive p"
   (let ((length (length sp-position-ring)))
     (if (zerop length)
@@ -77,7 +117,7 @@
 
 
 (defun sp-push-position-to-ring ()
-  "将当前位置的 markpoint 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除"
+  "将当前位置的 markpoint 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除."
   (interactive)
   (let ((pointer
          (bury-dup-element-from-list sp-position-ring (sp-position-info))))
@@ -91,10 +131,12 @@
         (message "移除当前所在位置的 markpoint")))))
 
 (defun sp-get-position-from-ring (&optional arg)
-  "得到 sp-ring-position-pointer 所指向的 ring 同时，将其往后移动一次"
+  "得到 sp-ring-position-pointer 所指向的 ring 同时，将其往后移动一次.
+
+ARG 为指针移动的次数"
   (interactive "P")
   (if (zerop (length sp-position-ring))
-      (error "position-ring 为空，请先 mark")
+      (error "POSITION-RING 为空，请先 MARK")
     (progn
       (if (eq arg '-)
           (rotate-mark-ring-pointer -2)
@@ -113,11 +155,13 @@
         (sp-get-position-from-ring)))))
 
 (defun sp-show-all-position-in-ring ()
+  "显示所有被标记的位置信息."
   (interactive)
   (ivy-read "mark ring: " sp-position-ring
             :action '(lambda (x)
                        (if (zerop (length sp-position-ring))
-                           (error "position-ring 为空，请先 mark")
+                           (error "POSITION-RING 为空，请先 MARK")
                          (sp-goto-buffer (cadr x))
                          (goto-char (marker-position (cddr x)))))))
 (provide 'save-position)
+;;; save-position.el ends here
