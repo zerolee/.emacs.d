@@ -106,9 +106,4 @@
               ("M-?" . xref-find-references)
               ("M-g p" . flymake-goto-prev-error)
               ("M-g n" . flymake-goto-next-error)
-              ("M-g l" . flymake-show-diagnostics-buffer))
-  :config
-  (set (make-local-variable 'company-backends)
-       '(company-capf  company-dabbrev-code
-                       company-dabbrev
-                       company-files)))
+              ("M-g l" . flymake-show-diagnostics-buffer)))

@@ -209,11 +209,11 @@
           (lzl-emacs-get #'forward-paragraph "aP")))
   ("a'" (progn
           (lzl-look-forward-char -1 ?')
-          (lzl-emacs-get #'(lambda () (interactive)
+          (lzl-emacs-get '(lambda () (interactive)
                              (lzl-look-forward-char 2 ?\')) "a'")))
   ("a<" (progn
           (lzl-look-forward-char -1 ?<)
-          (lzl-emacs-get #'(lambda () (interactive)
+          (lzl-emacs-get '(lambda () (interactive)
                              (lzl-look-forward-char 1 ?>)) "a>")))
   ("at" (progn
           (web-mode-element-beginning)
@@ -221,27 +221,27 @@
   ("e'" (progn
           (lzl-look-forward-char -1 ?')
           (forward-char 1)
-          (lzl-emacs-get #'(lambda () (interactive)
+          (lzl-emacs-get '(lambda () (interactive)
                              (lzl-look-forward-char 1 ?\')
                              (backward-char 1)) "e'")))
   ("e<" (progn
           (lzl-look-forward-char -1 ?<)
           (forward-char 1)
-          (lzl-emacs-get #'(lambda () (interactive)
+          (lzl-emacs-get '(lambda () (interactive)
                              (lzl-look-forward-char 1 ?>)
                              (backward-char 1)) "e>")))
 
   ("et" (progn
           (web-mode-element-beginning)
           (web-mode-tag-end)
-          (lzl-emacs-get #'(lambda () (interactive)
+          (lzl-emacs-get '(lambda () (interactive)
                              (web-mode-element-end)
                              (backward-char 1)
                              (web-mode-tag-beginning)) "at")))
   ("el" (progn
           (paredit-backward-up)
           (forward-char 1)
-          (lzl-emacs-get #'(lambda () (interactive)
+          (lzl-emacs-get '(lambda () (interactive)
                              (paredit-forward-up)
                              (backward-char 1)) "el")))
   ("l" (progn
