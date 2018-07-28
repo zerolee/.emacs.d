@@ -25,7 +25,8 @@
     (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-sideline-enable nil)
     (lsp-ui-mode)
-    (define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references))
+    (define-key lsp-ui-mode-map [remap xref-find-references]
+      #'lsp-ui-peek-find-references))
   (use-package flycheck
     :bind (:map flycheck-mode-map
                 ("M-g l" . flycheck-list-errors))
@@ -51,8 +52,7 @@
 (use-package cquery
   :commands lsp-cquey-enable
   :init
-  (setq cquery-executable
-        "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
+  (setq cquery-executable "/home/zmqc/bin/cquery")
   (add-hook 'c-mode-hook
             '(lambda ()
                (use-package company-lsp
@@ -61,7 +61,8 @@
                        company-lsp-cache-candidates nil))
                (lsp-cquery-enable)
                (setq cquery--get-init-params
-                     '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t)))
+                     '(:index (:comment 2) :cacheFormat "msgpack"
+                              :completion (:detailedLabel t)))
                (lsp-common-set))))
 
 
