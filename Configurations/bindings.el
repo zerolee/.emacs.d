@@ -45,7 +45,8 @@
 
 ;;; hydra
 (global-set-key (kbd "<escape>") 'hydra-esc/body)
-(define-key Info-mode-map (kbd "?") #'hydra-info/body)
+(with-eval-after-load 'info
+  (define-key Info-mode-map (kbd "?") #'hydra-info/body))
 (global-set-key (kbd "<f1>") #'hydra-f1/body)
 (global-set-key (kbd "M-<SPC>") #'hydra-f1/body)
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)

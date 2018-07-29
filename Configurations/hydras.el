@@ -188,6 +188,9 @@
 
 (defhydra hydra-emacs/ckm (:color blue
                                   :hint nil)
+  "
+    %`lzl-arg1
+  "
   ("<" (let ((current-prefix-arg (point-min)))
          (lzl-emacs-get #'goto-char "<")))
   (">" (let ((current-prefix-arg (point-max)))
@@ -210,11 +213,11 @@
   ("a'" (progn
           (lzl-look-forward-char -1 ?')
           (lzl-emacs-get '(lambda () (interactive)
-                             (lzl-look-forward-char 2 ?\')) "a'")))
+                            (lzl-look-forward-char 2 ?\')) "a'")))
   ("a<" (progn
           (lzl-look-forward-char -1 ?<)
           (lzl-emacs-get '(lambda () (interactive)
-                             (lzl-look-forward-char 1 ?>)) "a>")))
+                            (lzl-look-forward-char 1 ?>)) "a>")))
   ("at" (progn
           (web-mode-element-beginning)
           (lzl-emacs-get #'web-mode-element-end "at")))
@@ -222,28 +225,28 @@
           (lzl-look-forward-char -1 ?')
           (forward-char 1)
           (lzl-emacs-get '(lambda () (interactive)
-                             (lzl-look-forward-char 1 ?\')
-                             (backward-char 1)) "e'")))
+                            (lzl-look-forward-char 1 ?\')
+                            (backward-char 1)) "e'")))
   ("e<" (progn
           (lzl-look-forward-char -1 ?<)
           (forward-char 1)
           (lzl-emacs-get '(lambda () (interactive)
-                             (lzl-look-forward-char 1 ?>)
-                             (backward-char 1)) "e>")))
+                            (lzl-look-forward-char 1 ?>)
+                            (backward-char 1)) "e>")))
 
   ("et" (progn
           (web-mode-element-beginning)
           (web-mode-tag-end)
           (lzl-emacs-get '(lambda () (interactive)
-                             (web-mode-element-end)
-                             (backward-char 1)
-                             (web-mode-tag-beginning)) "at")))
+                            (web-mode-element-end)
+                            (backward-char 1)
+                            (web-mode-tag-beginning)) "at")))
   ("el" (progn
           (paredit-backward-up)
           (forward-char 1)
           (lzl-emacs-get '(lambda () (interactive)
-                             (paredit-forward-up)
-                             (backward-char 1)) "el")))
+                            (paredit-forward-up)
+                            (backward-char 1)) "el")))
   ("l" (progn
          (paredit-backward-up)
          (lzl-emacs-get #'forward-sexp "s")))
@@ -270,6 +273,9 @@
                                    :post hydra-esc/body
                                    :color blue
                                    :hint nil)
+  "
+   --replace--
+  "
   ("0" (progn
          (insert-char ?0)
          (hydra-esc/body)) :exit t)
