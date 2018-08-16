@@ -15,15 +15,11 @@
 
 (use-package hydra)
 
-(use-package counsel-projectile
+(use-package projectile
   :bind-keymap
-  ("C-c p" . counsel-projectile-command-map)
+  ("C-c p" . projectile-command-map)
   :config
-  (setq projectile-mode-line
-        '(:eval (format " P[%s]" (projectile-project-name))))
-  (counsel-projectile-mode))
-
-
+  (setq projectile-completion-system 'ivy))
 
 (use-package goto-chg
   :bind (("C-." . goto-last-change)
