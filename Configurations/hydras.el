@@ -3,15 +3,14 @@
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
-   _l_: locate  _p_: ivy-push-view    _o_: org          _h_: hs
+   _l_: locate  _p_: ivy-push-view    _o_: org
    _a_: ag      _P_: ivy-pop-view     _y_: yasnippet
-   _z_: fzf     _r_: rg               _c_: flycheck
-   _g_: git     _i_: imenu            _F_: recentf
+   _z_: fzf     _r_: rg               _h_: hs
+   _g_: git     _i_: imenu
   "
   ("b" ivy-switch-buffer)
   ("B" goto-ibuffer)
   ("f" counsel-find-file)
-  ("F" counsel-recentf)
   ("l" counsel-locate)
   ("a" counsel-ag)
   ("z" counsel-fzf)
@@ -27,7 +26,6 @@
          (hs-toggle-hiding)
          (hydra-esc/body)))
   ("r" counsel-rg)
-  ("c" flycheck-list-errors)
   ("d" dired-jump)
   ("<escape>" hydra-esc/body)
   ("<f1>" nil)
