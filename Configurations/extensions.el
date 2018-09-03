@@ -1,11 +1,14 @@
-;; save-position
-(autoload 'sp-push-position-to-ring "save-position")
-
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
+
+(use-package save-position
+  :ensure nil
+  :bind (("s-." . sp-push-position-to-ring)
+         ("s-," . sp-get-position-from-ring)
+         ("s-/" . sp-show-all-position-in-ring)))
 
 (use-package markdown-mode
   :mode (("README\\.md\\'" . gfm-mode)
@@ -121,7 +124,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
   :config
-  (add-hook 'after-init-hook 'global-company-mode))
+  (add-hook 'after-init-hook 'global-company-mode)
+  (setq company-idle-delay 0))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
