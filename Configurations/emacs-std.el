@@ -76,3 +76,6 @@
 (autoload 'dired-jump "dired-x")
 ;;; 设置隐藏模式下要隐藏的文件
 (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\.")
+
+;;; 配置字体
+(set-frame-font "Sarasa Term SC-11")

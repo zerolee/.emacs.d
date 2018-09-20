@@ -416,10 +416,9 @@
          (call-interactively #'untabify)))
   ("n" next-line)
   ("C-n" next-line :exit t)
-  ("N" (progn
-         (save-excursion
-           (end-of-line)
-           (open-line 1))))
+  ("N" (save-excursion
+         (end-of-line)
+         (open-line 1)))
   ("M-n" (progn
            (end-of-line)
            (newline-and-indent)
@@ -438,10 +437,9 @@
            (open-line 1)
            (mytab)
            (yank)))
-  ("P" (progn
-         (save-excursion
-           (beginning-of-line)
-           (open-line 1))))
+  ("P" (save-excursion
+         (beginning-of-line)
+         (open-line 1)))
   ("q" (kill-buffer (current-buffer)))
   ("r" hydra-emacs/r/body :exit t)
   ("R" hydra-emacs/R/body :exit t)
