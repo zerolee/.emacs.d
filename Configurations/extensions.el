@@ -10,6 +10,17 @@
          ("s-," . sp-get-position-from-ring)
          ("s-/" . sp-show-all-position-in-ring)))
 
+(use-package ove
+  :ensure nil
+  :bind ("<escape>" . (lambda () (interactive)
+                        (ove-mode 1)))
+  :hook ((prog-mode text-mode comint-mode special-mode)
+         .
+         (lambda () (interactive)
+           (if buffer-read-only
+               (ove-mode 1)
+             (setq cursor-type 'bar)))))
+
 (use-package markdown-mode
   :mode (("README\\.md\\'" . gfm-mode)
          ("\\.md\\'" . markdown-mode)
@@ -150,4 +161,4 @@
   :config
   (progn
     (key-chord-mode 1)
-    (key-chord-define-global "df" 'hydra-esc/body)))
+    (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1)))))

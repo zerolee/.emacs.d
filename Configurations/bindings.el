@@ -39,7 +39,6 @@
 (global-set-key (kbd "C-c a") 'org-agenda)
 
 ;;; hydra
-(global-set-key (kbd "<escape>") 'hydra-esc/body)
 (with-eval-after-load 'info
   (define-key Info-mode-map (kbd "?") #'hydra-info/body))
 (global-set-key (kbd "<f1>") #'hydra-f1/body)
