@@ -22,8 +22,7 @@
   (if (string-equal which-ckm "m")
       (setq lzl-kill-or-save #'kill-ring-save)
     (setq lzl-kill-or-save #'kill-region))
-  (hydra-emacs/ckm/body)
-  (setq lzl-esc nil))
+  (hydra-emacs/ckm/body))
 
 ;;; ###autoload
 (define-minor-mode ove-mode

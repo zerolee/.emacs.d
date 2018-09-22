@@ -153,7 +153,8 @@
   :config
   (setq paredit-lighter nil)
   (define-key paredit-mode-map (kbd "M-s") nil)
-  (define-key paredit-mode-map (kbd "M-r") nil))
+  (define-key paredit-mode-map (kbd "M-r") nil)
+  (define-key paredit-mode-map (kbd "M-?") nil))
 
 (use-package cmake-mode)
 
