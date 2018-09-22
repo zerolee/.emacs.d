@@ -49,8 +49,8 @@
          ("M-g W" . mc/mark-next-like-this-word)
          ("M-g S" . mc/mark-next-like-this-symbol)
          :map mc/keymap
-         ("M-b" . mc/mark-previous-like-this)
-         ("M-f" . mc/unmark-previous-like-this)
+         ("M-[" . mc/mark-previous-like-this)
+         ("M-]" . mc/unmark-previous-like-this)
          ("M-n" . mc/mark-next-like-this)
          ("M-p" . mc/unmark-next-like-this)
          ("M-s" . mc/skip-to-next-like-this)
@@ -68,10 +68,6 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
-
-(use-package iedit
-  :bind ("M-i" . iedit-mode))
-
 (use-package avy
   :bind (("M-g 1" . avy-goto-char)
          ("M-g 2" . avy-goto-char-2)
@@ -81,11 +77,6 @@
          ("M-g s" . avy-goto-symbol-1)
          ("M-g 0" . avy-goto-word-0)
          ("M-g w" . avy-goto-word-1)))
-
-(use-package auto-yasnippet
-  :bind (("M-g c" . aya-create)
-         ("M-g e" . aya-expand)))
-
 
 ;; 使用主题
 (use-package solarized-theme
