@@ -156,11 +156,12 @@
 (define-key ove-mode-map (kbd "^") 'enlarge-window)
 (define-key ove-mode-map (kbd "(") 'paredit-backward-slurp-sexp)
 (define-key ove-mode-map (kbd ")") 'paredit-forward-slurp-sexp)
+(define-key ove-mode-map (kbd "[") 'paredit-add-to-previous-list)
+(define-key ove-mode-map (kbd "]") 'paredit-add-to-next-list)
 (define-key ove-mode-map (kbd "<") 'paredit-backward-barf-sexp)
 (define-key ove-mode-map (kbd ">") 'paredit-forward-barf-sexp)
 (define-key ove-mode-map (kbd "S") 'paredit-split-sexp)
 (define-key ove-mode-map (kbd "J") 'paredit-join-sexps)
-(define-key ove-mode-map (kbd "M-<up>") 'paredit-splice-sexp)
 (define-key ove-mode-map (kbd "<up>") '(lambda ()
                                          (interactive)
                                          (paredit-backward)
@@ -168,7 +169,11 @@
 (define-key ove-mode-map (kbd "<down>") 'paredit-raise-sexp)
 (define-key ove-mode-map (kbd "<left>") 'paredit-splice-sexp-killing-forward)
 (define-key ove-mode-map (kbd "<right>") 'paredit-splice-sexp-killing-backward)
-(define-key ove-mode-map (kbd "'") 'eval-last-sexp)
+(define-key ove-mode-map (kbd ",") '(lambda ()
+                                      (interactive)
+                                      (save-excursion
+                                        (end-of-defun 1)
+                                        (call-interactively #'eval-last-sexp))))
 (define-key ove-mode-map (kbd ".") 'repeat)
 (define-key ove-mode-map (kbd "1") '(lambda () (interactive) (setq prefix-arg  1 )))
 (define-key ove-mode-map (kbd "2") '(lambda () (interactive) (setq prefix-arg  2 )))
@@ -182,4 +187,4 @@
 (define-key ove-mode-map (kbd "0") '(lambda () (interactive) (setq prefix-arg  0 )))
 
 (provide 'ove)
-;;; save-position.el ends here
+;;; ove.el ends here
