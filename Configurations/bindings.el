@@ -71,3 +71,12 @@
 (global-set-key (kbd "s-l") 'windmove-right)
 (global-set-key (kbd "s-j") 'windmove-down)
 (global-set-key (kbd "s-k") 'windmove-up)
+
+
+;;; dired
+(with-eval-after-load 'dired
+  (define-key dired-mode-map (kbd "/")
+    #'(lambda ()
+        (interactive)
+        (call-interactively #'dired-mark-files-regexp)
+        (command-execute "tk"))))
