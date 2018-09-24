@@ -155,7 +155,10 @@
   (define-key paredit-mode-map (kbd "(") nil)
   (define-key paredit-mode-map (kbd ")") nil)
   (define-key paredit-mode-map (kbd "[") nil)
-  (define-key paredit-mode-map (kbd "]") nil))
+  (define-key paredit-mode-map (kbd "]") nil)
+  (advice-add 'paredit-comment-dwim :after
+              #'(lambda (&optional arg) (unless mark-active
+                                          (ove-mode 0)))))
 
 (use-package cmake-mode)
 

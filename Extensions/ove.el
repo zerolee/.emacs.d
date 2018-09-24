@@ -53,7 +53,7 @@
 (define-key ove-mode-map (kbd "d") 'delete-char)
 (define-key ove-mode-map (kbd "C-d") '(lambda ()
                                         (interactive)
-                                        (delete-char)
+                                        (delete-char 1)
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "e") 'move-end-of-line)
 (define-key ove-mode-map (kbd "C-e") '(lambda ()

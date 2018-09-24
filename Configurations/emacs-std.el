@@ -77,5 +77,11 @@
 ;;; 设置隐藏模式下要隐藏的文件
 (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\.")
 
+;;; view-file 启动由 ove-mode 而不是 view-mode
+(advice-add 'view-file :after
+            #'(lambda (file)
+                (ove-mode 1)
+                (view-mode 0)))
+
 ;;; 配置字体
 (set-frame-font "Sarasa Term SC-11")

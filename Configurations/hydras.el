@@ -195,7 +195,12 @@
   ("a<" (progn
           (lzl-look-forward-char -1 ?<)
           (lzl-emacs-get '(lambda () (interactive)
-                            (lzl-look-forward-char 1 ?>)) "a>")))
+                            (let ((flag 1))
+                              (forward-char 1)
+                              (while (> flag 0)
+                                (cond ((char-equal (char-after (point)) ?>) (setq flag (1- flag)))
+                                      ((char-equal (char-after (point)) ?<) (setq flag (1+ flag))))
+                                (forward-char 1)))) "a>")))
   ("at" (progn
           (web-mode-element-beginning)
           (lzl-emacs-get #'web-mode-element-end "at")))
@@ -209,7 +214,11 @@
           (lzl-look-forward-char -1 ?<)
           (forward-char 1)
           (lzl-emacs-get '(lambda () (interactive)
-                            (lzl-look-forward-char 1 ?>)
+                            (let ((flag 1))
+                              (while (> flag 0)
+                                (cond ((char-equal (char-after (point)) ?>) (setq flag (1- flag)))
+                                      ((char-equal (char-after (point)) ?<) (setq flag (1+ flag))))
+                                (forward-char 1)))
                             (backward-char 1)) "e>")))
 
   ("et" (progn
