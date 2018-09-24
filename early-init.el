@@ -8,12 +8,7 @@
      (with-temp-message ""
        (require 'yasnippet)
        (yas-reload-all)
-       (add-hook 'prog-mode-hook #'yas-minor-mode))))
-
-
-(run-with-idle-timer
- 0 nil
- #'(lambda ()
-     (with-temp-message
-         (require 'recentf)
-       (recentf-mode 1))))
+       (add-hook 'prog-mode-hook #'yas-minor-mode)
+       (require 'recentf)
+       (recentf-mode 1)
+       (require 'counsel))))

@@ -23,11 +23,9 @@
   ("H" (hs-minor-mode -1))
   ("h" (progn
          (hs-minor-mode)
-         (hs-toggle-hiding)
-         (hydra-esc/body)))
+         (hs-toggle-hiding)))
   ("r" counsel-rg)
   ("d" dired-jump)
-  ("<escape>" hydra-esc/body)
   ("<f1>" nil)
   ("M-<SPC>" nil))
 
@@ -78,8 +76,7 @@
   ("o" org-clock-out)
   ("." org-time-stamp)
   ("m" org-ctrl-c-ctrl-c)
-  ("q" org-set-tags-command)
-  ("<escape>" hydra-esc/body :exit t))
+  ("q" org-set-tags-command))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Info
