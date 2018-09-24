@@ -169,7 +169,7 @@
 (define-key ove-mode-map (kbd "<down>") 'paredit-raise-sexp)
 (define-key ove-mode-map (kbd "<left>") 'paredit-splice-sexp-killing-forward)
 (define-key ove-mode-map (kbd "<right>") 'paredit-splice-sexp-killing-backward)
-(define-key ove-mode-map (kbd ",") '(lambda ()
+(define-key ove-mode-map (kbd ";") '(lambda ()
                                       (interactive)
                                       (save-excursion
                                         (end-of-defun 1)

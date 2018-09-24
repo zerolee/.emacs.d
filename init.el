@@ -1,6 +1,10 @@
 (setq load-path
       (cons "~/.emacs.d/Configurations"
             (cons "~/.emacs.d/Extensions" load-path)))
+(let ((default-directory (file-name-as-directory "~/.emacs.d/elpa")))
+  (normal-top-level-add-subdirs-to-load-path))
+
+(package-initialize t)
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
 
@@ -15,22 +19,10 @@
 
 (setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
 
-;; This file is for standard Emacs option.
 (load "emacs-std")
-
-;; This can contain extensions you have use
 (load "extensions")
-
-;; This can contain configuration for the different major modes
 (load "modes")
-
-;; This file can contain all the macros you have developed
 (load "my-macros")
-
-;;;
 (load "hydras")
-
-;; This file includes the keybindings for your Emacs setup
 (load "bindings")
-
 (load-file custom-file)

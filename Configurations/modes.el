@@ -50,7 +50,7 @@
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
 (use-package cquery
-  :commands lsp-cquey-enable
+  :commands lsp-cquery-enable
   :init
   (setq cquery-executable "/home/zmqc/bin/cquery")
   (add-hook 'c-mode-hook

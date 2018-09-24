@@ -17,7 +17,8 @@
   :hook ((prog-mode text-mode comint-mode special-mode)
          .
          (lambda () (interactive)
-           (if buffer-read-only
+           (if (and buffer-read-only
+                    (not (equal major-mode 'treemacs-mode)))
                (ove-mode 1)
              (setq cursor-type 'bar)))))
 
@@ -86,9 +87,7 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet)
-  :init
-  (add-hook 'prog-mode-hook #'yas-minor-mode))
+  :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
@@ -156,6 +155,7 @@
   (define-key paredit-mode-map (kbd ")") nil)
   (define-key paredit-mode-map (kbd "[") nil)
   (define-key paredit-mode-map (kbd "]") nil)
+  (define-key paredit-mode-map (kbd ";") nil)
   (advice-add 'paredit-comment-dwim :after
               #'(lambda (&optional arg) (unless mark-active
                                           (ove-mode 0)))))
