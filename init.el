@@ -1,9 +1,3 @@
-(setq load-path
-      (cons "~/.emacs.d/Configurations"
-            (cons "~/.emacs.d/Extensions" load-path)))
-(let ((default-directory (file-name-as-directory "~/.emacs.d/elpa")))
-  (normal-top-level-add-subdirs-to-load-path))
-
 (package-initialize t)
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
