@@ -40,15 +40,15 @@
   :bind (("C-." . goto-last-change)
          ("C-," . goto-last-change-reverse)))
 
-(use-package multiple-cursors-core
+(use-package mc-mark-more
   :ensure multiple-cursors
   :init
-  (autoload 'mc/mark-next-like-this-symbol "mc-mark-more")
-  :bind (("M-g m" . mc/edit-lines)
-         ("M-g r" . mc/mark-all-in-region-regexp)
+  (global-set-key (kbd "M-g m") 'mc/edit-lines)
+  :bind (("M-g r" . mc/mark-all-in-region-regexp)
          ("M-g a" . mc/mark-all-like-this)
          ("M-g W" . mc/mark-next-like-this-word)
          ("M-g S" . mc/mark-next-like-this-symbol)
+         ("C-M-<mouse-1>" . mc/add-cursor-on-click)
          :map mc/keymap
          ("M-[" . mc/mark-previous-like-this)
          ("M-]" . mc/unmark-previous-like-this)

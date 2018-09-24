@@ -20,4 +20,5 @@
        (require 'recentf)
        (recentf-mode 1)
        (require 'counsel)
+       (require 'multiple-cursors)
        (require 'eglot))))
