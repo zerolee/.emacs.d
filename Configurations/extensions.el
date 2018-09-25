@@ -48,6 +48,7 @@
          ("M-g a" . mc/mark-all-like-this)
          ("M-g W" . mc/mark-next-like-this-word)
          ("M-g S" . mc/mark-next-like-this-symbol)
+         ("M-g ." . mc/mark-all-dwim)
          ("C-M-<mouse-1>" . mc/add-cursor-on-click)
          :map mc/keymap
          ("M-[" . mc/mark-previous-like-this)
@@ -56,7 +57,8 @@
          ("M-p" . mc/unmark-next-like-this)
          ("M-s" . mc/skip-to-next-like-this)
          ("M-g" . mc/skip-to-previous-like-this)
-         ("M-i" . mc/insert-numbers)))
+         ("M-i" . mc/insert-numbers)
+         ("M-." . mc/mark-all-like-this-dwim)))
 
 (use-package treemacs
   :bind (("<f2>" . treemacs)
@@ -87,6 +89,7 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
+  :hook (prog-mode . yas-minor-mode)
   :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -125,8 +128,8 @@
 ;; company-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
+  :hook (after-init . global-company-mode)
   :config
-  (add-hook 'after-init-hook 'global-company-mode)
   (setq company-idle-delay 0))
 
 

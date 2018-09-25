@@ -1,4 +1,6 @@
-(package-initialize t)
+(setq load-path
+      (cons "~/.emacs.d/Configurations"
+            (cons "~/.emacs.d/Extensions" load-path)))
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
 
