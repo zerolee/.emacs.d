@@ -24,6 +24,26 @@
     (setq lzl-kill-or-save #'kill-region))
   (hydra-emacs/ckm/body))
 
+(defun ove-eval-sexp-dwim (arg)
+  "如果当前所处位置是 list 或者字符串或者符号结尾则执行 eval-last-sexp"
+  (interactive "p")
+  (save-excursion
+    (cond ((= arg 2) (paredit-forward-up 1))
+          ((= arg 3) (progn
+                       (beginning-of-defun 1)
+                       (forward-sexp 1)))
+          ((or (= arg 1) (= arg 4))
+           (unless (string-match (char-to-string (char-before (point))) "\"\)")
+             (backward-sexp 1)
+             (unless (char-equal (char-before (point)) ? )
+               (backward-char 1))
+             (forward-sexp 1))
+           (let ((pp (char-after (point))))
+             (and pp (char-equal pp ?\") (forward-char 1)))))
+    (let ((current-prefix-arg '-))
+      (and (= arg 4) (setq current-prefix-arg 4))
+      (call-interactively #'eval-last-sexp))))
+
 ;;; ###autoload
 (define-minor-mode ove-mode
   "拥有 vim 模式的 Emacs 风格的 minor"
@@ -169,7 +189,7 @@
 (define-key ove-mode-map (kbd "<down>") 'paredit-raise-sexp)
 (define-key ove-mode-map (kbd "<left>") 'paredit-splice-sexp-killing-forward)
 (define-key ove-mode-map (kbd "<right>") 'paredit-splice-sexp-killing-backward)
-(define-key ove-mode-map (kbd ";") 'eval-last-sexp)
+(define-key ove-mode-map (kbd ";") 'ove-eval-sexp-dwim)
 (define-key ove-mode-map (kbd ".") 'repeat)
 (define-key ove-mode-map (kbd "1") '(lambda () (interactive) (setq prefix-arg  1 )))
 (define-key ove-mode-map (kbd "2") '(lambda () (interactive) (setq prefix-arg  2 )))
