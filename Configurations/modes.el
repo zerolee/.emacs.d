@@ -8,13 +8,12 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Common Lisp slime
+;; Common Lisp sly
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package slime
-  :hook (lisp-mode . slime-lisp-mode-hook)
+(use-package sly
   :config
-  (setq inferior-lisp-program "/usr/bin/sbcl"
-        slime-contribs '(slime-fancy)))
+  (setq inferior-lisp-program "/usr/bin/sbcl")
+  (setq sly-complete-symbol-function 'sly-simple-completions))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp

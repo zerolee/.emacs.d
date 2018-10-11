@@ -57,6 +57,10 @@
 
 
 (define-key ove-mode-map (kbd "a") 'beginning-of-line)
+(define-key ove-mode-map (kbd "A") #'(lambda ()
+                                       (interactive)
+                                       (beginning-of-line)
+                                       (forward-to-word 1)))
 (define-key ove-mode-map (kbd "C-a") '(lambda ()
                                         (interactive)
                                         (beginning-of-line)
@@ -153,6 +157,7 @@
 (define-key ove-mode-map (kbd "q") '(lambda ()
                                       (interactive)
                                       (kill-buffer (current-buffer))))
+(define-key ove-mode-map (kbd "Q") 'kill-buffer-and-window)
 (define-key ove-mode-map (kbd "r") '(lambda (arg char)
                                       (interactive "*p\nc")
                                       (delete-char 1)

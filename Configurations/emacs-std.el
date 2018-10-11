@@ -78,10 +78,9 @@
 (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\.")
 
 ;;; view-file 启动由 ove-mode 而不是 view-mode
-(advice-add 'view-file :after
-            #'(lambda (file)
-                (ove-mode 1)
-                (view-mode 0)))
+(advice-add 'view-mode :around
+            #'(lambda (orig-func &rest arg)
+                (ove-mode 1)))
 
 ;;; 配置字体
 (set-frame-font "Sarasa Term SC-11")
