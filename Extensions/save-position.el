@@ -50,21 +50,12 @@ BUFFER 即所要去的地方."
 
 展示信息：字符串，为了给 ivy 提供显示使用
 位置信息：(buffer-name . name)"
-  (let ((current-point (point))
-        (current-line (progn
-                        (beginning-of-line)
-                        (1+ (count-lines 1 (point)))))
-        (beg (progn
-               (beginning-of-line)
-               (point)))
-        context-string)
-    (end-of-line)
-    (setq context-string (buffer-substring beg (point)))
-    (goto-char current-point)
+  (let ((current-line (number-to-string (1+ (count-lines 1 (point-at-bol)))))
+        (context-string (buffer-substring (point-at-bol) (point-at-eol))))
     (concat (buffer-name)
             ":"
-            (let ((str (number-to-string current-line)))
-              (put-text-property 0 (length str) 'face 'font-lock-keyword-face str) str)
+            (progn (put-text-property 0 (length current-line) 'face 'font-lock-keyword-face current-line)
+                   current-line)
             ": " context-string)))
 
 (defsubst sp--position-info ()
