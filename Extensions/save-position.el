@@ -19,31 +19,25 @@
 ;; 使用 sp-get-position-from-ring    来跳转不同的位置
 ;; 使用 sp-show-all-position-in-ring 来查看所有的位置
 ;; 你可以将他们绑定到你喜欢的按键上
+;; 新版本参考了 sams-lib.el
 
 ;;; Code:
-
-(require 'cl)
 (require 'ivy)
 
 
 (defvar sp-position-ring nil
   "这是用来保存位置信息的，理论上无限制.")
 
-(defvar sp--ring-position-pointer nil
-  "当前所在 pointer.")
-
-(defun sp--goto-buffer (buffer)
-  "去所在 buffer.
-
-BUFFER 即所要去的地方."
-  (let ((list (window-list)))
+(defun sp--goto-position (marker)
+  "去正确的 buffer 中正确的位置."
+  (let ((list (window-list))
+        (buffer (marker-buffer marker)))
     (while list
       (unless (equal buffer (current-buffer))
         (other-window 1))
       (setq list (cdr list)))
-    (switch-to-buffer buffer)))
-
-
+    (switch-to-buffer buffer)
+    (goto-char marker)))
 
 (defun sp--context-mark ()
   "当前位置相关信息.
@@ -52,10 +46,10 @@ BUFFER 即所要去的地方."
 位置信息：(buffer-name . name)"
   (let ((current-line (number-to-string (1+ (count-lines 1 (point-at-bol)))))
         (context-string (buffer-substring (point-at-bol) (point-at-eol))))
+    (put-text-property 0 (length current-line) 'face 'font-lock-keyword-face current-line)
     (concat (buffer-name)
             ":"
-            (progn (put-text-property 0 (length current-line) 'face 'font-lock-keyword-face current-line)
-                   current-line)
+            current-line
             ": " context-string)))
 
 (defsubst sp--position-info ()
@@ -63,72 +57,40 @@ BUFFER 即所要去的地方."
   (cons (sp--context-mark)
         (point-marker)))
 
-
-(defun sp--index-compute (arg length)
-  "计算 mark ring 下标.
-
-ARG 为指针移动的次数， LENGTH 为 mark ring 的长度."
-  (let* ((ring-pointer-length (length sp--ring-position-pointer))
-         (return-value (+ arg (- length ring-pointer-length))))
-    (if (< return-value 0)
-        (+ return-value length)
-      return-value)))
-;;; 将 sp--ring-position-pointer 移动向 sp-position-ring 的下 arg 个元素
-(defun sp--rotate-mark-ring-pointer (arg)
-  "Rotate the mark point in the mark ring.
-
-ARG 为指针移动的次数"
-  "interactive p"
-  (let ((length (length sp-position-ring)))
-    (if (zerop length)
-        (error "Mark point ring is empty")
-      (setq sp--ring-position-pointer
-            (nthcdr (% (sp--index-compute arg length)
-                       length)
-                    sp-position-ring)))))
-
+(defsubst sp--position-same-pos ()
+  (and sp-position-ring
+       (equal (point) (marker-position (cdar sp-position-ring)))
+       (equal (current-buffer) (marker-buffer (cdar sp-position-ring)))))
 
 (defun sp-push-position-to-ring ()
-  "将当前位置的 markpoint 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除."
+  "将当前位置的 MARKER 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除."
   (interactive)
-  (let ((pointer
-         (remove-if
-          #'(lambda (position)
-              (equal (cdr position) (point-marker)))
-          sp-position-ring)))
-    (if (= (length pointer) (length sp-position-ring))
-        (progn
-          (setq sp-position-ring (cons (sp--position-info) sp-position-ring))
-          (setq sp--ring-position-pointer sp-position-ring)
-          (message "添加当前位置的 point"))
+  (if (sp--position-same-pos)
       (progn
-        (setq sp-position-ring pointer)
-        (message "移除当前所在位置的 markpoint")))))
+        (setq sp-position-ring (cdr sp-position-ring))
+        (message "移除当前所在位置的 MARKER"))
+    (setq sp-position-ring (cons (sp--position-info) sp-position-ring))
+    (message "添加当前位置的 MARKER")))
 
-(defun sp-get-position-from-ring (&optional arg)
-  "得到 sp--ring-position-pointer 所指向的 ring 同时，将其往后移动一次.
 
-ARG 为指针移动的次数"
+(defun sp-get-position-from-ring (&optional num)
   (interactive "P")
   (if (null sp-position-ring)
-      (error "POSITION-RING 为空，请先 MARK")
-    (when (eq arg '-)
-      (sp--rotate-mark-ring-pointer -2))
-    (when (equal (cdar sp--ring-position-pointer)
-                 (point-marker))
-      (sp--rotate-mark-ring-pointer 1))
-    (if (marker-buffer (cdar sp--ring-position-pointer))
-        (progn
-          (sp--goto-buffer (marker-buffer (cdar sp--ring-position-pointer)))
-          (goto-char (cdar sp--ring-position-pointer))
-          (sp--rotate-mark-ring-pointer 1))
-      (setq sp-position-ring
-            (remove-if
-             #'(lambda (position)
-                 (equal (cdar sp-position-ring) (car position)))
-             sp-position-ring))
-      (sp--rotate-mark-ring-pointer 1)
-      (sp-get-position-from-ring))))
+      (error "POSITION-RING 为空，请先 MARK"))
+  (setq num
+        (if (null num) (if (sp--position-same-pos) 1 0)
+          (prefix-numeric-value num)))
+  (setq num (mod num (length sp-position-ring)))
+  (let ((top nil))
+    (while (> num 0)
+      (setq top (cons (car sp-position-ring) top))
+      (setq sp-position-ring (cdr sp-position-ring))
+      (setq num (1- num)))
+    (setq sp-position-ring (append sp-position-ring (nreverse top)))
+    (if (marker-position (cdar sp-position-ring))
+        (sp--goto-position (cdar sp-position-ring))
+      (setq sp-position-ring (cdr sp-position-ring))
+      (sp-get-position-from-ring 1))))
 
 (defun sp-show-all-position-in-ring ()
   "显示所有被标记的位置信息."
@@ -137,7 +99,6 @@ ARG 为指针移动的次数"
             :action '(lambda (x)
                        (if (null sp-position-ring)
                            (error "POSITION-RING 为空，请先 MARK")
-                         (sp--goto-buffer (marker-buffer (cdr x)))
-                         (goto-char (cdr x))))))
+                         (sp--goto-position (cdr x))))))
 (provide 'save-position)
 ;;; save-position.el ends here
