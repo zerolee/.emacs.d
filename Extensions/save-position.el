@@ -39,6 +39,12 @@
     (switch-to-buffer buffer)
     (goto-char marker)))
 
+(defun sp--clear-noexist-buffer ()
+  "清除已经被杀掉的 buffer"
+  (dolist (var sp-position-ring)
+    (unless (member (marker-buffer (cdr var)) (buffer-list))
+      (setq sp-position-ring (remove var sp-position-ring)))))
+
 (defun sp--context-mark ()
   "当前位置相关信息.
 
@@ -95,6 +101,7 @@
 (defun sp-show-all-position-in-ring ()
   "显示所有被标记的位置信息."
   (interactive)
+  (sp--clear-noexist-buffer)
   (ivy-read "mark ring: " sp-position-ring
             :action '(lambda (x)
                        (if (null sp-position-ring)
