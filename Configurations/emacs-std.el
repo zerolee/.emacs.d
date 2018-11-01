@@ -59,15 +59,19 @@
       '("~/note/plan"  "~/note/emacs"))
 (setq org-html-htmlize-output-type nil)
 
+(advice-add 'org-insert-heading-respect-content :after
+            #'(lambda (&rest arg)
+                (ove-mode 0)))
+
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
 
 ;;; .cquery 导入
-(add-hook 'before-save-hook
-          '(lambda ()
-             (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
-                 (unless (file-exists-p (buffer-file-name))
-                   (insert-file-contents "~/模板/.cquery")))))
+(advice-add 'find-file :after
+            #'(lambda (&rest arg)
+                (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
+                    (unless (file-exists-p (buffer-file-name))
+                      (insert-file-contents "~/模板/.cquery")))))
 
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
