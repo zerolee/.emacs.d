@@ -62,6 +62,9 @@
 (advice-add 'org-insert-heading-respect-content :after
             #'(lambda (&rest arg)
                 (ove-mode 0)))
+(advice-add 'org-meta-return :after
+            #'(lambda (&rest arg)
+                (ove-mode 0)))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
@@ -69,9 +72,10 @@
 ;;; .cquery 导入
 (advice-add 'find-file :after
             #'(lambda (&rest arg)
-                (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
-                    (unless (file-exists-p (buffer-file-name))
-                      (insert-file-contents "~/模板/.cquery")))))
+                (and (buffer-file-name)
+                     (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
+                     (not (file-exists-p (buffer-file-name)))
+                     (insert-file-contents "~/模板/.cquery"))))
 
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
