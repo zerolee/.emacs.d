@@ -19,6 +19,6 @@
 (load "extensions")
 (load "modes")
 (load "my-macros")
-(load "hydras")
+(load "my-hydra")
 (load "bindings")
 (load-file custom-file)

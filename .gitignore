@@ -21,5 +21,6 @@ projectile-bookmarks.eld
 projectile.cache
 .cache
 .mc-lists.el
+custom.el
 session*
 eaf/

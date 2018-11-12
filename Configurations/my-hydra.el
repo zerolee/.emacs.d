@@ -1,5 +1,4 @@
 ;;; -*- lexical-binding: t; -*-
-(require 'save-position)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "

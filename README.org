@@ -10,9 +10,9 @@
 ** emacs-std.el
    对 Emacs 自带的插件以及功能进行设置
 ** extensions.el
-   除编程语言之外的其他配置
+   对除编程语言之外的其他扩展其他配置
 ** modes.el
-   一些编程语言的配置
+   对一些编程语言的配置
 ** my-macros.el
    保存一些键盘宏
 ** hydras.el
