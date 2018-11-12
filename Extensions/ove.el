@@ -24,25 +24,32 @@
     (setq lzl-kill-or-save #'kill-region))
   (hydra-emacs/ckm/body))
 
-(defun ove-eval-sexp-dwim (arg)
-  "如果当前所处位置是 list 或者字符串或者符号结尾则执行 eval-last-sexp"
-  (interactive "p")
+(defsubst ove-current-parse-state ()
+  "Return parse state of point from beginning of defun."
+  (let ((point (point)))
+    (beginning-of-defun)
+    (parse-partial-sexp (point) point)))
+
+(defun ove-eval-sexp-dwim ()
+  "如果当前所处位置是 list 或字符串或符号结尾则执行这个 sexp
+
+   若果在字符串内，则假设字符串在 list 内，则执行整个 list
+   如果在一个符号内，且这个符号以括号开头则跳出整个 list，
+   否则执行这个符号"
+  (interactive)
   (save-excursion
-    (cond ((= arg 2) (paredit-forward-up 1))
-          ((= arg 3) (progn
-                       (beginning-of-defun 1)
-                       (forward-sexp 1)))
-          ((or (= arg 1) (= arg 4))
-           (unless (string-match (char-to-string (char-before (point))) "\"\)")
-             (backward-sexp 1)
-             (unless (char-equal (char-before (point)) ? )
-               (backward-char 1))
-             (forward-sexp 1))
-           (let ((pp (char-after (point))))
-             (and pp (char-equal pp ?\") (forward-char 1)))))
-    (let ((current-prefix-arg '-))
-      (and (= arg 4) (setq current-prefix-arg 4))
-      (call-interactively #'eval-last-sexp))))
+    (let ((state (ove-current-parse-state)))
+      (if (equal last-command 'ove-eval-sexp-dwim)
+          (end-of-defun)
+        (if (nth 3 state)
+            (up-list (1+ (nth 0 state)) t)
+          (progn
+            (backward-sexp 1)
+            (if (and (nth 1 state) (= (1- (point)) (nth 1 state)))
+                (up-list (nth 0 state))
+              (forward-sexp 1))))))
+    (my-eval-last-sexp)
+    (setq this-command 'ove-eval-sexp-dwim)))
 
 ;;; ###autoload
 (define-minor-mode ove-mode
