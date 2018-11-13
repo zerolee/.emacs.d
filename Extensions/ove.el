@@ -43,11 +43,13 @@
           (end-of-defun)
         (if (nth 3 state)
             (up-list (1+ (nth 0 state)) t)
-          (progn
-            (backward-sexp 1)
-            (if (and (nth 1 state) (= (1- (point)) (nth 1 state)))
-                (up-list (nth 0 state))
-              (forward-sexp 1))))))
+          (if (char-equal (char-before (point)) ?\()
+              (up-list (nth 0 state))
+            (progn
+              (backward-sexp 1)
+              (if (char-equal (char-before (point)) ?\()
+                  (up-list (nth 0 state))
+                (forward-sexp 1)))))))
     (my-eval-last-sexp)
     (setq this-command 'ove-eval-sexp-dwim)))
 
