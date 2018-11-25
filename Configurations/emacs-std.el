@@ -72,10 +72,16 @@
 ;;; .cquery 导入
 (advice-add 'find-file :after
             #'(lambda (&rest arg)
-                (and (buffer-file-name)
-                     (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
-                     (not (file-exists-p (buffer-file-name)))
-                     (insert-file-contents "~/模板/.cquery"))))
+                (let* ((name (and (buffer-file-name)
+                                  (not (file-exists-p (buffer-file-name)))
+                                  (file-name-extension
+                                   (concat "arbitrary"
+                                           (file-name-nondirectory
+                                            (buffer-file-name))))))
+                       (realname (and name (concat name "." name))))
+                  (and realname
+                       (member realname (directory-files "~/模板"))
+                       (insert-file-contents (concat "~/模板/" realname))))))
 
 ;; Using MELPA
 (add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))

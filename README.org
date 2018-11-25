@@ -15,7 +15,7 @@
    对一些编程语言的配置
 ** my-macros.el
    保存一些键盘宏
-** hydras.el
+** my-hydra.el
    保存利用 hydra 插件定义的一些按键
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
