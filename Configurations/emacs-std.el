@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 (setq display-time-default-load-average nil)
 (display-time)
 ;; 关掉开机信息
@@ -81,10 +82,13 @@
                        (realname (and name (concat name "." name))))
                   (and realname
                        (member realname (directory-files "~/模板"))
-                       (insert-file-contents (concat "~/模板/" realname))))))
+                       (insert-file-contents (concat "~/模板/" realname))
+                       (yas-expand-snippet (buffer-string)
+                                           (point-min) (point-max))))))
 
 ;; Using MELPA
-(add-to-list 'package-archives '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
 
 ;;; 配置 dired-x
 (autoload 'dired-jump "dired-x")

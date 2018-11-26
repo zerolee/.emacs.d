@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -89,7 +90,7 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :hook (prog-mode . yas-minor-mode)
+  :hook (after-init . yas-global-mode)
   :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -100,9 +101,10 @@
   (setq ivy-use-virtual-buffers t
         ivy-use-selectable-prompt t
         recentf-max-saved-items 100
-        recentf-exclude '("/tmp/" "/ssh:" "/sudo:" "\.gz$" "\.elc$"
+        recentf-exclude '("/tmp/" "/ssh:" "/su\\(do\\)?:" "\.gz$" "\.elc$"
                           "COMMIT_EDITMSG" "/elpa/" "\.gitignore" "README"
-                          "/usr/" "cache" "backup")
+                          "/usr/" "cache" "backup" "TODO" "ChangeLog"
+                          "bookmarks" "VERSION")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   :bind (("C-x C-f" . counsel-find-file)
