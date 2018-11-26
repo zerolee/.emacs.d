@@ -1,3 +1,4 @@
+;;; -*- lexical-binding: t; -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -51,7 +52,7 @@
 (use-package cquery
   :commands lsp-cquery-enable
   :init
-  (setq cquery-executable "/home/zmqc/bin/cquery")
+  (setq cquery-executable "~/bin/cquery")
   (add-hook 'c-mode-hook
             '(lambda ()
                (use-package company-lsp
@@ -72,16 +73,18 @@
 (use-package lsp-java
   :commands lsp-java-enable
   :init
-  (setq lsp-java--workspace-folders
-        (list "/home/zmqc/study/java/tmp/"
-              "/home/zmqc/study/java/javaemacs/")
-        lsp-java-server-install-dir
-        "/home/zmqc/backups/src/jdt-language-server-latest/")
+  (setq lsp-java-server-install-dir
+        "~/backups/src/jdt-language-server-latest/")
   (add-hook 'java-mode-hook
             '(lambda ()
-               (use-package company-lsp)
+               (use-package company-lsp
+                 :config
+                 (setq company-lsp-cache-candidates t
+                       company-lsp-async t))
                (lsp-java-enable)
-               (lsp-common-set))))
+               (lsp-common-set)))
+  :config
+  (setq lsp-inhibit-message t))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
