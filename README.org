@@ -11,7 +11,7 @@
    对 Emacs 自带的插件以及功能进行设置
 ** extensions.el
    对除编程语言之外的其他扩展其他配置
-** modes.el
+** programs.el
    对一些编程语言的配置
 ** my-macros.el
    保存一些键盘宏

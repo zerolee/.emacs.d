@@ -17,7 +17,7 @@
 
 (load "emacs-std")
 (load "extensions")
-(load "modes")
+(load "programs")
 (load "my-macros")
 (load "my-hydra")
 (load "bindings")
