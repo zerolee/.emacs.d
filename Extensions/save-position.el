@@ -39,7 +39,7 @@
     (switch-to-buffer buffer)
     (goto-char marker)))
 
-(defun sp--clear-noexist-buffer ()
+(defun sp--clear-non-exist-buffer ()
   "清除已经被杀掉的 buffer"
   (dolist (var sp-position-ring)
     (unless (member (marker-buffer (cdr var)) (buffer-list))
@@ -68,6 +68,7 @@
        (equal (point) (marker-position (cdar sp-position-ring)))
        (equal (current-buffer) (marker-buffer (cdar sp-position-ring)))))
 
+;;;###autoload
 (defun sp-push-position-to-ring ()
   "将当前位置的 MARKER 存储入 ring， 如果当前位置已经存储过，则从 ring 中删除."
   (interactive)
@@ -78,7 +79,7 @@
     (setq sp-position-ring (cons (sp--position-info) sp-position-ring))
     (message "添加当前位置的 MARKER")))
 
-
+;;;###autoload
 (defun sp-get-position-from-ring (&optional num)
   (interactive "P")
   (if (null sp-position-ring)
@@ -98,10 +99,11 @@
       (setq sp-position-ring (cdr sp-position-ring))
       (sp-get-position-from-ring 1))))
 
+;;;###autoload
 (defun sp-show-all-position-in-ring ()
   "显示所有被标记的位置信息."
   (interactive)
-  (sp--clear-noexist-buffer)
+  (sp--clear-non-exist-buffer)
   (ivy-read "mark ring: " sp-position-ring
             :action '(lambda (x)
                        (if (null sp-position-ring)

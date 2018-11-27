@@ -53,7 +53,7 @@
     (my-eval-last-sexp)
     (setq this-command 'ove-eval-sexp-dwim)))
 
-;;; ###autoload
+;;;###autoload
 (define-minor-mode ove-mode
   "拥有 vim 模式的 Emacs 风格的 minor"
   :init-value nil
@@ -75,9 +75,8 @@
                                         (beginning-of-line)
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "b") 'backward-char)
-(define-key ove-mode-map (kbd "C-b") '(lambda ()
+(define-key ove-mode-map (kbd "C-b") #'(lambda ()
                                         (interactive)
-                                        (backward-char)
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "c") '(lambda ()
                                       (interactive)
@@ -94,9 +93,10 @@
                                         (move-end-of-line 1)
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "f") 'forward-char)
-(define-key ove-mode-map (kbd "C-f") '(lambda ()
+(define-key ove-mode-map (kbd "C-f") #'(lambda ()
                                         (interactive)
-                                        (forward-char)
+                                        (or (eolp)
+                                            (forward-char))
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "g") 'goto-line)
 (define-key ove-mode-map (kbd "h") 'paredit-backward)
