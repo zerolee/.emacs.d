@@ -68,7 +68,8 @@
                 (ove-mode 0)))
 (advice-add 'org-open-at-point :before
             #'(lambda (&rest args)
-                (unless (sp--position-same-pos)
+                (unless (and (boundp 'sp-position-ring)
+                             (sp--position-same-pos))
                   (sp-push-position-to-ring))))
 
 ;; 设置环境变量
