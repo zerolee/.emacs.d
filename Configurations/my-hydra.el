@@ -2,9 +2,9 @@
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
-   _l_: locate  _p_: ivy-push-view    _o_: org
-   _a_: ag      _P_: ivy-pop-view     _y_: yasnippet
-   _z_: fzf     _r_: rg               _h_: hs
+   _l_: locate  _p_: ivy-push-view    _y_: yasnippet
+   _a_: ag      _P_: ivy-pop-view     _h_: hs
+   _z_: fzf     _r_: rg
    _g_: git     _i_: imenu
   "
   ("b" ivy-switch-buffer)
@@ -15,7 +15,6 @@
   ("z" counsel-fzf)
   ("i" counsel-imenu)
   ("g" counsel-git)
-  ("o" hydra-org/body)
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" company-yasnippet)
@@ -27,55 +26,6 @@
   ("d" dired-jump)
   ("<f1>" nil)
   ("M-<SPC>" nil))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-org (:color pink
-                            :hint nil)
-  "
-                          Org
-   -------------------------------------------------------------
-   ^Move^          Title^               ^Time^            ^Operator^
-   _p_: 不分级别    _<left>_: 子树降级     _s_: scheduled    _m_: mark
-   _n_: 不分级别    _<right>_:子树升级     _t_: state        _q_: tag
-   _f_: 同一级别    _<up>_:   子树上移     _d_: deadline
-   _b_: 同一级别    _<down>_: 子树下移     _i_: 开始计时
-   _U_: 上一级别    _*_:      设为标题     _o_: 停止计时
-   _O_: 大纲预览    _/_:      搜索大纲     _._: 时间戳
- "
-  ("j" next-line)
-  ("k" previous-line)
-  ("h" backward-char)
-  ("l" forward-char)
-  ("u" undo)
-  ("I" beginning-of-line :exit t)
-  ("a" forward-char :exit t)
-  ("A" end-of-line :exit t)
-  ("c" (emacs-ckm "c") :exit t)
-  ("y" (emacs-ckm "m") :exit t)
-  ("r" hydra-emacs/r/body :exit t)
-  ("R" hydra-emacs/R/body :exit t)
-  (";" eval-last-sexp)
-  ("p" org-previous-visible-heading)
-  ("n" org-next-visible-heading)
-  ("f" org-forward-heading-same-level)
-  ("b" org-backward-heading-same-level)
-  ("U" outline-up-heading)
-  ("O" org-goto)
-  ("<left>"  org-shiftmetaleft)
-  ("<right>" org-shiftmetaright)
-  ("<up>"    org-shiftmetaup)
-  ("<down>" org-shiftmetadown)
-  ("*" org-ctrl-c-star)
-  ("/" org-sparse-tree)
-  ("s" org-schedule)
-  ("d" org-deadline)
-  ("t" org-todo)
-  ("i" org-clock-in)
-  ("o" org-clock-out)
-  ("." org-time-stamp)
-  ("m" org-ctrl-c-ctrl-c)
-  ("q" org-set-tags-command))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Info
@@ -157,8 +107,7 @@
         (goto-char pp)))
   ;; 如果复制的话，恢复其位置
   (if (string-equal lzl-arg1 "m")
-      (goto-char emacs-ckm-point))
-  (setq current-prefix-arg nil))
+      (goto-char emacs-ckm-point)))
 
 (defhydra hydra-emacs/ckm (:color blue
                                   :hint nil)

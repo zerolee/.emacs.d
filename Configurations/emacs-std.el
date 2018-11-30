@@ -61,18 +61,22 @@
 (setq org-html-htmlize-output-type nil)
 
 (advice-add 'org-insert-heading-respect-content :after
-            #'(lambda (&rest arg)
+            #'(lambda (&rest args)
                 (ove-mode 0)))
 (advice-add 'org-meta-return :after
-            #'(lambda (&rest arg)
+            #'(lambda (&rest args)
                 (ove-mode 0)))
+(advice-add 'org-open-at-point :before
+            #'(lambda (&rest args)
+                (unless (sp--position-same-pos)
+                  (sp-push-position-to-ring))))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
 
 ;;; .cquery 导入
 (advice-add 'find-file :after
-            #'(lambda (&rest arg)
+            #'(lambda (&rest args)
                 (let* ((name (and (buffer-file-name)
                                   (not (file-exists-p (buffer-file-name)))
                                   (file-name-extension
@@ -97,7 +101,7 @@
 
 ;;; view-file 启动由 ove-mode 而不是 view-mode
 (advice-add 'view-mode :around
-            #'(lambda (orig-func &rest arg)
+            #'(lambda (orig-func &rest args)
                 (ove-mode 1)))
 
 ;;; 配置字体
