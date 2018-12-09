@@ -1,3 +1,4 @@
+;; -*- coding: utf-8; lexical-binding: t; -*-
 (setq load-path
       (cons "~/.emacs.d/Configurations"
             (cons "~/.emacs.d/Extensions" load-path)))
@@ -13,7 +14,8 @@
                    gc-cons-percentage 0.1)
              (garbage-collect)) t)
 
-(setq custom-file (expand-file-name "Configurations/custom.el" user-emacs-directory))
+(setq custom-file
+      (expand-file-name "Configurations/custom.el" user-emacs-directory))
 
 (load "emacs-std")
 (load "extensions")

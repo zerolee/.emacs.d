@@ -80,3 +80,9 @@
         (interactive)
         (call-interactively #'dired-mark-files-regexp)
         (command-execute "tk"))))
+
+;;; flymake
+(with-eval-after-load 'flymake
+  (define-key flymake-mode-map (kbd "M-g p") #'flymake-goto-prev-error)
+  (define-key flymake-mode-map (kbd "M-g n") #'flymake-goto-next-error)
+  (define-key flymake-mode-map (kbd "M-g l") #'flymake-show-diagnostics-buffer))

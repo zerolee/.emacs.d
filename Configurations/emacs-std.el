@@ -107,3 +107,8 @@
 
 ;;; 配置字体
 (set-frame-font "Sarasa Term SC-11")
+
+;;; xref-find-definitions
+(advice-add 'xref-find-definitions :after
+            #'(lambda (&rest args)
+                (ove-mode 1)))

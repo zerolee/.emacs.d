@@ -3,6 +3,7 @@
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package geiser
+  :defer t
   :config
   (setq scheme-program-name "scheme"
         geiser-active-implementations '(chez)))
@@ -12,6 +13,7 @@
 ;; Common Lisp sly
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package sly
+  :defer t
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl")
   (setq sly-complete-symbol-function 'sly-simple-completions))
@@ -24,22 +26,16 @@
     :config
     (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-sideline-enable nil)
-    (lsp-ui-mode)
     (define-key lsp-ui-mode-map [remap xref-find-references]
       #'lsp-ui-peek-find-references))
-  (use-package flycheck
-    :bind (:map flycheck-mode-map
-                ("M-g l" . flycheck-list-errors))
+  (use-package company-lsp
     :config
-    (flycheck-mode))
-  (use-package ivy-xref
-    :init
-    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
+    (setq company-lsp-async t))
   (set (make-local-variable 'company-backends)
        '(company-lsp  company-dabbrev-code
                       company-dabbrev
                       company-files))
-  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu)
+  (lsp)
   (global-set-key (kbd "S-<f2>") #'lsp-rename))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -50,41 +46,22 @@
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
 (use-package cquery
-  :commands lsp-cquery-enable
-  :init
-  (setq cquery-executable "~/bin/cquery")
-  (add-hook 'c-mode-hook
-            '(lambda ()
-               (use-package company-lsp
-                 :config
-                 (setq company-transformers nil company-lsp-async t
-                       company-lsp-cache-candidates nil))
-               (lsp-cquery-enable)
-               (setq cquery--get-init-params
-                     '(:index (:comment 2) :cacheFormat "msgpack"
-                              :completion (:detailedLabel t)))
-               (lsp-common-set))))
-
-
+  :defer t
+  :hook ((c-mode c++-mode objc-mode) . (lambda ()
+                                         (require 'cquery)
+                                         (lsp-common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package lsp-java
-  :commands lsp-java-enable
+  :defer t
   :init
   (setq lsp-java-server-install-dir
         "~/backups/src/jdt-language-server-latest/")
-  (add-hook 'java-mode-hook
-            '(lambda ()
-               (use-package company-lsp
-                 :config
-                 (setq company-lsp-cache-candidates t
-                       company-lsp-async t))
-               (lsp-java-enable)
-               (lsp-common-set)))
-  :config
-  (setq lsp-inhibit-message t))
+  :hook (java-mode . (lambda ()
+                       (require 'lsp-java)
+                       (lsp-common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
@@ -106,7 +83,4 @@
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
               ("M-." . xref-find-definitions)
-              ("M-?" . xref-find-references)
-              ("M-g p" . flymake-goto-prev-error)
-              ("M-g n" . flymake-goto-next-error)
-              ("M-g l" . flymake-show-diagnostics-buffer)))
+              ("M-?" . xref-find-references)))

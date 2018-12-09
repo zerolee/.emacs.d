@@ -7,7 +7,6 @@ elpa/
 eshell/
 network-security.data      
 notes                      
-.org-id-locations          
 recentf                    
 semanticdb/
 smex-items
@@ -19,8 +18,8 @@ pyim/
 workspace/
 projectile-bookmarks.eld
 projectile.cache
-.cache
-.mc-lists.el
 custom.el
 session*
 eaf/
+\.*
+!.gitignore
