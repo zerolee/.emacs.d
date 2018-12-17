@@ -15,8 +15,8 @@
 (use-package sly
   :defer t
   :config
-  (setq inferior-lisp-program "/usr/bin/sbcl")
-  (setq sly-complete-symbol-function 'sly-simple-completions))
+  (setq inferior-lisp-program "/usr/bin/sbcl"
+        sly-complete-symbol-function 'sly-simple-completions))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp
@@ -84,3 +84,17 @@
               ("S-<f2>" . eglot-rename)
               ("M-." . xref-find-definitions)
               ("M-?" . xref-find-references)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; markdown-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; cmake-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package cmake-mode)

@@ -23,12 +23,6 @@
                (ove-mode 1)
              (setq cursor-type 'bar)))))
 
-(use-package markdown-mode
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
-
 (use-package hydra)
 
 (use-package projectile
@@ -90,8 +84,7 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :hook (after-init . yas-global-mode)
-  :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet))
+  :hook (after-init . yas-global-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
@@ -164,8 +157,6 @@
   (advice-add 'paredit-comment-dwim :after
               #'(lambda (&optional arg) (unless mark-active
                                           (ove-mode 0)))))
-
-(use-package cmake-mode)
 
 (use-package key-chord
   :config
