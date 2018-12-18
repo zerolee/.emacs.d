@@ -23,6 +23,7 @@
                (ove-mode 1)
              (setq cursor-type 'bar)))))
 
+(use-package diminish)
 (use-package hydra)
 
 (use-package projectile
@@ -84,12 +85,14 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
+  :diminish yas-minor-mode
   :hook (after-init . yas-global-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package counsel
+  :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t
         ivy-use-selectable-prompt t

@@ -36,7 +36,8 @@
                       company-dabbrev
                       company-files))
   (lsp)
-  (global-set-key (kbd "S-<f2>") #'lsp-rename))
+  (global-set-key (kbd "S-<f2>") #'lsp-rename)
+  (setq abbrev-mode nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
