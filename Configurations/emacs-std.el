@@ -106,7 +106,7 @@
                 (ove-mode 1)))
 
 ;;; 配置字体
-(set-frame-font "Sarasa Term SC-11")
+(add-to-list 'default-frame-alist '(font . "Sarasa Mono SC"))
 
 ;;; xref-find-definitions
 (advice-add 'xref-find-definitions :after

@@ -31,11 +31,11 @@
   (use-package company-lsp
     :config
     (setq company-lsp-async t))
-  (set (make-local-variable 'company-backends)
+  (lsp)
+  (set 'company-backends
        '(company-lsp  company-dabbrev-code
                       company-dabbrev
                       company-files))
-  (lsp)
   (global-set-key (kbd "S-<f2>") #'lsp-rename)
   (setq abbrev-mode nil))
 

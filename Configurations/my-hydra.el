@@ -93,10 +93,12 @@
       (end-of-line))
   (if (string-match lzl-arg2 ">nckm")
       (beginning-of-line))
-  (funcall lzl-kill-or-save (point)
-           (progn
-             (call-interactively lzl-move)
-             (point)))
+  (let ((current-position (point)))
+    (funcall lzl-kill-or-save current-position
+             (progn
+               (call-interactively lzl-move)
+               (pulse-momentary-highlight-region current-position (point))
+               (point))))
   ;; k
   (if (and (string-match lzl-arg1 "k")
            (string-match lzl-arg2 "<>npk"))
