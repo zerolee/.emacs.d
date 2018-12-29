@@ -1,10 +1,11 @@
+;;; -*- lexical-binding: t; -*-
+(setq display-time-default-load-average nil)
 (display-time)
 ;; 关掉开机信息
 (setq inhibit-startup-message t)
 
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+;;; mode-line 上取消 eldoc 显示
+(setq eldoc-minor-mode-string "")
 
 (setq column-number-mode t)
 
@@ -59,20 +60,55 @@
       '("~/note/plan"  "~/note/emacs"))
 (setq org-html-htmlize-output-type nil)
 
+(advice-add 'org-insert-heading-respect-content :after
+            #'(lambda (&rest args)
+                (ove-mode 0)))
+(advice-add 'org-meta-return :after
+            #'(lambda (&rest args)
+                (ove-mode 0)))
+(advice-add 'org-open-at-point :before
+            #'(lambda (&rest args)
+                (unless (and (boundp 'sp-position-ring)
+                             (sp--position-same-pos))
+                  (sp-push-position-to-ring))))
+
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
 
 ;;; .cquery 导入
-(add-hook 'before-save-hook
-          '(lambda ()
-             (if (string-equal (file-name-nondirectory (buffer-file-name)) ".cquery")
-                 (unless (file-exists-p (buffer-file-name))
-                   (insert-file-contents "~/模板/.cquery")))))
+(advice-add 'find-file :after
+            #'(lambda (&rest args)
+                (let* ((name (and (buffer-file-name)
+                                  (not (file-exists-p (buffer-file-name)))
+                                  (file-name-extension
+                                   (concat "arbitrary"
+                                           (file-name-nondirectory
+                                            (buffer-file-name))))))
+                       (realname (and name (concat name "." name))))
+                  (and realname
+                       (member realname (directory-files "~/模板"))
+                       (insert-file-contents (concat "~/模板/" realname))
+                       (yas-expand-snippet (buffer-string)
+                                           (point-min) (point-max))))))
 
 ;; Using MELPA
-(add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+(add-to-list 'package-archives
+             '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
 
 ;;; 配置 dired-x
 (autoload 'dired-jump "dired-x")
 ;;; 设置隐藏模式下要隐藏的文件
 (setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\.")
+
+;;; view-file 启动由 ove-mode 而不是 view-mode
+(advice-add 'view-mode :around
+            #'(lambda (orig-func &rest args)
+                (ove-mode 1)))
+
+;;; 配置字体
+(add-to-list 'default-frame-alist '(font . "Sarasa Mono SC"))
+
+;;; xref-find-definitions
+(advice-add 'xref-find-definitions :after
+            #'(lambda (&rest args)
+                (ove-mode 1)))

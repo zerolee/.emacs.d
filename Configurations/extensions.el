@@ -1,43 +1,61 @@
-;; save-position
-(autoload 'sp-push-position-to-ring "save-position")
-
+;;; -*- lexical-binding: t; -*-
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 (require 'use-package)
 (setq use-package-always-ensure t)
 
-(use-package markdown-mode
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
-  :init (setq markdown-command "multimarkdown"))
+(use-package save-position
+  :ensure nil
+  :bind (("s-." . sp-push-position-to-ring)
+         ("s-," . sp-get-position-from-ring)
+         ("s-/" . sp-show-all-position-in-ring)))
 
-(use-package hydra)
+(use-package ove
+  :ensure nil
+  :bind ("<escape>" . (lambda () (interactive)
+                        (ove-mode 1)))
+  :hook ((prog-mode text-mode comint-mode special-mode)
+         .
+         (lambda () (interactive)
+           (if (and buffer-read-only
+                    (not (equal major-mode 'treemacs-mode)))
+               (ove-mode 1)
+             (setq cursor-type 'bar)))))
+
+(use-package diminish)
+(use-package hydra
+  :custom (hydra-lv nil))
 
 (use-package projectile
   :bind-keymap
-  ("C-c p" . projectile-command-map))
+  ("C-c p" . projectile-command-map)
+  :config
+  (setq projectile-completion-system 'ivy))
 
 (use-package goto-chg
   :bind (("C-." . goto-last-change)
          ("C-," . goto-last-change-reverse)))
 
-(use-package multiple-cursors-core
+(use-package mc-mark-more
   :ensure multiple-cursors
-  :bind (("M-g m" . mc/edit-lines)
-         ("M-g r" . mc/mark-all-in-region-regexp)
+  :init
+  (global-set-key (kbd "M-g m") 'mc/edit-lines)
+  :bind (("M-g r" . mc/mark-all-in-region-regexp)
          ("M-g a" . mc/mark-all-like-this)
          ("M-g W" . mc/mark-next-like-this-word)
          ("M-g S" . mc/mark-next-like-this-symbol)
+         ("M-g ." . mc/mark-all-dwim)
+         ("C-M-<mouse-1>" . mc/add-cursor-on-click)
          :map mc/keymap
-         ("M-p" . mc/mark-previous-like-this)
-         ("M-P" . mc/unmark-previous-like-this)
+         ("M-[" . mc/mark-previous-like-this)
+         ("M-]" . mc/unmark-previous-like-this)
          ("M-n" . mc/mark-next-like-this)
-         ("M-N" . mc/unmark-next-like-this)
+         ("M-p" . mc/unmark-next-like-this)
          ("M-s" . mc/skip-to-next-like-this)
-         ("M-S" . mc/skip-to-previous-like-this)
-         ("M-i" . mc/insert-numbers)))
+         ("M-g" . mc/skip-to-previous-like-this)
+         ("M-i" . mc/insert-numbers)
+         ("M-." . mc/mark-all-like-this-dwim)))
 
 (use-package treemacs
   :bind (("<f2>" . treemacs)
@@ -50,10 +68,6 @@
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
-
-(use-package iedit
-  :bind ("M-i" . iedit-mode))
-
 (use-package avy
   :bind (("M-g 1" . avy-goto-char)
          ("M-g 2" . avy-goto-char-2)
@@ -64,11 +78,6 @@
          ("M-g 0" . avy-goto-word-0)
          ("M-g w" . avy-goto-word-1)))
 
-(use-package auto-yasnippet
-  :bind (("M-g c" . aya-create)
-         ("M-g e" . aya-expand)))
-
-
 ;; 使用主题
 (use-package solarized-theme
   :config
@@ -77,17 +86,22 @@
 
 ;; yasnippet
 (use-package yasnippet-snippets
-  :commands (yas-expand-snippet yas-insert-snippet yas-new-snippet)
-  :init
-  (add-hook 'prog-mode-hook #'yas-minor-mode))
+  :diminish yas-minor-mode
+  :hook (after-init . yas-global-mode))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package counsel
+  :diminish ivy-mode
   :init
   (setq ivy-use-virtual-buffers t
         ivy-use-selectable-prompt t
+        recentf-max-saved-items 100
+        recentf-exclude '("/tmp/" "/ssh:" "/su\\(do\\)?:" "\.gz$" "\.elc$"
+                          "COMMIT_EDITMSG" "/elpa/" "\.gitignore" "README"
+                          "/usr/" "cache" "backup" "TODO" "ChangeLog"
+                          "bookmarks" "VERSION")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   :bind (("C-x C-f" . counsel-find-file)
@@ -113,8 +127,9 @@
 ;; company-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
+  :hook (after-init . global-company-mode)
   :config
-  (add-hook 'after-init-hook 'global-company-mode))
+  (setq company-idle-delay 0))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -126,13 +141,32 @@
 ;; M-r 跳出外围块(去掉外层代码)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package paredit
-  :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode) . enable-paredit-mode))
+  :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode sly-mrepl-mode) . enable-paredit-mode)
+  :config
+  (setq paredit-lighter nil)
+  (define-key paredit-mode-map (kbd "M-s") nil)
+  (define-key paredit-mode-map (kbd "M-r") nil)
+  (define-key paredit-mode-map (kbd "M-?") nil)
+  (define-key paredit-mode-map (kbd "M-<up>") 'paredit-splice-sexp)
+  (define-key paredit-mode-map (kbd "M-<down>") '(lambda ()
+                                                   (interactive)
+                                                   (lzl-look-forward-char 1 ?\))
+                                                   (paredit-newline)
+                                                   (ove-mode 0)))
+  (define-key paredit-mode-map (kbd "(") nil)
+  (define-key paredit-mode-map (kbd ")") nil)
+  (define-key paredit-mode-map (kbd "[") nil)
+  (define-key paredit-mode-map (kbd "]") nil)
+  (define-key paredit-mode-map (kbd ";") nil)
+  (advice-add 'paredit-comment-dwim :after
+              #'(lambda (&optional arg) (unless mark-active
+                                          (ove-mode 0)))))
 
 (use-package key-chord
   :config
   (progn
     (key-chord-mode 1)
-    (key-chord-define-global "df" 'hydra-esc/body)))
+    (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; exwm

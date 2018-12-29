@@ -1,46 +1,43 @@
+;;; -*- lexical-binding: t; -*-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package geiser
+  :defer t
   :config
-  (progn
-    (setq scheme-program-name "scheme"
-          geiser-active-implementations '(chez))))
+  (setq scheme-program-name "scheme"
+        geiser-active-implementations '(chez)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Common Lisp slime
+;; Common Lisp sly
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package slime
-  :hook (lisp-mode . slime-lisp-mode-hook)
+(use-package sly
+  :defer t
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl"
-        slime-contribs '(slime-fancy)))
+        sly-complete-symbol-function 'sly-simple-completions))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-lsp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lsp-common-set ()
-  (use-package company-lsp
-    :config
-    (setq company-transformers nil company-lsp-async t
-          company-lsp-cache-candidates nil)
-    (set (make-local-variable 'company-backends)
-         '(company-lsp  company-dabbrev-code
-                        company-dabbrev
-                        company-files)))
   (use-package lsp-ui
     :config
     (setq lsp-ui-doc-enable nil)
     (setq lsp-ui-sideline-enable nil)
-    (lsp-ui-mode))
-  (use-package flycheck
+    (define-key lsp-ui-mode-map [remap xref-find-references]
+      #'lsp-ui-peek-find-references))
+  (use-package company-lsp
     :config
-    (flycheck-mode))
-  (use-package ivy-xref
-    :init
-    (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))
-  (add-hook 'lsp-after-open-hook #'lsp-enable-imenu))
+    (setq company-lsp-async t))
+  (lsp)
+  (set 'company-backends
+       '(company-lsp  company-dabbrev-code
+                      company-dabbrev
+                      company-files))
+  (global-set-key (kbd "S-<f2>") #'lsp-rename)
+  (setq abbrev-mode nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -49,33 +46,23 @@
 ;; xref-find-definitions ( M-. )
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
-(setq cquery-executable "/home/zmqc/backups/src/cquery/build/release/bin/cquery")
-
 (use-package cquery
-  :commands lsp-cquey-enable
-  :init
-  (add-hook 'c-mode-hook
-            '(lambda ()
-               (lsp-common-set)
-               (lsp-cquery-enable)
-               (setq cquery--get-init-params '(:index (:comment 2) :cacheFormat "msgpack" :completion (:detailedLabel t))))))
-
-
+  :defer t
+  :hook ((c-mode c++-mode objc-mode) . (lambda ()
+                                         (require 'cquery)
+                                         (lsp-common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq lsp-java--workspace-folders (list "/home/zmqc/study/java/tmp/"
-                                        "/home/zmqc/study/java/javaemacs/"))
-(setq lsp-java-server-install-dir "/home/zmqc/backups/src/jdt-language-server-latest/")
-
 (use-package lsp-java
-  :commands lsp-java-enable
+  :defer t
   :init
-  (add-hook 'java-mode-hook
-            '(lambda ()
-               (lsp-common-set)
-               (lsp-java-enable))))
+  (setq lsp-java-server-install-dir
+        "~/backups/src/jdt-language-server-latest/")
+  :hook (java-mode . (lambda ()
+                       (require 'lsp-java)
+                       (lsp-common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
@@ -97,7 +84,18 @@
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
               ("M-." . xref-find-definitions)
-              ("M-?" . xref-find-references)
-              ("M-g p" . flymake-goto-prev-error)
-              ("M-g n" . flymake-goto-next-error)
-              ("M-g l" . flymake-show-diagnostics-buffer)))
+              ("M-?" . xref-find-references)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; markdown-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package markdown-mode
+  :mode (("README\\.md\\'" . gfm-mode)
+         ("\\.md\\'" . markdown-mode)
+         ("\\.markdown\\'" . markdown-mode))
+  :init (setq markdown-command "multimarkdown"))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; cmake-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package cmake-mode)

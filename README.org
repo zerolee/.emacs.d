@@ -1,19 +1,21 @@
 * init.el
   Emacs 启动时默认读取的配置文件，
   这个文件会读取 Configurations 下的相关文件，以及保存了 elpa 的一些相关设置
+* early-init.el
+  在一些图形元素(比如 tool-bar)加载、包管理初始化之前启动
 * Configurations
   该文件夹下存放 Emacs 的配置文件
 ** bindings.el
    绑定快捷键
 ** emacs-std.el
-   Emacs 设置相关
+   对 Emacs 自带的插件以及功能进行设置
 ** extensions.el
-   对安装的一些扩展进行的设置
-** modes.el
-   major mode 设置相关
+   对除编程语言之外的其他扩展其他配置
+** programs.el
+   对一些编程语言的配置
 ** my-macros.el
    保存一些键盘宏
-** hydras.el
+** my-hydra.el
    保存利用 hydra 插件定义的一些按键
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
@@ -25,4 +27,7 @@
 ** tabbar.el             
 ** template.el           
 ** save-position.el
-   我个人写的一些小函数什么的
+   主要使用来保存、恢复、查看当前位置信息的
+** ove.el
+   替代原本 [[file:Configurations/my-hydra.el][my-hydra]] 中的 ESC 绑定的一些命令，可以不需要修饰键
+   使用 emacs 的命令， 类似于 vim 的模式
