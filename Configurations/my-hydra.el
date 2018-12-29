@@ -86,36 +86,9 @@
   (search-forward
    (char-to-string char) nil nil arg))
 
-(defun lzl-emacs-get (lzl-move lzl-arg2)
-  "删除或者保存 region 中的数据"
-  (setq emacs-ckm-point (point))
-  (if (string-match lzl-arg2 "<p")
-      (end-of-line))
-  (if (string-match lzl-arg2 ">nckm")
-      (beginning-of-line))
-  (let ((current-position (point)))
-    (funcall lzl-kill-or-save current-position
-             (progn
-               (call-interactively lzl-move)
-               (pulse-momentary-highlight-region current-position (point))
-               (point))))
-  ;; k
-  (if (and (string-match lzl-arg1 "k")
-           (string-match lzl-arg2 "<>npk"))
-      (let ((pp (point)))
-        (if (and  (search-forward "\n" nil  t 1)
-                  (= (1+ pp) (point)))
-            (delete-char -1))
-        (goto-char pp)))
-  ;; 如果复制的话，恢复其位置
-  (if (string-equal lzl-arg1 "m")
-      (goto-char emacs-ckm-point)))
 
 (defhydra hydra-emacs/ckm (:color blue
                                   :hint nil)
-  "
-    %`lzl-arg1
-  "
   ("<" (let ((current-prefix-arg (point-min)))
          (lzl-emacs-get #'goto-char "<")))
   (">" (let ((current-prefix-arg (point-max)))
@@ -124,11 +97,25 @@
   ("aw" (progn
           (forward-word)
           (backward-word)
-          (lzl-emacs-get #'forward-word "aw")))
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (forward-word)
+                             (and (char-equal (char-after) ? )
+                                  (forward-char))) "aw")))
+  ("ew" (progn
+          (forward-word)
+          (backward-word)
+          (lzl-emacs-get #'forward-word "ew")))
   ("as" (progn
           (forward-sexp)
           (backward-sexp)
-          (lzl-emacs-get #'forward-sexp "as")))
+          (lzl-emacs-get #'(lambda () (interactive)
+                             (forward-sexp)
+                             (and (char-equal (char-after) ? )
+                                  (forward-char))) "as")))
+  ("es" (progn
+          (forward-sexp)
+          (backward-sexp)
+          (lzl-emacs-get #'forward-sexp "es")))
   ("aS" (progn
           (backward-sentence)
           (lzl-emacs-get #'forward-sentence "aS")))

@@ -24,7 +24,8 @@
              (setq cursor-type 'bar)))))
 
 (use-package diminish)
-(use-package hydra)
+(use-package hydra
+  :custom (hydra-lv nil))
 
 (use-package projectile
   :bind-keymap

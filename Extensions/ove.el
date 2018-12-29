@@ -17,12 +17,53 @@
 
 ;;; Code:
 
-(defun ove-ckm (which-ckm)
-  (setq lzl-arg1 which-ckm)
-  (if (string-equal which-ckm "m")
-      (setq lzl-kill-or-save #'kill-ring-save)
-    (setq lzl-kill-or-save #'kill-region))
-  (hydra-emacs/ckm/body))
+(defgroup ove-face nil
+  "类 vim 模式的的 emacs 按键风格"
+  :group 'ove-face)
+(defface ove-aquamarine
+  '((((min-colors 88) (background dark))
+     (:background "aquamarine" :foreground "black"))
+    (((background dark)) (:background "blue" :foreground "black"))
+    (((min-colors 88)) (:background "aquamarine"))
+    (t (:background "blue")))
+  "Face for hi-lock mode."
+  :group 'ove-face
+  :version "27.1")
+
+(let (lzl-arg1
+      lzl-kill-or-save
+      emacs-ckm-point)
+  (defun ove-ckm (which-ckm)
+    (setq lzl-arg1 which-ckm)
+    (setq emacs-ckm-point (point))
+    (if (string-equal which-ckm "m")
+        (setq lzl-kill-or-save #'kill-ring-save)
+      (setq lzl-kill-or-save #'kill-region))
+    (hydra-emacs/ckm/body))
+
+  (defun lzl-emacs-get (lzl-move lzl-arg2)
+    "删除或者保存 region 中的数据"
+    (if (string-match lzl-arg2 "<p")
+        (end-of-line))
+    (if (string-match lzl-arg2 ">nckm")
+        (beginning-of-line))
+    (let ((current-position (point)))
+      (funcall lzl-kill-or-save current-position
+               (progn
+                 (call-interactively lzl-move)
+                 (pulse-momentary-highlight-region current-position (point) 'ove-aquamarine)
+                 (point))))
+    ;; k
+    (if (and (string-match lzl-arg1 "k")
+             (string-match lzl-arg2 "<>npk"))
+        (let ((pp (point)))
+          (if (and  (search-forward "\n" nil  t 1)
+                    (= (1+ pp) (point)))
+              (delete-char -1))
+          (goto-char pp)))
+    ;; 如果复制的话，恢复其位置
+    (if (string-equal lzl-arg1 "m")
+        (goto-char emacs-ckm-point))))
 
 (defsubst ove-current-parse-state ()
   "Return parse state of point from beginning of defun."
@@ -76,8 +117,8 @@
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "b") 'backward-char)
 (define-key ove-mode-map (kbd "C-b") #'(lambda ()
-                                        (interactive)
-                                        (ove-mode 0)))
+                                         (interactive)
+                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "c") '(lambda ()
                                       (interactive)
                                       (ove-ckm "c")
@@ -94,10 +135,10 @@
                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "f") 'forward-char)
 (define-key ove-mode-map (kbd "C-f") #'(lambda ()
-                                        (interactive)
-                                        (or (eolp)
-                                            (forward-char))
-                                        (ove-mode 0)))
+                                         (interactive)
+                                         (or (eolp)
+                                             (forward-char))
+                                         (ove-mode 0)))
 (define-key ove-mode-map (kbd "g") 'goto-line)
 (define-key ove-mode-map (kbd "h") 'paredit-backward)
 (define-key ove-mode-map (kbd "H") 'delete-indentation)
