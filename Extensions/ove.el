@@ -30,39 +30,39 @@
   :group 'ove-face
   :version "27.1")
 
-(let (lzl-arg1
-      lzl-kill-or-save
+(let (ove-arg1
+      ove-kill-or-save
       emacs-ckm-point)
   (defun ove-ckm (which-ckm)
-    (setq lzl-arg1 which-ckm)
+    (setq ove-arg1 which-ckm)
     (setq emacs-ckm-point (point))
     (if (string-equal which-ckm "m")
-        (setq lzl-kill-or-save #'kill-ring-save)
-      (setq lzl-kill-or-save #'kill-region))
+        (setq ove-kill-or-save #'kill-ring-save)
+      (setq ove-kill-or-save #'kill-region))
     (hydra-emacs/ckm/body))
 
-  (defun lzl-emacs-get (lzl-move lzl-arg2)
+  (defun ove-emacs-get (ove-move ove-arg2)
     "删除或者保存 region 中的数据"
-    (if (string-match lzl-arg2 "<p")
+    (if (string-match ove-arg2 "<p")
         (end-of-line))
-    (if (string-match lzl-arg2 ">nckm")
+    (if (string-match ove-arg2 ">nckm")
         (beginning-of-line))
     (let ((current-position (point)))
-      (funcall lzl-kill-or-save current-position
+      (funcall ove-kill-or-save current-position
                (progn
-                 (call-interactively lzl-move)
+                 (call-interactively ove-move)
                  (pulse-momentary-highlight-region current-position (point) 'ove-aquamarine)
                  (point))))
     ;; k
-    (if (and (string-match lzl-arg1 "k")
-             (string-match lzl-arg2 "<>npk"))
+    (if (and (string-match ove-arg1 "k")
+             (string-match ove-arg2 "<>npk"))
         (let ((pp (point)))
           (if (and  (search-forward "\n" nil  t 1)
                     (= (1+ pp) (point)))
               (delete-char -1))
           (goto-char pp)))
     ;; 如果复制的话，恢复其位置
-    (if (string-equal lzl-arg1 "m")
+    (if (string-equal ove-arg1 "m")
         (goto-char emacs-ckm-point))))
 
 (defsubst ove-current-parse-state ()
