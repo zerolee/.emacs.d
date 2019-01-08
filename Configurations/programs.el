@@ -32,10 +32,10 @@
     :config
     (setq company-lsp-async t))
   (lsp)
-  (set 'company-backends
-       '(company-lsp  company-dabbrev-code
-                      company-dabbrev
-                      company-files))
+  (setq-local company-backends
+              '(company-lsp  company-dabbrev-code
+                             company-dabbrev
+                             company-files))
   (global-set-key (kbd "S-<f2>") #'lsp-rename)
   (setq abbrev-mode nil))
 

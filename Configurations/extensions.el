@@ -23,6 +23,10 @@
                (ove-mode 1)
              (setq cursor-type 'bar)))))
 
+(use-package hugomd
+  :ensure nil
+  :commands hugomd-preview)
+
 (use-package diminish)
 (use-package hydra
   :custom (hydra-lv nil))

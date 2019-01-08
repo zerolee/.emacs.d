@@ -79,3 +79,8 @@
   (define-key flymake-mode-map (kbd "M-g p") #'flymake-goto-prev-error)
   (define-key flymake-mode-map (kbd "M-g n") #'flymake-goto-next-error)
   (define-key flymake-mode-map (kbd "M-g l") #'flymake-show-diagnostics-buffer))
+
+;;; emacs-lisp
+(define-key lisp-interaction-mode-map
+  (kbd "C-c <return>") #'emacs-lisp-macroexpand)
+(define-key emacs-lisp-mode-map (kbd "C-c <return>") #'emacs-lisp-macroexpand)
