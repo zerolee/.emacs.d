@@ -31,7 +31,7 @@
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward
-            "\\\(!\\\[[A-Za-z-0-9./ ]*\\\](\\\([A-Za-z./-0-9]*\\\))\\\|<img +src ?= ?\"\\\([A-Za-z0-9./]*\\\)\">\\\)"
+            "\\\(!\\\[[A-Za-z-0-9./_ ]*\\\](\\\([A-Za-z./-0-9_]*\\\))\\\|<img +src ?= ?\"\\\([A-Za-z0-9./_]*\\\)\"[-a-zA-Z0-9./_ =\"]*>\\\)"
             nil t)
       (let* ((ms (or (match-string 2) (match-string 3)))
              (picture

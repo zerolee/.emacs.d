@@ -103,7 +103,10 @@
 ;;; view-file 启动由 ove-mode 而不是 view-mode
 (advice-add 'view-mode :around
             #'(lambda (orig-func &rest args)
-                (ove-mode 1)))
+                (ove-mode 1)
+                (when (or (equal major-mode 'markdown-mode)
+                          (equal major-mode 'gfm-mode))
+                  (hugomd-preview))))
 
 ;;; 配置字体
 (add-to-list 'default-frame-alist '(font . "Sarasa Mono SC"))
