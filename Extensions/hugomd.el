@@ -22,7 +22,7 @@
 ;;; Code:
 
 ;;; 获取文件名
-(defvar hugomd-dired "~/tmp/tmp-blog/")
+(defvar hugomd-dired "~/tmp/tmp-blog/" "hugo new site my-blog 中的 my-blog")
 (defvar hugomd--filename nil)
 (defvar hugomd--hugo-file nil)
 
@@ -54,6 +54,12 @@
             (and (file-exists-p picture)
                  (copy-file picture path t))))))))
 
+(defun hugomd--clear-file ()
+  (if (file-exists-p (substring hugomd--hugo-file 0 -3))
+      (delete-directory (substring hugomd--hugo-file 0 -3) t))
+  (if (file-exists-p hugomd--hugo-file)
+      (delete-file hugomd--hugo-file)))
+
 ;;;###autoload
 (defun hugomd-preview ()
   "预览 Markdown"
@@ -67,14 +73,13 @@
                 (concat hugomd-dired "content/post/" hugomd--filename))
     (make-directory (substring hugomd--hugo-file 0 -3)))
   ;; 去相应目录下启动 hugo
-  ;; (setq display-buffer-alist
-  ;;       '(("\\*Async Shell Command\\*"  (display-buffer-no-window))))
-
-  ;; (or (get-buffer "*Async Shell Command*")
-  ;;     (async-shell-command (concat "cd " hugomd-dired " && hugo server -D")))
   (let ((default-directory hugomd-dired))
     (or (get-buffer "*hugo*")
-        (start-process "hugo" "*hugo*" "hugo" "server" " -D")))
+        (make-process
+         :name "hugo"
+         :buffer "*hugo*"
+         :command (list "hugo" "server" "-D")
+         :noquery t)))
 
   ;; 文件不存在则复制模板文件
   (let ((filename (buffer-file-name)))
@@ -95,7 +100,10 @@
             t t)
   (add-hook 'after-save-hook #'hugomd--copy-picture t t)
 
+  (add-hook 'kill-buffer-hook #'hugomd--clear-file t t)
+
   ;; 打开浏览器
+  (sleep-for 0.3)
   (browse-url
    (concat "http://localhost:1313/post/"
            (substring hugomd--filename 0 -3))))
