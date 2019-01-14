@@ -53,12 +53,16 @@
           (unless (file-exists-p (concat path file))
             (and (file-exists-p picture)
                  (copy-file picture path t))))))))
-
-(defun hugomd--clear-file ()
+;;; 清除用于预览的文件和图片
+(defsubst hugomd--clear-file ()
   (if (file-exists-p (substring hugomd--hugo-file 0 -3))
       (delete-directory (substring hugomd--hugo-file 0 -3) t))
   (if (file-exists-p hugomd--hugo-file)
       (delete-file hugomd--hugo-file)))
+
+;;; 用于将 buffer 写入指定文件
+(defsubst hugomd--write-file (&rest unused)
+  (write-region nil nil hugomd--hugo-file))
 
 ;;;###autoload
 (defun hugomd-preview ()
@@ -99,6 +103,7 @@
                           hugomd--hugo-file t))
             t t)
   (add-hook 'after-save-hook #'hugomd--copy-picture t t)
+  (add-hook 'after-change-functions #'hugomd--write-file t t)
 
   (add-hook 'kill-buffer-hook #'hugomd--clear-file t t)
 
