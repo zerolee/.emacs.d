@@ -22,9 +22,10 @@
 ;;; Code:
 
 ;;; 获取文件名
-(defvar hugomd-dired "~/tmp/tmp-blog/" "hugo new site my-blog 中的 my-blog")
+(defvar hugomd-root "~/tmp/tmp-blog/" "hugo new site my-blog 中的 my-blog")
 (defvar hugomd--filename nil)
-(defvar hugomd--hugo-file nil)
+(defvar hugomd--hugo-file nil "post 目录下的文件")
+(defvar hugomd--hugo-dired nil "post 目录下的目录")
 
 (defun hugomd--copy-picture ()
   ;; 复制图片相关
@@ -41,7 +42,7 @@
                 ms))
              (directory (file-name-directory picture))
              (file (file-name-nondirectory picture))
-             (path (concat (substring hugomd--hugo-file 0 -3) "/")))
+             (path (concat hugomd--hugo-dired "/")))
         (if directory
             (progn
               (unless (file-exists-p (concat path directory))
@@ -55,8 +56,8 @@
                  (copy-file picture path t))))))))
 ;;; 清除用于预览的文件和图片
 (defsubst hugomd--clear-file ()
-  (if (file-exists-p (substring hugomd--hugo-file 0 -3))
-      (delete-directory (substring hugomd--hugo-file 0 -3) t))
+  (if (file-exists-p hugomd--hugo-dired)
+      (delete-directory hugomd--hugo-dired t))
   (if (file-exists-p hugomd--hugo-file)
       (delete-file hugomd--hugo-file)))
 
@@ -74,10 +75,11 @@
                         (file-name-nondirectory
                          (buffer-file-name))))
     (setq-local hugomd--hugo-file
-                (concat hugomd-dired "content/post/" hugomd--filename))
-    (make-directory (substring hugomd--hugo-file 0 -3)))
+                (concat hugomd-root "content/post/" hugomd--filename))
+    (setq-local hugomd--hugo-dired (substring hugomd--hugo-file 0 -3))
+    (make-directory hugomd--hugo-dired))
   ;; 去相应目录下启动 hugo
-  (let ((default-directory hugomd-dired))
+  (let ((default-directory hugomd-root))
     (or (get-buffer "*hugo*")
         (make-process
          :name "hugo"
@@ -85,25 +87,15 @@
          :command (list "hugo" "server" "-D")
          :noquery t)))
 
-  ;; 文件不存在则复制模板文件
-  (let ((filename (buffer-file-name)))
-    (unless (file-exists-p filename)
-      (setq filename "~/模板/md.md"))
-    (copy-file filename
-               hugomd--hugo-file t))
-
+  ;; 复制文件
+  (hugomd--write-file)
 
   ;; 复制图片
   (hugomd--copy-picture)
 
   ;; 将当前文件复制到相应的位置上
-  (add-hook 'after-save-hook
-            '(lambda ()
-               (copy-file (buffer-file-name)
-                          hugomd--hugo-file t))
-            t t)
+  (add-hook 'after-save-hook #'hugomd--write-file t t)
   (add-hook 'after-save-hook #'hugomd--copy-picture t t)
-  (add-hook 'after-change-functions #'hugomd--write-file t t)
 
   (add-hook 'kill-buffer-hook #'hugomd--clear-file t t)
 
