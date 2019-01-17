@@ -41,19 +41,14 @@
                   (substring ms 2)
                 ms))
              (directory (file-name-directory picture))
-             (file (file-name-nondirectory picture))
-             (path (concat hugomd--hugo-dired "/")))
-        (if directory
-            (progn
-              (unless (file-exists-p (concat path directory))
-                (and (file-exists-p directory)
-                     (copy-directory directory path t)))
-              (unless (file-exists-p (concat path directory file))
-                (and (file-exists-p picture)
-                     (copy-file picture (concat path directory)))))
-          (unless (file-exists-p (concat path file))
-            (and (file-exists-p picture)
-                 (copy-file picture path t))))))))
+             (file (concat hugomd--hugo-dired picture)))
+        (when directory
+          (unless (file-exists-p (concat hugomd--hugo-dired directory))
+            (and (file-exists-p directory)
+                 (copy-directory directory hugomd--hugo-dired nil t))))
+        (unless (file-exists-p (concat hugomd--hugo-dired picture))
+          (and (file-exists-p picture)
+               (copy-file picture file t)))))))
 ;;; 清除用于预览的文件和图片
 (defsubst hugomd--clear-file ()
   (if (file-exists-p hugomd--hugo-dired)
@@ -76,7 +71,8 @@
                          (buffer-file-name))))
     (setq-local hugomd--hugo-file
                 (concat hugomd-root "content/post/" hugomd--filename))
-    (setq-local hugomd--hugo-dired (substring hugomd--hugo-file 0 -3))
+    (setq-local hugomd--hugo-dired
+                (concat (substring hugomd--hugo-file 0 -3) "/"))
     (make-directory hugomd--hugo-dired))
   ;; 去相应目录下启动 hugo
   (let ((default-directory hugomd-root))
