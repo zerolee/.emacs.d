@@ -28,7 +28,7 @@
 (defvar hugomd--hugo-dired nil "post 目录下的目录")
 
 (defun hugomd--copy-picture ()
-  ;; 复制图片相关
+  "复制 markdown 文件中引用的图片"
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward
@@ -46,18 +46,19 @@
           (unless (file-exists-p (concat hugomd--hugo-dired directory))
             (and (file-exists-p directory)
                  (copy-directory directory hugomd--hugo-dired nil t))))
-        (unless (file-exists-p (concat hugomd--hugo-dired picture))
+        (unless (file-exists-p file)
           (and (file-exists-p picture)
                (copy-file picture file t)))))))
-;;; 清除用于预览的文件和图片
+
 (defsubst hugomd--clear-file ()
+  "清除用于预览的文件和图片"
   (if (file-exists-p hugomd--hugo-dired)
       (delete-directory hugomd--hugo-dired t))
   (if (file-exists-p hugomd--hugo-file)
       (delete-file hugomd--hugo-file)))
 
-;;; 用于将 buffer 写入指定文件
-(defsubst hugomd--write-file (&rest unused)
+(defsubst hugomd--write-file ()
+  "用于将 buffer 写入指定文件"
   (write-region nil nil hugomd--hugo-file))
 
 ;;;###autoload
