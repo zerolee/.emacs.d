@@ -36,7 +36,9 @@
               '(company-lsp  company-dabbrev-code
                              company-dabbrev
                              company-files))
-  (global-set-key (kbd "S-<f2>") #'lsp-rename)
+  (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
+  (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
+  (define-key lsp-mode-map (kbd "C-h .") #'lsp-describe-thing-at-point)
   (setq abbrev-mode nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -63,6 +65,13 @@
   :hook (java-mode . (lambda ()
                        (require 'lsp-java)
                        (lsp-common-set))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; html javascript css bash
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package lsp-mode
+  :commands lsp
+  :hook ((js-mode css-mode html-mode web-mode) . lsp-common-set))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
