@@ -115,3 +115,9 @@
 (advice-add 'xref-find-definitions :after
             #'(lambda (&rest args)
                 (ove-mode 1)))
+
+;;; 配置 frame title 显示一个文件名或者 buffer 名
+(setq frame-title-format
+      '((:eval (if (buffer-file-name)
+                   (abbreviate-file-name (buffer-file-name))
+                 "%b"))))
