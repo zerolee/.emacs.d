@@ -16,7 +16,7 @@
 ;;; Commentary:
 
 ;;; Code:
-
+(require 'cl-lib)
 (defgroup ove-face nil
   "类 vim 模式的的 emacs 按键风格"
   :group 'ove-face)
@@ -206,7 +206,11 @@
                                         (yank)))
 (define-key ove-mode-map (kbd "q") '(lambda ()
                                       (interactive)
-                                      (kill-buffer (current-buffer))))
+                                      (kill-buffer (current-buffer))
+                                      (if (< 1 (cl-count (current-buffer)
+                                                         (mapcar #'window-buffer (window-list))))
+                                          (delete-window)
+                                        (other-window -1))))
 (define-key ove-mode-map (kbd "Q") 'kill-buffer-and-window)
 (define-key ove-mode-map (kbd "r") '(lambda (arg char)
                                       (interactive "*p\nc")

@@ -93,7 +93,8 @@
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
               ("M-." . xref-find-definitions)
-              ("M-?" . xref-find-references)))
+              ("M-?" . xref-find-references)
+              ("C-h ." . eglot-help-at-point)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; markdown-mode
