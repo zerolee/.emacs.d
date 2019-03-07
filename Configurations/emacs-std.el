@@ -105,7 +105,8 @@
             #'(lambda (orig-func &rest args)
                 (ove-mode 1)
                 (when (or (equal major-mode 'markdown-mode)
-                          (equal major-mode 'gfm-mode))
+                          (equal major-mode 'gfm-mode)
+                          (equal major-mode 'org-mode))
                   (hugomd-preview))))
 
 ;;; 配置字体

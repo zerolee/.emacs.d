@@ -29,6 +29,15 @@
 
 (defun hugomd--copy-picture ()
   "复制 markdown 文件中引用的图片"
+  (if (equal major-mode 'org-mode)
+      (let ((hugo-dired hugomd--hugo-dired))
+        (with-current-buffer "*Org MD Export*"
+          (let ((hugomd--hugo-dired hugo-dired))
+            (hugomd--copy-picture-real))))
+    (hugomd--copy-picture-real)))
+
+(defun hugomd--copy-picture-real ()
+  "复制 markdown 文件中引用的图片"
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward
@@ -59,17 +68,27 @@
 
 (defsubst hugomd--write-file ()
   "用于将 buffer 写入指定文件"
-  (write-region nil nil hugomd--hugo-file))
+  (if (equal major-mode 'org-mode)
+      (let ((org-export-show-temporary-export-buffer nil)
+            (hugo-file hugomd--hugo-file))
+        (org-md-export-as-markdown)
+        (with-current-buffer "*Org MD Export*"
+          (write-region nil nil hugo-file)))
+    (write-region nil nil hugomd--hugo-file)))
 
 ;;;###autoload
 (defun hugomd-preview ()
   "预览 Markdown"
   (interactive)
   (unless hugomd--filename
-    (setq-local hugomd--filename
-                (concat (format-time-string "%Y%m%d%H%M%S")
-                        (file-name-nondirectory
-                         (buffer-file-name))))
+    (let ((file-name
+           (if (equal major-mode 'org-mode)
+               (concat (substring (buffer-name) 0 -3) "md")
+             (buffer-name))))
+      (setq-local hugomd--filename
+                  (concat (format-time-string "%Y%m%d%H%M%S")
+                          (file-name-nondirectory
+                           file-name))))
     (setq-local hugomd--hugo-file
                 (concat hugomd-root "content/post/" hugomd--filename))
     (setq-local hugomd--hugo-dired
