@@ -87,7 +87,9 @@
   (unless hugomd--filename
     (let ((file-name
            (if (equal major-mode 'org-mode)
-               (concat (substring (buffer-name) 0 -3) "md")
+               (progn
+                 (require 'ox)
+                 (concat (substring (buffer-name) 0 -3) "md"))
              (buffer-name))))
       (setq-local hugomd--filename
                   (concat (format-time-string "%Y%m%d%H%M%S")
@@ -119,7 +121,7 @@
   (add-hook 'after-save-hook #'hugomd--write-file t t)
   (add-hook 'after-save-hook #'hugomd--copy-picture t t)
 
-  (add-hook 'kill-emacs-hook #'hugomd--clear-file t t)
+  (add-hook 'kill-emacs-hook #'hugomd--clear-file)
 
   ;; 打开浏览器
   (sleep-for 0.3)
