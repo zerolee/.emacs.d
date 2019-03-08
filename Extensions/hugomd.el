@@ -26,6 +26,8 @@
 (defvar hugomd--filename nil)
 (defvar hugomd--hugo-file nil "post 目录下的文件")
 (defvar hugomd--hugo-dired nil "post 目录下的目录")
+(defvar hugomd--hugo-files nil "本次 emacs 启动后 post 目录下的所有文件")
+(defvar hugomd--hugo-direds nil "本次 emacs 启动后 post 目录下的所有目录")
 
 (defun hugomd--copy-picture ()
   "复制 markdown 文件中引用的图片"
@@ -61,10 +63,12 @@
 
 (defsubst hugomd--clear-file ()
   "清除用于预览的文件和图片"
-  (if (file-exists-p hugomd--hugo-dired)
-      (delete-directory hugomd--hugo-dired t))
-  (if (file-exists-p hugomd--hugo-file)
-      (delete-file hugomd--hugo-file)))
+  (dolist (dired hugomd--hugo-direds)
+    (if (file-exists-p dired)
+        (delete-directory dired t)))
+  (dolist (file hugomd--hugo-files)
+    (if (file-exists-p file)
+        (delete-file file))))
 
 (defsubst hugomd--write-file ()
   "用于将 buffer 写入指定文件"
@@ -93,7 +97,9 @@
                 (concat hugomd-root "content/post/" hugomd--filename))
     (setq-local hugomd--hugo-dired
                 (concat (substring hugomd--hugo-file 0 -3) "/"))
-    (make-directory hugomd--hugo-dired))
+    (make-directory hugomd--hugo-dired)
+    (push hugomd--hugo-file hugomd--hugo-files)
+    (push hugomd--hugo-dired hugomd--hugo-direds))
   ;; 去相应目录下启动 hugo
   (let ((default-directory hugomd-root))
     (or (get-buffer "*hugo*")
@@ -113,7 +119,7 @@
   (add-hook 'after-save-hook #'hugomd--write-file t t)
   (add-hook 'after-save-hook #'hugomd--copy-picture t t)
 
-  (add-hook 'kill-buffer-hook #'hugomd--clear-file t t)
+  (add-hook 'kill-emacs-hook #'hugomd--clear-file t t)
 
   ;; 打开浏览器
   (sleep-for 0.3)
