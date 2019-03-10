@@ -20,6 +20,8 @@
 ;;;       2. 将相应的 Markdown 文件进行处理复制到 post 文件夹下
 ;;;       3. 打开 Google 浏览器，打开相应的网址
 ;;; Code:
+(require 'ox)
+(require 'ox-md)
 
 ;;; 获取文件名
 (defvar hugomd-root "~/tmp/tmp-blog/" "hugo new site my-blog 中的 my-blog")
@@ -29,21 +31,21 @@
 (defvar hugomd--hugo-files nil "本次 emacs 启动后 post 目录下的所有文件")
 (defvar hugomd--hugo-direds nil "本次 emacs 启动后 post 目录下的所有目录")
 
-(defun hugomd--copy-picture ()
+(defun hugomd--copy-link-file ()
   "复制 markdown 文件中引用的图片"
   (if (equal major-mode 'org-mode)
       (let ((hugo-dired hugomd--hugo-dired))
         (with-current-buffer "*Org MD Export*"
           (let ((hugomd--hugo-dired hugo-dired))
-            (hugomd--copy-picture-real))))
-    (hugomd--copy-picture-real)))
+            (hugomd--copy-link-file-real))))
+    (hugomd--copy-link-file-real)))
 
-(defun hugomd--copy-picture-real ()
+(defun hugomd--copy-link-file-real ()
   "复制 markdown 文件中引用的图片"
   (save-excursion
     (goto-char (point-min))
     (while (re-search-forward
-            "\\\(!\\\[[A-Za-z-0-9./_ ]*\\\](\\\([A-Za-z./-0-9_]*\\\))\\\|<img +src ?= ?\"\\\([A-Za-z0-9./_]*\\\)\"[-a-zA-Z0-9./_ =\"]*>\\\)"
+            "\\\(\\\[[()A-Za-z-0-9./_ ]*\\\](\\\([A-Za-z./-0-9_]*\\\)[-a-zA-Z0-9./_ =\"]*)\\\|<img +src ?= ?\"\\\([A-Za-z0-9./_]*\\\)\"[-a-zA-Z0-9./_ =\"]*>\\\)"
             nil t)
       (let* ((ms (or (match-string 2) (match-string 3)))
              (picture
@@ -54,9 +56,9 @@
              (directory (file-name-directory picture))
              (file (concat hugomd--hugo-dired picture)))
         (when directory
-          (unless (file-exists-p (concat hugomd--hugo-dired directory))
-            (and (file-exists-p directory)
-                 (copy-directory directory hugomd--hugo-dired nil t))))
+          (let ((hugomd--hugo-directory (concat hugomd--hugo-dired directory)))
+            (unless (file-exists-p hugomd--hugo-directory)
+              (make-directory hugomd--hugo-directory t))))
         (unless (file-exists-p file)
           (and (file-exists-p picture)
                (copy-file picture file t)))))))
@@ -87,9 +89,7 @@
   (unless hugomd--filename
     (let ((file-name
            (if (equal major-mode 'org-mode)
-               (progn
-                 (require 'ox)
-                 (concat (substring (buffer-name) 0 -3) "md"))
+               (concat (substring (buffer-name) 0 -3) "md")
              (buffer-name))))
       (setq-local hugomd--filename
                   (concat (format-time-string "%Y%m%d%H%M%S")
@@ -115,11 +115,11 @@
   (hugomd--write-file)
 
   ;; 复制图片
-  (hugomd--copy-picture)
+  (hugomd--copy-link-file)
 
   ;; 将当前文件复制到相应的位置上
   (add-hook 'after-save-hook #'hugomd--write-file t t)
-  (add-hook 'after-save-hook #'hugomd--copy-picture t t)
+  (add-hook 'after-save-hook #'hugomd--copy-link-file t t)
 
   (add-hook 'kill-emacs-hook #'hugomd--clear-file)
 

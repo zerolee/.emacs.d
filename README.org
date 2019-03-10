@@ -32,4 +32,4 @@
    替代原本 [[file:Configurations/my-hydra.el][my-hydra]] 中的 ESC 绑定的一些命令，可以不需要修饰键
    使用 emacs 的命令， 类似于 vim 的模式
 ** hugomd.el
-   用来实时预览 Markdown
+   用来预览 Markdown、Org 文件
