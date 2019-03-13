@@ -102,6 +102,8 @@
           (ove-function-arg-begin)
           (ove-emacs-get #'ove-function-arg-end ",")
           (when (char-equal (char-after) ?\,)
+            (delete-char 1))
+          (when (char-equal (char-after) ?\ )
             (delete-char 1))))
   ("aw" (progn
           (forward-word)
