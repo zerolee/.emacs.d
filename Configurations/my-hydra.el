@@ -94,6 +94,15 @@
   (">" (let ((current-prefix-arg (point-max)))
          (ove-emacs-get #'goto-char ">")))
   ("i" (ove-emacs-get #'beginning-of-line "i"))
+  ("," (ove-emacs-get #'ove-function-arg-end ","))
+  ("e," (progn
+          (ove-function-arg-begin)
+          (ove-emacs-get #'ove-function-arg-end ",")))
+  ("a," (progn
+          (ove-function-arg-begin)
+          (ove-emacs-get #'ove-function-arg-end ",")
+          (when (char-equal (char-after) ?\,)
+            (delete-char 1))))
   ("aw" (progn
           (forward-word)
           (backward-word)

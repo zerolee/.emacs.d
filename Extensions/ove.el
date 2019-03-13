@@ -94,6 +94,32 @@
     (my-eval-last-sexp)
     (setq this-command 'ove-eval-sexp-dwim)))
 
+(defun ove---function-arg-info ()
+  (let ((cp (point))
+        positions)
+    (backward-up-list 1 t)
+    (when (char-equal (char-after) ?\")
+      (backward-up-list))
+    (push (point) positions)
+    (forward-char)
+    (while (not (char-equal (char-after) ?\)))
+      (forward-sexp)
+      (when (char-equal (char-after) ?\,)
+        (push (point) positions)))
+    (push (point) positions)
+    (while (>= (cadr positions) cp)
+      (setq positions (cdr positions)))
+    positions))
+
+(defun ove-function-arg-begin ()
+  (interactive)
+  (goto-char (1+ (cadr (ove---function-arg-info)))))
+
+(defun ove-function-arg-end ()
+  (interactive)
+  (goto-char (car (ove---function-arg-info))))
+
+
 ;;;###autoload
 (define-minor-mode ove-mode
   "拥有 vim 模式的 Emacs 风格的 minor"
