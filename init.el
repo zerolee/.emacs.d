@@ -5,13 +5,14 @@
 
 (defvar file-name-handler-alist-old file-name-handler-alist)
 
-(setq gc-cons-threshold 100000000
-      file-name-handler-alist nil)
+(setq gc-cons-threshold (* 128 1024 1024)
+      file-name-handler-alist nil
+      gc-cons-percentage 0.6)
 (add-hook 'after-init-hook
           `(lambda ()
              (setq file-name-handler-alist file-name-handler-alist-old
-                   gc-cons-threshold 800000
-                   gc-cons-percentage 0.1)
+                   gc-cons-threshold (* 32 1024 1024)
+                   gc-cons-percentage 0.3)
              (garbage-collect)) t)
 
 (setq custom-file
