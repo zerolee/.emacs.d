@@ -125,7 +125,9 @@
   (progn
     (ivy-mode 1)
     (use-package wgrep)
-    (use-package smex)))
+    (use-package smex)
+    (use-package ivy-xref
+      :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode

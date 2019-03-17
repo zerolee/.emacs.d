@@ -5,8 +5,8 @@
 (use-package geiser
   :defer t
   :config
-  (setq scheme-program-name "scheme"
-        geiser-active-implementations '(chez)))
+  (setq scheme-program-name "guile"
+        geiser-active-implementations '(guile)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -48,10 +48,10 @@
 ;; xref-find-definitions ( M-. )
 ;; xref-find-references  ( M-? )
 ;; xref-find-apropos     ( C-M-. )
-(use-package cquery
+(use-package ccls
   :defer t
   :hook ((c-mode c++-mode objc-mode) . (lambda ()
-                                         (require 'cquery)
+                                         (require 'ccls)
                                          (lsp-common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
