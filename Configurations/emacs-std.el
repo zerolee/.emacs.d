@@ -122,3 +122,33 @@
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
+
+;;; 配置窗口永远在下方，占据 33% 大小
+(dolist (buffer '("^\\*Flymake diagnostics"
+                  "^\\*Flycheck errors\\*$"
+                  "^\\*Compile"
+                  "^\\*Completions\\*$"
+                  "^\\*compilation\\*$"
+                  "^\\*Async Shell Command\\*$"))
+  (add-to-list 'display-buffer-alist
+               `(,buffer
+                 (display-buffer-reuse-window
+                  display-buffer-in-side-window)
+                 (reusable-frames . visible)
+                 (side            . bottom)
+                 (window-height   . 0.33))))
+
+;;; 配置窗口永远在右方，占据 33% 大小
+(dolist (buffer '("^\\*Help\\*$"
+                  "^\\*lsp-help\\*$"
+                  "^\\*eglot-help"))
+  (add-to-list 'display-buffer-alist
+               `(,buffer
+                 (display-buffer-reuse-window
+                  display-buffer-in-side-window)
+                 (reusable-frames . visible)
+                 (side            . right)
+                 (window-width   . 0.45))))
+;;; 备份文件
+(add-to-list 'backup-directory-alist
+             '("\\.*$" . "~/tmp/emacs_backup_file"))
