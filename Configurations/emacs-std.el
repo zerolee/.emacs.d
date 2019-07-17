@@ -71,6 +71,8 @@
                 (unless (and (boundp 'sp-position-ring)
                              (sp--position-same-pos))
                   (sp-push-position-to-ring))))
+(add-hook 'org-mode-hook #'(lambda ()
+                             (setq truncate-lines nil)))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
@@ -92,8 +94,8 @@
                                            (point-min) (point-max))))))
 
 ;; Using MELPA
-(add-to-list 'package-archives
-             '("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/"))
+(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
 ;;; 配置 dired-x
 (autoload 'dired-jump "dired-x")

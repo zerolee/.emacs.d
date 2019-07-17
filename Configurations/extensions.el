@@ -29,7 +29,7 @@
 
 (use-package diminish)
 (use-package hydra
-  :custom (hydra-lv nil))
+  :custom (hydra-hint-display-type 'message))
 
 (use-package projectile
   :bind-keymap
