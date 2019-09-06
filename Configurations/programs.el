@@ -33,9 +33,9 @@
     (setq company-lsp-async t))
   (lsp)
   (setq-local company-backends
-              '(company-lsp  company-dabbrev-code
-                             company-dabbrev
-                             company-files))
+              '((company-yasnippet company-lsp)
+                company-dabbrev-code company-dabbrev
+                company-files))
   (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
   (define-key lsp-mode-map (kbd "C-h .") #'lsp-describe-thing-at-point)

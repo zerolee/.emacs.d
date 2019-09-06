@@ -135,7 +135,15 @@
 (use-package company
   :hook (after-init . global-company-mode)
   :config
-  (setq company-idle-delay 0))
+  (setq company-idle-delay 0)
+  (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
+    "Enable yasnippet but disable it inline."
+    (if (eq command 'prefix)
+        (when-let ((prefix (funcall fun 'prefix)))
+          (unless (memq (char-before (- (point) (length prefix))) '(?. ?> ?\())
+            prefix))
+      (funcall fun command arg)))
+  (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
