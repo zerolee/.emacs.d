@@ -28,17 +28,16 @@
     (setq lsp-ui-sideline-enable nil)
     (define-key lsp-ui-mode-map [remap xref-find-references]
       #'lsp-ui-peek-find-references))
-  (use-package company-lsp
-    :config
-    (setq company-lsp-async t))
   (lsp)
   (setq-local company-backends
-              '((company-yasnippet company-lsp)
+              '((company-yasnippet company-capf)
                 company-dabbrev-code company-dabbrev
                 company-files))
+  (setq lsp-completion-styles '(basic))
   (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
   (define-key lsp-mode-map (kbd "C-h .") #'lsp-describe-thing-at-point)
+  (define-key lsp-mode-map (kbd "s-l") nil)
   (setq abbrev-mode nil))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

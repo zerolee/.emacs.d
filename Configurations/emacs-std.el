@@ -140,7 +140,7 @@
                  (side            . bottom)
                  (window-height   . 0.33))))
 
-;;; 配置窗口永远在右方，占据 33% 大小
+;;; 配置窗口永远在右方，占据 45% 大小
 (dolist (buffer '("^\\*Help\\*$"
                   "^\\*lsp-help\\*$"
                   "^\\*eglot-help"))
