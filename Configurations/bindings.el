@@ -64,6 +64,10 @@
 (global-set-key (kbd "s-l") 'windmove-right)
 (global-set-key (kbd "s-j") 'windmove-down)
 (global-set-key (kbd "s-k") 'windmove-up)
+(global-set-key (kbd "s-H") 'windmove-swap-states-left)
+(global-set-key (kbd "s-L") 'windmove-swap-states-right)
+(global-set-key (kbd "s-J") 'windmove-swap-states-down)
+(global-set-key (kbd "s-K") 'windmove-swap-states-up)
 
 
 ;;; dired

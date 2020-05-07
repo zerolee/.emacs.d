@@ -77,7 +77,7 @@
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
 
-;;; .cquery 导入
+;;; 模板导入
 (advice-add 'find-file :after
             #'(lambda (&rest args)
                 (let* ((name (and (buffer-file-name)
