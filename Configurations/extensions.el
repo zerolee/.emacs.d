@@ -127,7 +127,15 @@
     (use-package wgrep)
     (use-package smex)
     (use-package ivy-xref
-      :init (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))))
+      :init
+      ;; xref initialization is different in Emacs 27 - there are two different
+      ;; variables which can be set rather than just one
+      (when (>= emacs-major-version 27)
+        (setq xref-show-definitions-function #'ivy-xref-show-defs))
+      ;; Necessary in Emacs <27. In Emacs 27 it will affect all xref-based
+      ;; commands other than xref-find-definitions (e.g. project-find-regexp)
+      ;; as well
+      (setq xref-show-xrefs-function #'ivy-xref-show-xrefs))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; company-mode
@@ -181,3 +189,20 @@
   (progn
     (key-chord-mode 1)
     (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1)))))
+
+(use-package emms
+  :config
+  (require 'emms-player-simple)
+  (require 'emms-source-file)
+  (require 'emms-source-playlist)
+  (setq emms-player-list '(emms-player-mpv))
+  (emms-all)
+  (emms-mode-line-disable)
+  (setq emms-source-file-default-directory "~/音乐/")
+  (setq emms-lyrics-dir "~/.lyrics/")
+  (emms-lyrics 1)
+  (setq emms-lyrics-display-on-minibuffer t)
+  (setq emms-lyrics-display-on-modeline nil)
+  (setq emms-source-file-directory-tree-function
+        'emms-source-file-directory-tree-find)
+  (setq emms-repeat-playlist t))
