@@ -1,4 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
+(require 'zerolee-lib)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -36,7 +37,13 @@
   (setq lsp-completion-styles '(basic))
   (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
-  (define-key lsp-mode-map (kbd "C-h .") #'lsp-describe-thing-at-point)
+  (define-key lsp-mode-map (kbd "C-h .")
+    #'(lambda ()
+        (interactive)
+        (let ((buffer (get-buffer "*lsp-help*")))
+          (if (zerolee-position-some-window buffer)
+              (zerolee-delete-some-window buffer)
+            (lsp-describe-thing-at-point)))))
   (define-key lsp-mode-map (kbd "s-l") nil)
   (setq abbrev-mode nil))
 

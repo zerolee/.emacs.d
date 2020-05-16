@@ -1,3 +1,5 @@
+;;; -*- lexical-binding: t; -*-
+(require 'zerolee-lib)
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
@@ -82,7 +84,14 @@
 (with-eval-after-load 'flymake
   (define-key flymake-mode-map (kbd "M-g p") #'flymake-goto-prev-error)
   (define-key flymake-mode-map (kbd "M-g n") #'flymake-goto-next-error)
-  (define-key flymake-mode-map (kbd "M-g l") #'flymake-show-diagnostics-buffer))
+  (define-key flymake-mode-map (kbd "M-g l")
+    #'(lambda ()
+        (interactive)
+        (let ((buffer
+               (get-buffer (format "*Flymake diagnostics for %s*" (current-buffer)))))
+          (if (zerolee-position-some-window buffer)
+              (zerolee-delete-some-window buffer)
+            (flymake-show-diagnostics-buffer))))))
 
 ;;; emacs-lisp
 (define-key lisp-interaction-mode-map

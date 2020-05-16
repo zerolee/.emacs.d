@@ -19,23 +19,29 @@
 ;;; Code:
 
 (require 'save-position)
+(require 'cl-lib)
 (defun zerolee-goto-some-window (buffer)
   "去一个指定 buffer 的 window"
-  (let ((list (window-list)))
-    (while list
-      (unless (equal buffer (current-buffer))
-        (other-window 1))
-      (setq list (cdr list)))))
+  (let ((position (zerolee-position-some-window buffer)))
+    (when position
+      (other-window position))))
 
 (defun zerolee-delete-some-window (buffer)
   "删除一个指定 buffer 的 window"
   (if (equal buffer (current-buffer))
-      (delete-window)
+      (if (= (count-windows) 1)
+          (bury-buffer)
+        (delete-window))
     (sp-push-position-to-ring)
     (zerolee-goto-some-window buffer)
     (when (equal buffer (current-buffer))
       (delete-window)
       (sp-get-position-from-ring)
       (sp-push-position-to-ring))))
+
+(defun zerolee-position-some-window (buffer)
+  "查看 buffer 在打开的 window 中的位置，不存在返回 nil"
+  (cl-position buffer (mapcar #'window-buffer (window-list))))
+
 (provide 'zerolee-lib)
 ;;; zerolee-lib.el ends here

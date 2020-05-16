@@ -53,6 +53,7 @@
         'emms-source-file-directory-tree-find)
   (setq emms-repeat-playlist t)
 
+  (define-key emms-playlist-mode-map (kbd ".") #'emms-toggle-repeat-track)
   ;; 如何显示 track
   (setq emms-track-description-function
         #'(lambda (track)
@@ -73,7 +74,7 @@
     (emms-play-directory-tree emms-source-file-default-directory))
   (if emms-playlist-mode-popup-enabled
       (progn
-	(zerolee-delete-some-window (get-buffer " *EMMS Playlist*"))
+        (zerolee-delete-some-window (get-buffer " *EMMS Playlist*"))
         (setq emms-playlist-mode-popup-enabled nil))
     (emms-playlist-mode-go-popup)
     (emms-playlist-mode-center-current)))
