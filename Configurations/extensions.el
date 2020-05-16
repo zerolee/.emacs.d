@@ -189,20 +189,3 @@
   (progn
     (key-chord-mode 1)
     (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1)))))
-
-(use-package emms
-  :config
-  (require 'emms-player-simple)
-  (require 'emms-source-file)
-  (require 'emms-source-playlist)
-  (setq emms-player-list '(emms-player-mpv))
-  (emms-all)
-  (emms-mode-line-disable)
-  (setq emms-source-file-default-directory "~/音乐/")
-  (setq emms-lyrics-dir "~/.lyrics/")
-  (emms-lyrics 1)
-  (setq emms-lyrics-display-on-minibuffer t)
-  (setq emms-lyrics-display-on-modeline nil)
-  (setq emms-source-file-directory-tree-function
-        'emms-source-file-directory-tree-find)
-  (setq emms-repeat-playlist t))

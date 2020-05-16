@@ -17,6 +17,8 @@
    保存一些键盘宏
 ** my-hydra.el
    保存利用 hydra 插件定义的一些按键
+** my-emms.el
+   保存 emms 相关的配置
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
 ** antlr-mode.el         
