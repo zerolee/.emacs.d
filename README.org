@@ -35,3 +35,5 @@
    使用 emacs 的命令， 类似于 vim 的模式
 ** hugomd.el
    用来预览 Markdown、Org 文件
+** zerolee-lib.el
+   一些个人使用的函数

@@ -18,7 +18,7 @@
 ;;; 简介
 ;;; 个人配置 emms 的文件
 ;;; Code:
-
+(require 'zerolee-lib)
 (use-package emms
   :config
   (require 'emms-source-file)
@@ -66,3 +66,14 @@
                              (emms-format-url-track-name (emms-track-name track)))
                             (t (concat (symbol-name type)
                                        ": " (emms-track-name track)))))))))
+
+(defun zerolee-emms ()
+  (interactive)
+  (unless (get-buffer " *EMMS Playlist*")
+    (emms-play-directory-tree emms-source-file-default-directory))
+  (if emms-playlist-mode-popup-enabled
+      (progn
+	(zerolee-delete-some-window (get-buffer " *EMMS Playlist*"))
+        (setq emms-playlist-mode-popup-enabled nil))
+    (emms-playlist-mode-go-popup)
+    (emms-playlist-mode-center-current)))
