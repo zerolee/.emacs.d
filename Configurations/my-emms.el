@@ -19,6 +19,7 @@
 ;;; 个人配置 emms 的文件
 ;;; Code:
 (require 'zerolee-lib)
+(require 'ivy)
 (use-package emms
   :config
   (require 'emms-source-file)
@@ -54,6 +55,14 @@
   (setq emms-repeat-playlist t)
 
   (define-key emms-playlist-mode-map (kbd ".") #'emms-toggle-repeat-track)
+  (define-key emms-playlist-mode-map (kbd "SPC") #'emms-pause)
+  (define-key emms-playlist-mode-map (kbd "v") #'scroll-up)
+  (define-key emms-playlist-mode-map (kbd "<right>") #'emms-seek-forward)
+  (define-key emms-playlist-mode-map (kbd "<left>") #'emms-seek-backward)
+  (define-key emms-playlist-mode-map (kbd "b") #'scroll-down-line)
+  (define-key emms-playlist-mode-map (kbd "f") #'scroll-up-line)
+  (define-key emms-playlist-mode-map (kbd "m") #'emms-show)
+
   ;; 如何显示 track
   (setq emms-track-description-function
         #'(lambda (track)
@@ -68,13 +77,26 @@
                             (t (concat (symbol-name type)
                                        ": " (emms-track-name track)))))))))
 
-(defun zerolee-emms ()
+(defsubst zerolee--emms-toggle-popup ()
+  "开关 emms popup"
+  (let ((buffer (get-buffer " *EMMS Playlist*")))
+    (if (zerolee-position-some-window buffer)
+        (zerolee-delete-some-window buffer)
+      (emms-playlist-mode-go-popup)
+      (emms-playlist-mode-center-current))))
+
+(defun zerolee-emms-default ()
   (interactive)
   (unless (get-buffer " *EMMS Playlist*")
     (emms-play-directory-tree emms-source-file-default-directory))
-  (if emms-playlist-mode-popup-enabled
-      (progn
-        (zerolee-delete-some-window (get-buffer " *EMMS Playlist*"))
-        (setq emms-playlist-mode-popup-enabled nil))
-    (emms-playlist-mode-go-popup)
-    (emms-playlist-mode-center-current)))
+  (zerolee--emms-toggle-popup))
+
+(defun zerolee-emms-favourite ()
+  (interactive)
+  (let ((favourite "~/.emacs.d/emms/favourite"))
+    (when (file-exists-p favourite)
+      (ivy-read "select favourite playlist: " (cddr (directory-files favourite))
+                :action '(lambda (x)
+                           (emms-play-playlist (concat "~/.emacs.d/emms/favourite/" x))))))
+  (zerolee-delete-some-window (get-buffer " *EMMS Playlist*"))
+  (zerolee--emms-toggle-popup))

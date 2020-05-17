@@ -97,10 +97,6 @@
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
-;;; 配置 dired-x
-(autoload 'dired-jump "dired-x")
-;;; 设置隐藏模式下要隐藏的文件
-(setq dired-omit-files "^\\.?#\\|^\\.$\\|^\\.\\.$\\|^\\.")
 
 ;;; view-file 启动由 ove-mode 而不是 view-mode
 (advice-add 'view-mode :around

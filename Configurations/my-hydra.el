@@ -4,8 +4,8 @@
   "
    _l_: locate  _p_: ivy-push-view    _y_: yasnippet
    _a_: ag      _P_: ivy-pop-view     _h_: hs
-   _z_: fzf     _r_: rg               _m_: emms
-   _g_: git     _i_: imenu
+   _z_: fzf     _r_: rg               _m_: emms-default
+   _g_: git     _i_: imenu            _M_: emms-favourite
   "
   ("b" ivy-switch-buffer)
   ("B" goto-ibuffer)
@@ -23,8 +23,9 @@
          (hs-minor-mode)
          (hs-toggle-hiding)))
   ("r" counsel-rg)
-  ("d" dired-jump)
-  ("m" zerolee-emms)
+  ("d" (dired default-directory))
+  ("m" zerolee-emms-default)
+  ("M" zerolee-emms-favourite)
   ("<f1>" nil)
   ("M-<SPC>" nil))
 
@@ -67,7 +68,7 @@
 
   ("?"   Info-summary "Info summary")
   ("h"   Info-help "Info help")
-  ("q"   Info-exit "Info exit")
+  ("q"   quit-window "Info exit")
   ("C-g" nil "cancel" :color blue))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
