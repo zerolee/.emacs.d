@@ -20,6 +20,8 @@
 ;;; Code:
 (require 'zerolee-lib)
 (require 'ivy)
+
+(defvar zerolee--emms-favourite "~/.emacs.d/emms/favourite" "存放 playlist 的地方")
 (use-package emms
   :config
   (require 'emms-source-file)
@@ -43,7 +45,8 @@
   (if (file-directory-p "~/音乐")
       (setq emms-source-file-default-directory "~/音乐")
     (setq emms-source-file-default-directory "~/Music"))
-
+  (setq emms-playlist-buffer-name
+        (concat " *" (file-name-base emms-source-file-default-directory) "*"))
   (setq emms-lyrics-dir "~/.lyrics")
   (emms-lyrics 1)
   (add-hook 'emms-player-started-hook 'emms-show)
@@ -62,6 +65,39 @@
   (define-key emms-playlist-mode-map (kbd "b") #'scroll-down-line)
   (define-key emms-playlist-mode-map (kbd "f") #'scroll-up-line)
   (define-key emms-playlist-mode-map (kbd "m") #'emms-show)
+  (define-key emms-playlist-mode-map (kbd "L") #'emms-playlist-set-playlist-buffer)
+  (define-key emms-playlist-mode-map (kbd "l")
+    #'(lambda ()
+        (interactive)
+        (emms-playlist-set-playlist-buffer (current-buffer))
+        (message "%s 为当前播放列表" (buffer-name))))
+  (define-key emms-playlist-mode-map (kbd ",")
+    #'(lambda (time)
+        "跳转到指定时间，格式 min:seconds，min 可省略"
+        (interactive "s[min:]seconds: ")
+        (let ((p (string-match ":" time))
+              seconds)
+          (if p
+              (setq seconds (+ (* 60 (string-to-number (substring time 0 p)))
+                               (string-to-number (substring time (1+ p)))))
+            (setq seconds (string-to-number time)))
+          (emms-ensure-player-playing-p)
+          (emms-player-seek-to seconds))))
+  (define-key emms-playlist-mode-map (kbd "M-p")
+    #'(lambda ()
+        (interactive)
+        (emms-playlist-mode-previous 1)
+        (setq emms-playlist-buffer-name (buffer-name))))
+  (define-key emms-playlist-mode-map (kbd "M-n")
+    #'(lambda ()
+        (interactive)
+        (emms-playlist-mode-next 1)
+        (setq emms-playlist-buffer-name (buffer-name))))
+  (define-key emms-playlist-mode-map (kbd "i")
+    #'(lambda ()
+        (interactive)
+        (switch-to-buffer emms-playlist-buffer)
+        (setq emms-playlist-buffer-name (buffer-name))))
 
   ;; 如何显示 track
   (setq emms-track-description-function
@@ -79,24 +115,44 @@
 
 (defsubst zerolee--emms-toggle-popup ()
   "开关 emms popup"
-  (let ((buffer (get-buffer " *EMMS Playlist*")))
+  (let ((buffer (get-buffer emms-playlist-buffer-name)))
     (if (zerolee-position-some-window buffer)
         (zerolee-delete-some-window buffer)
       (emms-playlist-mode-go-popup)
-      (emms-playlist-mode-center-current))))
+      (emms-playlist-mode-center-current)
+      (setq emms-playlist-buffer-name (buffer-name)))))
 
 (defun zerolee-emms-default ()
   (interactive)
-  (unless (get-buffer " *EMMS Playlist*")
+  (unless (get-buffer emms-playlist-buffer-name)
     (emms-play-directory-tree emms-source-file-default-directory))
   (zerolee--emms-toggle-popup))
 
 (defun zerolee-emms-favourite ()
   (interactive)
-  (let ((favourite "~/.emacs.d/emms/favourite"))
-    (when (file-exists-p favourite)
-      (ivy-read "select favourite playlist: " (cddr (directory-files favourite))
-                :action '(lambda (x)
-                           (emms-play-playlist (concat "~/.emacs.d/emms/favourite/" x))))))
-  (zerolee-delete-some-window (get-buffer " *EMMS Playlist*"))
-  (zerolee--emms-toggle-popup))
+  (when (file-exists-p zerolee--emms-favourite)
+    (ivy-read "select favourite playlist: " (cddr (directory-files zerolee--emms-favourite))
+              :action '(lambda (x)
+                         (if (zerolee-position-some-window (get-buffer emms-playlist-buffer-name))
+                             (progn
+                               (zerolee-goto-some-window (get-buffer emms-playlist-buffer-name))
+                               (setq emms-playlist-buffer-name
+                                     (concat " *" (file-name-base x) "*"))
+                               (if (get-buffer emms-playlist-buffer-name)
+                                   (progn (switch-to-buffer (get-buffer emms-playlist-buffer-name))
+                                          (emms-playlist-mode-play-current-track))
+                                 (emms-playlist-new emms-playlist-buffer-name)
+                                 (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
+                                 (emms-play-playlist (concat zerolee--emms-favourite "/" x))
+                                 (emms-playlist-mode-go)
+                                 (emms-playlist-mode-center-current)))
+                           (setq emms-playlist-buffer-name
+                                 (concat " *" (file-name-base x) "*"))
+                           (if (get-buffer emms-playlist-buffer-name)
+                               (progn (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
+                                      (zerolee--emms-toggle-popup)
+                                      (emms-playlist-mode-play-current-track))
+                             (emms-playlist-new emms-playlist-buffer-name)
+                             (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
+                             (emms-play-playlist (concat zerolee--emms-favourite "/" x))
+                             (zerolee--emms-toggle-popup)))))))
