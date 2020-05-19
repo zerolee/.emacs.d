@@ -101,7 +101,7 @@
         (setq emms-playlist-buffer-name (buffer-name))))
   (define-key emms-playlist-mode-map (kbd "R")
     #'(lambda ()
-        "重新载入列表"
+        "重新载入播放列表"
         (interactive)
         (emms-playlist-clear)
         (let ((emms-playlist-buffer (current-buffer)))
