@@ -21,7 +21,7 @@
 (require 'zerolee-lib)
 (require 'ivy)
 
-(defvar zerolee--emms-favourite "~/.emacs.d/emms/favourite" "存放 playlist 的地方")
+(defvar zerolee--emms-favourite "~/.emacs.d/emms/favourite/" "存放 playlist 的地方")
 (use-package emms
   :config
   (require 'emms-source-file)
@@ -95,9 +95,28 @@
         (setq emms-playlist-buffer-name (buffer-name))))
   (define-key emms-playlist-mode-map (kbd "i")
     #'(lambda ()
+        "去往正在播放的列表"
         (interactive)
         (switch-to-buffer emms-playlist-buffer)
         (setq emms-playlist-buffer-name (buffer-name))))
+  (define-key emms-playlist-mode-map (kbd "R")
+    #'(lambda ()
+        "重新载入列表"
+        (interactive)
+        (emms-playlist-clear)
+        (let ((emms-playlist-buffer (current-buffer)))
+          (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
+            (when (string-match (substring (buffer-name) 2 -1) favourite)
+              (emms-add-playlist (concat zerolee--emms-favourite favourite))))
+          (when (string-match (substring (buffer-name) 2 -1)
+                              emms-source-file-default-directory)
+            (emms-add-directory-tree emms-source-file-default-directory)))))
+  (define-key emms-playlist-mode-map (kbd "C-x C-s")
+    #'(lambda ()
+        (interactive)
+        (let ((emms-source-file-default-directory
+               zerolee--emms-favourite))
+          (call-interactively #'emms-playlist-save))))
 
   ;; 如何显示 track
   (setq emms-track-description-function
@@ -143,7 +162,7 @@
                                           (emms-playlist-mode-play-current-track))
                                  (emms-playlist-new emms-playlist-buffer-name)
                                  (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                                 (emms-play-playlist (concat zerolee--emms-favourite "/" x))
+                                 (emms-play-playlist (concat zerolee--emms-favourite x))
                                  (emms-playlist-mode-go)
                                  (emms-playlist-mode-center-current)))
                            (setq emms-playlist-buffer-name
@@ -154,5 +173,5 @@
                                       (emms-playlist-mode-play-current-track))
                              (emms-playlist-new emms-playlist-buffer-name)
                              (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                             (emms-play-playlist (concat zerolee--emms-favourite "/" x))
+                             (emms-play-playlist (concat zerolee--emms-favourite x))
                              (zerolee--emms-toggle-popup)))))))
