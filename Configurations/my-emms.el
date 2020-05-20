@@ -65,7 +65,10 @@
   (define-key emms-playlist-mode-map (kbd "<left>") #'emms-seek-backward)
   (define-key emms-playlist-mode-map (kbd "b") #'scroll-down-line)
   (define-key emms-playlist-mode-map (kbd "f") #'scroll-up-line)
+  (define-key emms-playlist-mode-map (kbd "j") #'next-line)
+  (define-key emms-playlist-mode-map (kbd "k") #'previous-line)
   (define-key emms-playlist-mode-map (kbd "m") #'emms-show)
+  (define-key emms-playlist-mode-map (kbd "S") #'emms-sort)
   (define-key emms-playlist-mode-map (kbd "L")
     #'emms-playlist-set-playlist-buffer)
   (define-key emms-playlist-mode-map (kbd "l")
@@ -101,7 +104,7 @@
         (interactive)
         (switch-to-buffer emms-playlist-buffer)
         (setq emms-playlist-buffer-name (buffer-name))))
-  (define-key emms-playlist-mode-map (kbd "R")
+  (define-key emms-playlist-mode-map (kbd "g")
     #'(lambda ()
         "重新载入播放列表"
         (interactive)
@@ -119,6 +122,22 @@
         (let ((emms-source-file-default-directory
                zerolee--emms-favourite))
           (call-interactively #'emms-playlist-save))))
+  (define-key emms-playlist-mode-map (kbd "d")
+    #'(lambda ()
+        "Visit the track at point in a `dired' buffer."
+        (interactive)
+        (let ((track (emms-playlist-track-at)))
+          (if track
+              (let ((name (emms-track-get track 'name))
+                    (type (emms-track-get track 'type)))
+                (if (eq type 'file)
+                    (progn
+                      (dired (file-name-directory name))
+                      (goto-char 0)
+                      (search-forward (file-name-base name) nil t 1)
+                      (dired-move-to-filename))
+                  (error "Can't visit this track type in Dired")))
+            (error "No track at point")))))
 
   ;; 如何显示 track
   (setq emms-track-description-function

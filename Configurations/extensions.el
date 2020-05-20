@@ -1,4 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
+(require 'zerolee-lib)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
@@ -172,7 +173,7 @@
   (define-key paredit-mode-map (kbd "M-<up>") 'paredit-splice-sexp)
   (define-key paredit-mode-map (kbd "M-<down>") '(lambda ()
                                                    (interactive)
-                                                   (lzl-look-forward-char 1 ?\))
+                                                   (zerolee-search-forward-char 1 ?\))
                                                    (paredit-newline)
                                                    (ove-mode 0)))
   (define-key paredit-mode-map (kbd "(") nil)

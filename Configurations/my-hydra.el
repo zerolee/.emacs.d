@@ -1,4 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
+(require 'zerolee-lib)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
@@ -82,13 +83,6 @@
     (while (not (string-equal "*Ibuffer*" (buffer-name)))
       (other-window 1))))
 
-(defun lzl-look-forward-char (arg char)
-  "查找字符"
-  (interactive "*p\ncZap: ")
-  (search-forward
-   (char-to-string char) nil nil arg))
-
-
 (defhydra hydra-emacs/ckm (:color blue
                                   :hint nil)
   ("<" (let ((current-prefix-arg (point-min)))
@@ -136,11 +130,11 @@
           (backward-paragraph)
           (ove-emacs-get #'forward-paragraph "aP")))
   ("a'" (progn
-          (lzl-look-forward-char -1 ?')
+          (zerolee-search-forward-char -1 ?')
           (ove-emacs-get '(lambda () (interactive)
-                            (lzl-look-forward-char 2 ?\')) "a'")))
+                            (zerolee-search-forward-char 2 ?\')) "a'")))
   ("a<" (progn
-          (lzl-look-forward-char -1 ?<)
+          (zerolee-search-forward-char -1 ?<)
           (ove-emacs-get '(lambda () (interactive)
                             (let ((flag 1))
                               (forward-char 1)
@@ -152,13 +146,13 @@
           (web-mode-element-beginning)
           (ove-emacs-get #'web-mode-element-end "at")))
   ("e'" (progn
-          (lzl-look-forward-char -1 ?')
+          (zerolee-search-forward-char -1 ?')
           (forward-char 1)
           (ove-emacs-get '(lambda () (interactive)
-                            (lzl-look-forward-char 1 ?\')
+                            (zerolee-search-forward-char 1 ?\')
                             (backward-char 1)) "e'")))
   ("e<" (progn
-          (lzl-look-forward-char -1 ?<)
+          (zerolee-search-forward-char -1 ?<)
           (forward-char 1)
           (ove-emacs-get '(lambda () (interactive)
                             (let ((flag 1))
@@ -200,7 +194,7 @@
   ("c" (ove-emacs-get #'end-of-line "c"))
   ("k" (ove-emacs-get #'end-of-line "k"))
   ("m" (ove-emacs-get #'end-of-line "m"))
-  ("t" (ove-emacs-get #'lzl-look-forward-char "t")))
+  ("t" (ove-emacs-get #'zerolee-search-forward-char "t")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-gud (:color pink
