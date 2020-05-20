@@ -4,9 +4,9 @@
                            :hint nil)
   "
    _l_: locate  _p_: ivy-push-view    _y_: yasnippet
-   _a_: ag      _P_: ivy-pop-view     _h_: hs
-   _z_: fzf     _r_: rg               _m_: emms-default
-   _g_: git     _i_: imenu            _M_: emms-favourite
+   _a_: ag      _P_: ivy-pop-view     _m_: emms-default
+   _z_: fzf     _r_: rg               _M_: emms-favourite
+   _g_: git     _i_: imenu
   "
   ("b" ivy-switch-buffer)
   ("B" goto-ibuffer)
@@ -19,10 +19,6 @@
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" company-yasnippet)
-  ("H" (hs-minor-mode -1))
-  ("h" (progn
-         (hs-minor-mode)
-         (hs-toggle-hiding)))
   ("r" counsel-rg)
   ("d" (dired default-directory))
   ("m" zerolee-emms-default)

@@ -23,6 +23,11 @@
 
 (defvar zerolee--emms-favourite "~/.emacs.d/emms/favourite/"
   "存放 playlist 的地方")
+(defvar zerolee--emms-loop-point-A nil
+  "A-B loop points 的起始时间")
+(defvar zerolee--emms-loop-point-A-B-timer nil
+  "A-B loop points 相关定时器")
+
 (use-package emms
   :config
   (require 'emms-source-file)
@@ -104,6 +109,25 @@
         (interactive)
         (switch-to-buffer emms-playlist-buffer)
         (setq emms-playlist-buffer-name (buffer-name))))
+  (define-key emms-playlist-mode-map (kbd "o")
+    #'(lambda ()
+        "Set/clear A-B loop points.
+
+         执行第一次时设置变量 `zerolee--emms-loop-point-A'
+         执行第二次时重复设置一个定时器，以便 track 可以在 A-B 之间循环
+         执行第三次时取消定时器，清空变量"
+        (interactive)
+        (if zerolee--emms-loop-point-A
+            (if zerolee--emms-loop-point-A-B-timer
+                (progn
+                  (cancel-timer zerolee--emms-loop-point-A-B-timer)
+                  (setq zerolee--emms-loop-point-A nil)
+                  (setq zerolee--emms-loop-point-A-B-timer nil))
+              (setq zerolee--emms-loop-point-A-B-timer
+                    (run-with-timer 0
+                                    (- emms-playing-time zerolee--emms-loop-point-A)
+                                    #'emms-seek-to zerolee--emms-loop-point-A)))
+          (setq zerolee--emms-loop-point-A emms-playing-time))))
   (define-key emms-playlist-mode-map (kbd "g")
     #'(lambda ()
         "重新载入播放列表"
@@ -130,13 +154,20 @@
           (if track
               (let ((name (emms-track-get track 'name))
                     (type (emms-track-get track 'type)))
-                (if (eq type 'file)
-                    (progn
-                      (dired (file-name-directory name))
-                      (goto-char 0)
-                      (search-forward (file-name-base name) nil t 1)
-                      (dired-move-to-filename))
-                  (error "Can't visit this track type in Dired")))
+                (cond ((eq type 'file)
+                       (dired (file-name-directory name))
+                       (goto-char 0)
+                       (search-forward (file-name-base name) nil t 1)
+                       (dired-move-to-filename))
+                      ((eq type 'url)
+                       (let ((sbf (substring (buffer-name) 2 -1)))
+                         (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
+                           (when (string-match sbf favourite)
+                             (find-file (concat zerolee--emms-favourite favourite))
+                             (ove-mode 1)
+                             (search-forward name nil t 1)
+                             (beginning-of-line)))))
+                      (t (error "Can't visit this track type in Dired"))))
             (error "No track at point")))))
 
   ;; 如何显示 track
