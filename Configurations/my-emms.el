@@ -18,7 +18,6 @@
 ;;; 简介
 ;;; 个人配置 emms 的文件
 ;;; Code:
-(require 'cl-lib)
 (require 'zerolee-lib)
 (require 'ivy)
 
@@ -150,7 +149,7 @@
           (let* ((track-name (emms-track-get (emms-playlist-track-at) 'name))
                  (track-name-ext (file-name-extension track-name))
                  command)
-            (if (cl-position track-name-ext '("mp3" "MP3" "wma" "flac" "ape" "aac") :test #'string=)
+            (if (member track-name-ext '("mp3" "MP3" "wma" "flac" "ape" "aac"))
                 (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
                                     "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
                                     "-i" track-name "-acodec" "copy"
@@ -172,7 +171,6 @@
                            (shell-command (concat "mpv /tmp/" (number-to-string zerolee--emms-loop-point-A)
                                                   "." track-name-ext))))))
           (unless zerolee--emms-loop-point-A-B-timer
-            (setq zerolee--emms-loop-point-A nil)
             (setq zerolee--emms-loop-point-B nil)))))
   (define-key emms-playlist-mode-map (kbd "g")
     #'(lambda ()
