@@ -24,5 +24,4 @@
 (load "my-macros")
 (load "my-hydra")
 (load "bindings")
-(load "my-emms")
 (load-file custom-file)

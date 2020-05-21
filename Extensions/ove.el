@@ -345,7 +345,10 @@
 (define-key ove-mode-map (kbd "X")
   #'(lambda ()
       (interactive)
-      (hs-minor-mode -1)))
+      (if hs-minor-mode
+          (hs-minor-mode -1)
+        (hs-minor-mode)
+        (hs-hide-all))))
 (define-key ove-mode-map (kbd "y") 'yank)
 (define-key ove-mode-map (kbd "z") 'save-buffer)
 (define-key ove-mode-map (kbd "Z") 'save-buffers-kill-terminal)

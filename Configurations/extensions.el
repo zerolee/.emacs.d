@@ -107,7 +107,7 @@
                           "COMMIT_EDITMSG" "/elpa/" "\.gitignore" "README"
                           "/usr/" "cache" "backup" "TODO" "ChangeLog"
                           "\.pls$" "\.m3u$" "\.lrc$" "\.LRC$" "\.dpl" "\.dat"
-                          "bookmarks" "VERSION")
+                          "bookmarks" "VERSION" "emms-history")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   :bind (("C-x C-f" . counsel-find-file)
@@ -191,3 +191,10 @@
   (progn
     (key-chord-mode 1)
     (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1)))))
+
+(use-package emms
+  :defer t)
+
+(use-package my-emms
+  :ensure nil
+  :commands (zerolee-emms-default zerolee-emms-favourite))
