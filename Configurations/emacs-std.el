@@ -127,7 +127,7 @@
                   "^\\*Compile"
                   "^\\*Completions\\*$"
                   "^\\*compilation\\*$"
-                  "^\\*Async Shell Command\\*$"))
+                  "^\\*.*Shell Command.*\\*$"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window
