@@ -23,6 +23,7 @@
 
 ;;; Code:
 (require 'ivy)
+(require 'zerolee-lib)
 
 
 (defvar sp-position-ring nil
@@ -30,12 +31,8 @@
 
 (defun sp--goto-position (marker)
   "去正确的 buffer 中正确的位置."
-  (let ((list (window-list))
-        (buffer (marker-buffer marker)))
-    (while list
-      (unless (equal buffer (current-buffer))
-        (other-window 1))
-      (setq list (cdr list)))
+  (let ((buffer (marker-buffer marker)))
+    (zerolee-goto-some-window buffer)
     (switch-to-buffer buffer)
     (goto-char marker)))
 

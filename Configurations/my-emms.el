@@ -166,7 +166,7 @@
              :buffer "*ffmpeg*"
              :command command
              :noquery t
-             :sentinel (lambda (proc signal)
+             :sentinel (lambda (proc _)
                          (when (eq 'exit (process-status proc))
                            (shell-command (concat "mpv /tmp/" (number-to-string zerolee--emms-loop-point-A)
                                                   "." track-name-ext))))))

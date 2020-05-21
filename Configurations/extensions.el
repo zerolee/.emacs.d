@@ -106,6 +106,7 @@
         recentf-exclude '("/tmp/" "/ssh:" "/su\\(do\\)?:" "\.gz$" "\.elc$"
                           "COMMIT_EDITMSG" "/elpa/" "\.gitignore" "README"
                           "/usr/" "cache" "backup" "TODO" "ChangeLog"
+                          "\.pls$" "\.m3u$" "\.lrc$" "\.LRC$" "\.dpl" "\.dat"
                           "bookmarks" "VERSION")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
@@ -182,8 +183,8 @@
   (define-key paredit-mode-map (kbd "]") nil)
   (define-key paredit-mode-map (kbd ";") nil)
   (advice-add 'paredit-comment-dwim :after
-              #'(lambda (&optional arg) (unless mark-active
-                                          (ove-mode 0)))))
+              #'(lambda (&optional _) (unless mark-active
+                                        (ove-mode 0)))))
 
 (use-package key-chord
   :config

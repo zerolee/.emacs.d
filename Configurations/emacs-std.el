@@ -1,4 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
+(require 'save-position)
 (setq display-time-default-load-average nil)
 (display-time)
 ;; 关掉开机信息
@@ -61,13 +62,13 @@
 (setq org-html-htmlize-output-type nil)
 
 (advice-add 'org-insert-heading-respect-content :after
-            #'(lambda (&rest args)
+            #'(lambda (&rest _)
                 (ove-mode 0)))
 (advice-add 'org-meta-return :after
-            #'(lambda (&rest args)
+            #'(lambda (&rest _)
                 (ove-mode 0)))
 (advice-add 'org-open-at-point :before
-            #'(lambda (&rest args)
+            #'(lambda (&rest _)
                 (unless (and (boundp 'sp-position-ring)
                              (sp--position-same-pos))
                   (sp-push-position-to-ring))))
@@ -79,7 +80,7 @@
 
 ;;; 模板导入
 (advice-add 'find-file :after
-            #'(lambda (&rest args)
+            #'(lambda (&rest _)
                 (let* ((name (and (buffer-file-name)
                                   (not (file-exists-p (buffer-file-name)))
                                   (file-name-extension
@@ -100,7 +101,7 @@
 
 ;;; view-file 启动由 ove-mode 而不是 view-mode
 (advice-add 'view-mode :around
-            #'(lambda (orig-func &rest args)
+            #'(lambda (_orig-func &rest _)
                 (ove-mode 1)
                 (when (or (equal major-mode 'markdown-mode)
                           (equal major-mode 'gfm-mode)
@@ -112,7 +113,7 @@
 
 ;;; xref-find-definitions
 (advice-add 'xref-find-definitions :after
-            #'(lambda (&rest args)
+            #'(lambda (&rest _)
                 (ove-mode 1)))
 
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
