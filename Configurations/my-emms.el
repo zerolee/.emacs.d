@@ -36,6 +36,8 @@
   "存放 playlist 的地方")
 (defvar zerolee--emms-history-buffer " *emms-history*"
   "存放播放历史的 buffer")
+(defvar zerolee--emms-history "~/.emacs.d/emms/emms-history"
+  "存放播放历史的文件")
 (defvar zerolee--emms-switched-buffer nil
   "存储切换记录的变量")
 (defvar zerolee--emms-loop-point-A nil
@@ -95,10 +97,11 @@
       (ivy-read "选择一个已经打开播放列表：" (mapcar #'buffer-name emms-playlist-buffers)
                 :action '(lambda (x)
                            (switch-to-buffer x)
-                           (emms-playlist-mode-play-current-track)
                            (setq emms-playlist-buffer-name x)
                            (when (string= x zerolee--emms-history-buffer)
-                             (emms-uniq))))))
+                             (goto-char 0)
+                             (emms-uniq))
+                           (emms-playlist-mode-play-current-track)))))
 (define-key emms-playlist-mode-map (kbd "l")
   #'(lambda ()
       (interactive)
@@ -272,6 +275,22 @@
                   (save-excursion
                     (goto-char 0)
                     (emms-playlist-mode-yank)))))
+(add-hook 'kill-emacs-hook
+          #'(lambda ()
+              "关闭 emacs 时将历史记录保存到文件 zerolee--emms-history 中"
+              (emms-playlist-set-playlist-buffer zerolee--emms-history-buffer)
+              (let ((emms-source-playlist-ask-before-overwrite nil))
+                (with-current-buffer zerolee--emms-history-buffer
+                  (emms-playlist-save 'native zerolee--emms-history)))))
+
+;;; 导入 zerolee--emms-history 文件中保存的历史到 zerolee--emms-history-buffer 中
+(when (file-exists-p zerolee--emms-history)
+  (with-current-buffer zerolee--emms-history-buffer
+    (let ((emms-playlist-buffer zerolee--emms-history-buffer)
+          (emms-playlist-buffer-p t))
+      (emms-playlist-insert-source
+       'emms-source-playlist
+       zerolee--emms-history))))
 
 (defsubst zerolee--emms-toggle-popup ()
   "开关 emms popup"
