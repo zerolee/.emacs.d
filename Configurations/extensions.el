@@ -20,7 +20,8 @@
          .
          (lambda () (interactive)
            (if (and buffer-read-only
-                    (not (equal major-mode 'treemacs-mode)))
+                    (not (memq major-mode
+                               '(treemacs-mode package-menu-mode))))
                (ove-mode 1)
              (setq cursor-type 'bar)))))
 

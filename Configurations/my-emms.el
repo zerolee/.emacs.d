@@ -46,6 +46,8 @@
   "A-B loop points 的终止时间")
 (defvar zerolee--emms-loop-point-A-B-timer nil
   "A-B loop points 相关定时器")
+(defvar zerolee--emms-hash-pls (make-hash-table :test #'equal :size 130)
+  "将 pls 文件里的 title 和 file 存储在 hash-table 中")
 
 
 ;; setup
@@ -54,6 +56,25 @@
 (when (fboundp 'emms-cache)           ; work around compiler warning
   (emms-cache 1))
 (setq emms-player-list '(emms-player-mpv))
+
+(advice-add 'emms-source-playlist-pls-files :around
+            #'(lambda (_orig-func &rest _)
+                "Extract a list of filenames from the given pls playlist.
+
+                 Empty lines and lines starting with '#' are ignored."
+                (let ((files nil)
+                      title
+                      file)
+                  (save-excursion
+                    (goto-char (point-min))
+                    (while (re-search-forward "^File[0-9]*=\\(.+\\)$" nil t)
+                      (progn
+                        (setq file (match-string 1))
+                        (setq files (cons file files))
+                        (when (re-search-forward "^Title[0-9]*=\\(.+\\)$" nil t)
+                          (setq title (match-string 1))
+                          (puthash file title zerolee--emms-hash-pls)))))
+                  (nreverse files))))
 
 (if (file-directory-p "~/音乐")
     (setq emms-source-file-default-directory "~/音乐")
@@ -205,7 +226,7 @@
                                                 "." track-name-ext))))))
         (unless zerolee--emms-loop-point-A-B-timer
           (setq zerolee--emms-loop-point-B nil)))))
-(define-key emms-playlist-mode-map (kbd "g")
+(define-key emms-playlist-mode-map (kbd "R")
   #'(lambda ()
       "重新载入播放列表"
       (interactive)
@@ -255,11 +276,16 @@
                     (cond ((eq 'file type)
                            (file-name-base (emms-track-name track)))
                           ((eq 'url type)
-                           (file-name-base
-                            (substring (file-name-directory
-                                        (emms-format-url-track-name
-                                         (emms-track-name track)))
-                                       0 -1)))
+                           (let ((hash-value (gethash (emms-format-url-track-name
+                                                       (emms-track-name track))
+                                                      zerolee--emms-hash-pls)))
+                             (if hash-value
+                                 hash-value
+                               (file-name-base
+                                (substring (file-name-directory
+                                            (emms-format-url-track-name
+                                             (emms-track-name track)))
+                                           0 -1)))))
                           (t (concat (symbol-name type)
                                      ": " (emms-track-name track))))))))
 (emms-playlist-new zerolee--emms-history-buffer)
@@ -313,7 +339,8 @@
   (interactive)
   (when (file-exists-p zerolee--emms-favourite)
     (ivy-read "select favourite playlist: "
-              (cddr (directory-files zerolee--emms-favourite))
+              (cons emms-source-file-default-directory
+                    (cddr (directory-files zerolee--emms-favourite)))
               :action '(lambda (x)
                          (if (zerolee-position-some-window (get-buffer emms-playlist-buffer-name))
                              (progn
@@ -325,7 +352,9 @@
                                           (emms-playlist-mode-play-current-track))
                                  (emms-playlist-new emms-playlist-buffer-name)
                                  (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                                 (emms-play-playlist (concat zerolee--emms-favourite x))
+                                 (if (string-equal x emms-source-file-default-directory)
+                                     (emms-play-directory-tree x)
+                                   (emms-play-playlist (concat zerolee--emms-favourite x)))
                                  (emms-playlist-mode-go)
                                  (emms-playlist-mode-center-current)))
                            (setq emms-playlist-buffer-name
@@ -336,7 +365,9 @@
                                       (emms-playlist-mode-play-current-track))
                              (emms-playlist-new emms-playlist-buffer-name)
                              (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                             (emms-play-playlist (concat zerolee--emms-favourite x))
+                             (if (string-equal x emms-source-file-default-directory)
+                                 (emms-play-directory-tree x)
+                               (emms-play-playlist (concat zerolee--emms-favourite x)))
                              (zerolee--emms-toggle-popup))))
               :initial-input "m3u")))
 
