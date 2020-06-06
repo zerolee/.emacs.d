@@ -1,12 +1,14 @@
 ;;; -*- lexical-binding: t; -*-
 (require 'zerolee-lib)
+(require 'my-shell)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
    _l_: locate  _p_: ivy-push-view    _y_: yasnippet
    _a_: ag      _P_: ivy-pop-view     _m_: emms-default
-   _z_: fzf     _r_: rg               _M_: emms-favourite
-   _g_: git     _i_: imenu
+   _z_: fzf     _i_: imenu            _M_: emms-favourite
+   _g_: git     _s_: swap-window      _w_: select-window
+   _r_: rg      _SPC_: shell          _c_: compile
   "
   ("b" ivy-switch-buffer)
   ("B" goto-ibuffer)
@@ -23,6 +25,10 @@
   ("d" (dired default-directory))
   ("m" zerolee-emms-default)
   ("M" zerolee-emms-favourite)
+  ("s" ace-swap-window)
+  ("w" ace-select-window)
+  ("c" zerolee-compile)
+  ("SPC" zerolee-eshell)
   ("<f1>" nil)
   ("M-<SPC>" nil))
 

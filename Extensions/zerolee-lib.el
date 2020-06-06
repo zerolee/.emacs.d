@@ -19,21 +19,11 @@
 ;;; Code:
 
 (require 'cl-lib)
-(defun zerolee-goto-some-window (buffer)
-  "去一个指定 buffer 的 window"
-  (let ((position (zerolee-position-some-window buffer)))
-    (when position
-      (other-window position))))
-
-(defun zerolee-delete-some-window (buffer)
-  "删除一个指定 buffer 的 window"
-  (let ((bf (current-buffer)))
-    (zerolee-goto-some-window buffer)
-    (when (equal buffer (current-buffer))
-      (if (= (count-windows) 1)
-          (bury-buffer)
-        (delete-window))
-      (zerolee-goto-some-window bf))))
+(defun zerolee-goto-some-window (buffer-or-name)
+  "去一个指定 buffer-or-name 的 window"
+  (let ((window (get-buffer-window buffer-or-name)))
+    (when window
+      (select-window window))))
 
 (defun zerolee-position-some-window (buffer)
   "查看 buffer 在打开的 window 中的位置，不存在返回 nil"

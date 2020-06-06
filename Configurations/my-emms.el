@@ -330,7 +330,7 @@
   "开关 emms popup"
   (let ((buffer (get-buffer emms-playlist-buffer-name)))
     (if (zerolee-position-some-window buffer)
-        (zerolee-delete-some-window buffer)
+        (delete-windows-on buffer)
       (if (> (window-width) 50)
           (emms-playlist-mode-go-popup)
         (emms-playlist-mode-go))
@@ -354,7 +354,7 @@
               :action '(lambda (x)
                          (if (zerolee-position-some-window (get-buffer emms-playlist-buffer-name))
                              (progn
-                               (zerolee-goto-some-window (get-buffer emms-playlist-buffer-name))
+                               (zerolee-goto-some-window emms-playlist-buffer-name)
                                (setq emms-playlist-buffer-name
                                      (concat " *" (file-name-base x) "*"))
                                (if (get-buffer emms-playlist-buffer-name)

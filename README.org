@@ -19,6 +19,8 @@
    保存利用 hydra 插件定义的一些按键
 ** my-emms.el
    保存 emms 相关的配置
+** my-shell.el
+   配置 shell 和 compile
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
 ** antlr-mode.el         
@@ -32,3 +34,5 @@
    用来预览 Markdown、Org 文件
 ** zerolee-lib.el
    一些个人使用的函数
+** smart-compile
+   https://github.com/zenitani/elisp/blob/master/smart-compile.el

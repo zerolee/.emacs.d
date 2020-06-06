@@ -199,3 +199,7 @@
 (use-package my-emms
   :ensure nil
   :commands (zerolee-emms-default zerolee-emms-favourite))
+
+(use-package my-shell
+  :ensure nil
+  :commands (zerolee-eshell))

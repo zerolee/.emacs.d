@@ -128,7 +128,8 @@
                   "^\\*Compile"
                   "^\\*Completions\\*$"
                   "^\\*compilation\\*$"
-                  "^\\*.*Shell Command.*\\*$"))
+                  "^\\*.*Shell Command.*\\*$"
+                  "^\\*e?shell\\*"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window

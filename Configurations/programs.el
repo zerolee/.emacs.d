@@ -42,7 +42,7 @@
         (interactive)
         (let ((buffer (get-buffer "*lsp-help*")))
           (if (zerolee-position-some-window buffer)
-              (zerolee-delete-some-window buffer)
+              (delete-windows-on buffer)
             (lsp-describe-thing-at-point)))))
   (define-key lsp-mode-map (kbd "s-l") nil)
   (setq abbrev-mode nil))

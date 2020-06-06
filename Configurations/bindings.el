@@ -90,7 +90,7 @@
         (let ((buffer
                (get-buffer (format "*Flymake diagnostics for %s*" (current-buffer)))))
           (if (zerolee-position-some-window buffer)
-              (zerolee-delete-some-window buffer)
+              (delete-windows-on buffer)
             (flymake-show-diagnostics-buffer))))))
 
 ;;; emacs-lisp
