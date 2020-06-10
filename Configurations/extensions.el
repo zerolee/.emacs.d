@@ -202,4 +202,4 @@
 
 (use-package my-shell
   :ensure nil
-  :commands (zerolee-eshell))
+  :commands (zerolee-eshell zerolee-compile))

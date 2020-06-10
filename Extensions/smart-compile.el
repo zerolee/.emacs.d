@@ -53,6 +53,7 @@
                                  ;;  ("\\.c\\'"          . "gcc -O2 %f -lm -o %n && ./%n") ;; unix, macOS
                                  ;;  ("\\.c\\'"          . "gcc -O2 %f -lm -o %n && %n") ;; win
                                  ("\\.[Cc]+[Pp]*\\'" . "g++ -O2 %f -lm -o %n")
+                                 ("\\.cs\\'"         . "mcs %f")
                                  ("\\.cron\\(tab\\)?\\'" . "crontab %f")
                                  ("\\.cu\\'"         . "nvcc %f -o %n")
                                  ("\\.cuf\\'"        . "pgfortran %f -o %n")
@@ -62,6 +63,7 @@
                                  ("\\.hs\\'"         . "ghc %f -o %n")
                                  ("\\.java\\'"       . "javac %f")
                                  ("\\.jl\\'"         . "julia %f")
+                                 ("\\.js\\'"         . "js %f")
                                  ("\\.lua\\'"        . "lua %f")
                                  ("\\.m\\'"          . "gcc -O2 %f -lobjc -lpthread -o %n")
                                  ("\\.mp\\'"         . "mptopdf %f")

@@ -34,5 +34,7 @@
    用来预览 Markdown、Org 文件
 ** zerolee-lib.el
    一些个人使用的函数
-** smart-compile
-   https://github.com/zenitani/elisp/blob/master/smart-compile.el
+** smart-compile.el
+   [[https://github.com/zenitani/elisp/blob/master/smart-compile.el][smart-compile]] : An interface to compile.
+** quickrun.el
+   [[https://github.com/emacsorphanage/quickrun/blob/master/quickrun.el][quickrun.el]] is Emacs port of [[https://github.com/thinca/vim-quickrun][quickrun.vim]]

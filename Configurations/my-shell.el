@@ -33,18 +33,17 @@
             (goto-char (point-min))
             (buffer-substring-no-properties (point-min) (line-end-position))))
          (pos (string-match "package" first-line)))
-    (if pos
+    (if (and pos (<= pos 1))
         (replace-regexp-in-string
          "\\." "/"
-         (string-trim (substring first-line (- 8 pos) -1)))
+         (string-trim (substring first-line (+ 8 pos) -1)))
       nil)))
 
 (defun zerolee--eshell-get-java-package-root ()
-  (let ((root (zerolee--eshell-get-java-package-content))
-        (bfn (buffer-file-name)))
+  (let ((root (zerolee--eshell-get-java-package-content)))
     (if root
-        (let ((pos (string-match root bfn)))
-          (substring bfn 0 pos))
+        (let ((pos (string-match root default-directory)))
+          (substring default-directory 0 pos))
       nil)))
 
 (defun zerolee--eshell-get-java-package-name ()
@@ -98,7 +97,8 @@
                    (insert (concat "java " (substring name 0 -5)))))
                (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
 
-;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 函数
+;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
+;;; zerolee--eshell-get-java-package-root 函数
 ;;;###autoload
 (defun zerolee-compile ()
   "对 `compile' 和 smart-compile 的一个轻微的包装"
