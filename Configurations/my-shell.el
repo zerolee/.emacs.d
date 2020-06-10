@@ -19,6 +19,7 @@
 ;;; Code:
 
 (require 'eshell)
+(require 'esh-mode)
 (require 'smart-compile)
 (require 'projectile)
 
@@ -81,21 +82,27 @@
              (when (= 4 num)
                (setq fnd fnd2)
                (setq wn wn2))
-             (if wn
-                 (let ((buffer
-                        (get-buffer (concat "*eshell*<"
-                                            (number-to-string wn) ">"))))
-                   (if (zerolee-position-some-window buffer)
-                       (delete-windows-on buffer)
-                     (eshell wn)))
-               (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
-               (let ((default-directory fnd)
-                     (mj major-mode)
-                     (name (zerolee--eshell-get-java-package-name)))
+             (let ((default-directory fnd)
+                   (mj major-mode)
+                   (app (car
+                         (split-string (zerolee--eshell-get-java-package-name) "\\."))))
+               (if wn
+                   (let ((buffer
+                          (get-buffer (concat "*eshell*<"
+                                              (number-to-string wn) ">"))))
+                     (if (zerolee-position-some-window buffer)
+                         (delete-windows-on buffer)
+                       (eshell wn)))
+                 (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
                  (eshell (1+ max))
-                 (when (equal mj 'java-mode)
-                   (insert (concat "java " (substring name 0 -5)))))
-               (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
+                 (puthash "max" (1+ max) zerolee--eshell-path-hashtable))
+               (when (= 1 num)
+                 (cond ((equal mj 'java-mode)
+                        (insert (concat "java " app))
+                        (eshell-send-input))
+                       ((member mj '(c-mode))
+                        (insert (concat "./" app))
+                        (eshell-send-input)))))))))
 
 ;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
 ;;; zerolee--eshell-get-java-package-root 函数
