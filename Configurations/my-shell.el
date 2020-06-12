@@ -33,7 +33,7 @@
           (save-excursion
             (goto-char (point-min))
             (buffer-substring-no-properties (point-min) (line-end-position))))
-         (pos (string-match "package" first-line)))
+         (pos (string-match "\\<package\\>" first-line)))
     (if (and pos (<= pos 1))
         (replace-regexp-in-string
          "\\." "/"
@@ -46,6 +46,23 @@
         (let ((pos (string-match root default-directory)))
           (substring default-directory 0 pos))
       nil)))
+
+(defun zerolee--eshell-get-app-name (num mj-mode)
+  (if (= num 3)
+      (cond ((equal mj-mode 'java-mode)
+             (let* ((test
+                     (buffer-substring-no-properties
+                      (line-beginning-position) (line-end-position)))
+                    (pos (string-match "\\<class\\>" test)))
+               (if pos
+                   (concat
+                    (file-name-directory
+                     (zerolee--eshell-get-java-package-name))
+                    (nth 1 (split-string (substring test pos) " +")))
+                 (zerolee--eshell-get-java-package-name))))
+            (t
+             (zerolee--eshell-get-java-package-name)))
+    (zerolee--eshell-get-java-package-name)))
 
 (defun zerolee--eshell-get-java-package-name ()
   (let ((root (zerolee--eshell-get-java-package-content))
@@ -64,7 +81,10 @@
    若存在则查看该文件是否与一个项目相关联，
    若是相关联则打开项目目录，并且启动 eshell，如果关联的 eshell 已经启动了则关闭
    否则，打开文件目录并启动 eshell，如果关联的 eshell 已经启动了则关闭
-   传入参数 4 则强制打开文件所在目录并启动 eshell"
+   传入参数 4 则强制打开文件所在目录并启动 eshell。
+   默认情况下打开 shell 的同时会执行相关程序，可以传入参数 2 来阻止程序的执行
+   若是传入的参数 3 用来对程序进行单元测试
+   传入参数 5 调用 gnome-terminal"
   (interactive "p")
   (cond ((eq major-mode 'eshell-mode) (delete-window))
         ((not (or (projectile-project-root)
@@ -85,24 +105,37 @@
              (let ((default-directory fnd)
                    (mj major-mode)
                    (app (car
-                         (split-string (zerolee--eshell-get-java-package-name) "\\."))))
-               (if wn
-                   (let ((buffer
-                          (get-buffer (concat "*eshell*<"
-                                              (number-to-string wn) ">"))))
-                     (if (zerolee-position-some-window buffer)
-                         (delete-windows-on buffer)
-                       (eshell wn)))
-                 (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
-                 (eshell (1+ max))
-                 (puthash "max" (1+ max) zerolee--eshell-path-hashtable))
-               (when (= 1 num)
-                 (cond ((equal mj 'java-mode)
-                        (insert (concat "java " app))
-                        (eshell-send-input))
-                       ((member mj '(c-mode))
-                        (insert (concat "./" app))
-                        (eshell-send-input)))))))))
+                         (split-string (zerolee--eshell-get-app-name num major-mode) "\\."))))
+               (if (= 5 num)
+                   (shell-command (concat
+                                   "gnome-terminal --working-directory="
+                                   default-directory
+                                   " -x bash -c '"
+                                   (cond ((equal mj 'java-mode)
+                                          (concat "java " app))
+                                         ((member mj '(c-mode))
+                                          (concat "./" app)))
+                                   ";read' &> /dev/null"))
+                 (if wn
+                     (let ((buffer
+                            (get-buffer (concat "*eshell*<"
+                                                (number-to-string wn) ">"))))
+                       (if (zerolee-position-some-window buffer)
+                           (delete-windows-on buffer)
+                         (eshell wn)))
+                   (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
+                   (eshell (1+ max))
+                   (puthash "max" (1+ max) zerolee--eshell-path-hashtable))
+                 (when (and
+                        (or (= 1 num) (= 3 num))
+                        (equal major-mode 'eshell-mode))
+                   (goto-char (point-max))
+                   (cond ((equal mj 'java-mode)
+                          (insert (concat "java " app))
+                          (eshell-send-input))
+                         ((member mj '(c-mode))
+                          (insert (concat "./" app))
+                          (eshell-send-input))))))))))
 
 ;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
 ;;; zerolee--eshell-get-java-package-root 函数

@@ -18,7 +18,6 @@
 ;;; 简介
 ;;; 个人配置 emms 的文件
 ;;; Code:
-(require 'zerolee-lib)
 (require 'ivy)
 
 (require 'emms-source-file)
@@ -127,7 +126,7 @@
                            (switch-to-buffer x)
                            (setq emms-playlist-buffer-name x)
                            (when (string= x zerolee--emms-history-buffer)
-                             (goto-char 0)
+                             (goto-char (point-min))
                              (emms-uniq))
                            (emms-playlist-mode-play-current-track)))))
 (define-key emms-playlist-mode-map (kbd "l")
@@ -261,7 +260,7 @@
                   (type (emms-track-get track 'type)))
               (cond ((eq type 'file)
                      (dired (file-name-directory name))
-                     (goto-char 0)
+                     (goto-char (point-min))
                      (search-forward (file-name-base name) nil t 1)
                      (dired-move-to-filename))
                     ((eq type 'url)
@@ -328,14 +327,13 @@
 
 (defsubst zerolee--emms-toggle-popup ()
   "开关 emms popup"
-  (let ((buffer (get-buffer emms-playlist-buffer-name)))
-    (if (zerolee-position-some-window buffer)
-        (delete-windows-on buffer)
-      (if (> (window-width) 50)
-          (emms-playlist-mode-go-popup)
-        (emms-playlist-mode-go))
-      (emms-playlist-mode-center-current)
-      (setq emms-playlist-buffer-name (buffer-name)))))
+  (if (get-buffer-window emms-playlist-buffer-name)
+      (delete-windows-on emms-playlist-buffer-name)
+    (if (> (window-width) 50)
+        (emms-playlist-mode-go-popup)
+      (emms-playlist-mode-go))
+    (emms-playlist-mode-center-current)
+    (setq emms-playlist-buffer-name (buffer-name))))
 
 ;;;###autoload
 (defun zerolee-emms-default ()
@@ -352,9 +350,9 @@
               (cons emms-source-file-default-directory
                     (cddr (directory-files zerolee--emms-favourite)))
               :action '(lambda (x)
-                         (if (zerolee-position-some-window (get-buffer emms-playlist-buffer-name))
+                         (if (get-buffer-window emms-playlist-buffer-name)
                              (progn
-                               (zerolee-goto-some-window emms-playlist-buffer-name)
+                               (select-window (get-buffer-window emms-playlist-buffer-name))
                                (setq emms-playlist-buffer-name
                                      (concat " *" (file-name-base x) "*"))
                                (if (get-buffer emms-playlist-buffer-name)

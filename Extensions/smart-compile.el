@@ -61,7 +61,7 @@
                                  ("\\.[Ff]90\\'"     . "gfortran %f -o %n")
                                  ("\\.go\\'"         . "go run %f")
                                  ("\\.hs\\'"         . "ghc %f -o %n")
-                                 ("\\.java\\'"       . "javac %f")
+                                 ("\\.java\\'"       . "javac -Xlint:fallthrough %f")
                                  ("\\.jl\\'"         . "julia %f")
                                  ("\\.js\\'"         . "js %f")
                                  ("\\.lua\\'"        . "lua %f")

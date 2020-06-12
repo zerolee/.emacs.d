@@ -34,9 +34,12 @@
   :custom (hydra-hint-display-type 'message))
 
 (use-package projectile
+  :defer t
+  :diminish projectile-mode
   :bind-keymap
   ("C-c p" . projectile-command-map)
   :config
+  (projectile-mode +1)
   (setq projectile-completion-system 'ivy))
 
 (use-package goto-chg

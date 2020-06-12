@@ -109,7 +109,7 @@
                   (hugomd-preview))))
 
 ;;; 配置字体
-(add-to-list 'default-frame-alist '(font . "Sarasa Mono SC"))
+(add-to-list 'default-frame-alist '(font . "Sarasa Fixed SC"))
 
 ;;; xref-find-definitions
 (advice-add 'xref-find-definitions :after

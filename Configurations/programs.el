@@ -35,6 +35,9 @@
                 company-dabbrev-code company-dabbrev
                 company-files))
   (setq lsp-completion-styles '(basic))
+  (setq lsp-enable-indentation nil)
+  (setq lsp-enable-on-type-formatting nil)
+  (setq lsp-auto-execute-action nil)
   (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
   (define-key lsp-mode-map (kbd "C-h .")
