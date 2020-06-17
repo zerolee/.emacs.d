@@ -25,3 +25,4 @@ eaf/
 !.gitignore
 emms/
 eglot-eclipse-jdt-cache/
+transient/

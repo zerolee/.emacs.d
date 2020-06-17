@@ -6,8 +6,8 @@
   "
    _l_: locate  _p_: ivy-push-view    _y_: yasnippet
    _a_: ag      _P_: ivy-pop-view     _m_: emms-default
-   _z_: fzf     _i_: imenu            _M_: emms-favourite
-   _g_: git     _s_: swap-window      _w_: select-window
+   _z_: zff     _i_: imenu            _M_: emms-favourite
+   _v_: magit   _s_: swap-window      _w_: select-window
    _r_: rg      _SPC_: shell          _c_: compile
   "
   ("b" ivy-switch-buffer)
@@ -15,9 +15,9 @@
   ("f" counsel-find-file)
   ("l" counsel-locate)
   ("a" counsel-ag)
-  ("z" counsel-fzf)
+  ("z" zerolee-find-file)
   ("i" counsel-imenu)
-  ("g" counsel-git)
+  ("v" magit)
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" company-yasnippet)

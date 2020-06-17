@@ -21,7 +21,8 @@
          (lambda () (interactive)
            (if (and buffer-read-only
                     (not (memq major-mode
-                               '(treemacs-mode package-menu-mode))))
+                               '(treemacs-mode package-menu-mode)))
+                    (not (derived-mode-p 'magit-mode)))
                (ove-mode 1)
              (setq cursor-type 'bar)))))
 
@@ -206,3 +207,5 @@
 (use-package my-shell
   :ensure nil
   :commands (zerolee-eshell zerolee-compile))
+
+(use-package magit :defer t)

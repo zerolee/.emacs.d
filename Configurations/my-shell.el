@@ -105,37 +105,52 @@
              (let ((default-directory fnd)
                    (mj major-mode)
                    (app (car
-                         (split-string (zerolee--eshell-get-app-name num major-mode) "\\."))))
-               (if (= 5 num)
-                   (shell-command (concat
-                                   "gnome-terminal --working-directory="
-                                   default-directory
-                                   " -x bash -c '"
-                                   (cond ((equal mj 'java-mode)
-                                          (concat "java " app))
-                                         ((member mj '(c-mode))
-                                          (concat "./" app)))
-                                   ";read' &> /dev/null"))
-                 (if wn
-                     (let ((buffer
-                            (get-buffer (concat "*eshell*<"
-                                                (number-to-string wn) ">"))))
-                       (if (zerolee-position-some-window buffer)
-                           (delete-windows-on buffer)
-                         (eshell wn)))
-                   (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
-                   (eshell (1+ max))
-                   (puthash "max" (1+ max) zerolee--eshell-path-hashtable))
-                 (when (and
-                        (or (= 1 num) (= 3 num))
-                        (equal major-mode 'eshell-mode))
-                   (goto-char (point-max))
-                   (cond ((equal mj 'java-mode)
-                          (insert (concat "java " app))
-                          (eshell-send-input))
-                         ((member mj '(c-mode))
-                          (insert (concat "./" app))
-                          (eshell-send-input))))))))))
+                         (split-string (zerolee--eshell-get-app-name num major-mode) "\\.")))
+                   (height (round (* 0.33 (frame-height))))
+                   (width (round (+ 1 (frame-width))))
+                   (left (round (+ 10 (cadar (frame-geometry)))))
+                   (up (round (+ (cddar (frame-geometry)) (* 0.61 (frame-outer-height))))))
+               (cond ((= 5 num)
+                      (shell-command (concat
+                                      "gnome-terminal --working-directory="
+                                      default-directory
+                                      " --geometry="
+                                      (format "%sx%s+%s+%s" width height left up)
+                                      " -x bash -c '"
+                                      (cond ((equal mj 'java-mode)
+                                             (concat "java " app))
+                                            ((member mj '(c-mode))
+                                             (concat "./" app)))
+                                      ";read' &> /dev/null")))
+                     ((= 6 num)
+                      (shell-command (concat
+                                      "EMACS_START=nil "
+                                      "gnome-terminal --working-directory="
+                                      default-directory
+                                      " --geometry="
+                                      (format "%sx%s+%s+%s" width height left up)
+                                      "&> /dev/null")))
+                     (t
+                      (if wn
+                          (let ((buffer
+                                 (get-buffer (concat "*eshell*<"
+                                                     (number-to-string wn) ">"))))
+                            (if (zerolee-position-some-window buffer)
+                                (delete-windows-on buffer)
+                              (eshell wn)))
+                        (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
+                        (eshell (1+ max))
+                        (puthash "max" (1+ max) zerolee--eshell-path-hashtable))
+                      (when (and
+                             (or (= 1 num) (= 3 num))
+                             (equal major-mode 'eshell-mode))
+                        (goto-char (point-max))
+                        (cond ((equal mj 'java-mode)
+                               (insert (concat "java " app))
+                               (eshell-send-input))
+                              ((member mj '(c-mode))
+                               (insert (concat "./" app))
+                               (eshell-send-input)))))))))))
 
 ;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
 ;;; zerolee--eshell-get-java-package-root 函数
@@ -154,6 +169,24 @@
            (call-interactively #'compile)))
         (t
          (call-interactively #'smart-compile))))
+
+;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
+;;; zerolee--eshell-get-java-package-root 函数
+;;;###autoload
+(defun zerolee-find-file ()
+  "查找文件"
+  (interactive)
+  (cond ((projectile-project-root)
+         (let ((default-directory (projectile-project-root)))
+           (if (file-readable-p ".gitignore")
+               (call-interactively #'counsel-git)
+             (call-interactively #'counsel-fzf))))
+        ((and (equal major-mode 'java-mode)
+              (zerolee--eshell-get-java-package-root))
+         (let ((default-directory (zerolee--eshell-get-java-package-root)))
+           (call-interactively #'counsel-fzf)))
+        (t
+         (call-interactively #'counsel-fzf))))
 
 (provide 'my-shell)
 ;;; my-shell.el ends here
