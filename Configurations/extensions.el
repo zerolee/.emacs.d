@@ -41,7 +41,11 @@
   ("C-c p" . projectile-command-map)
   :config
   (projectile-mode +1)
-  (setq projectile-completion-system 'ivy))
+  (setq projectile-completion-system 'ivy)
+  (advice-add 'projectile-find-file-dwim :before
+              #'(lambda (&rest _)
+                  (xref--push-markers)
+                  (ove-mode 1))))
 
 (use-package goto-chg
   :bind (("C-." . goto-last-change)
@@ -193,12 +197,10 @@
 
 (use-package key-chord
   :config
-  (progn
-    (key-chord-mode 1)
-    (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1)))))
+  (key-chord-mode 1)
+  (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1))))
 
-(use-package emms
-  :defer t)
+(use-package emms :defer t)
 
 (use-package my-emms
   :ensure nil
@@ -206,6 +208,6 @@
 
 (use-package my-shell
   :ensure nil
-  :commands (zerolee-eshell zerolee-compile))
+  :commands (zerolee-eshell zerolee-compile zerolee-rg zerolee-go))
 
 (use-package magit :defer t)

@@ -77,6 +77,7 @@
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
+(setenv "FZF_DEFAULT_COMMAND" "fd --type file")
 
 ;;; 模板导入
 (advice-add 'find-file :after

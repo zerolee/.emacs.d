@@ -22,6 +22,7 @@
 (require 'esh-mode)
 (require 'smart-compile)
 (require 'projectile)
+(require 'dumb-jump)
 
 (defvar zerolee--eshell-path-hashtable (make-hash-table :test #'equal)
   "每次启动 eshell 的时候将启动时的路径存储进 hash-table 中")
@@ -106,10 +107,10 @@
                    (mj major-mode)
                    (app (car
                          (split-string (zerolee--eshell-get-app-name num major-mode) "\\.")))
-                   (height (round (* 0.33 (frame-height))))
+                   (height (round (* 0.45 (frame-height))))
                    (width (round (+ 1 (frame-width))))
                    (left (round (+ 10 (cadar (frame-geometry)))))
-                   (up (round (+ (cddar (frame-geometry)) (* 0.61 (frame-outer-height))))))
+                   (up (round (+ (cddar (frame-geometry)) (* 0.51 (frame-outer-height))))))
                (cond ((= 5 num)
                       (shell-command (concat
                                       "gnome-terminal --working-directory="
@@ -155,12 +156,12 @@
 ;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
 ;;; zerolee--eshell-get-java-package-root 函数
 ;;;###autoload
-(defun zerolee-compile ()
+(defun zerolee-compile (&optional arg)
   "对 `compile' 和 smart-compile 的一个轻微的包装"
-  (interactive)
+  (interactive "p")
   (cond ((projectile-project-root)
          (let ((default-directory (projectile-project-root)))
-           (call-interactively #'smart-compile)))
+           (smart-compile arg)))
         ((and (equal major-mode 'java-mode)
               (zerolee--eshell-get-java-package-root))
          (let ((default-directory (zerolee--eshell-get-java-package-root)))
@@ -168,7 +169,7 @@
                 (concat "javac " (zerolee--eshell-get-java-package-name)))
            (call-interactively #'compile)))
         (t
-         (call-interactively #'smart-compile))))
+         (smart-compile arg))))
 
 ;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
 ;;; zerolee--eshell-get-java-package-root 函数
@@ -187,6 +188,39 @@
            (call-interactively #'counsel-fzf)))
         (t
          (call-interactively #'counsel-fzf))))
+
+;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
+;;; zerolee--eshell-get-java-package-root 函数
+;;;###autoload
+(defun zerolee-rg (&optional initvalue)
+  "查找文件"
+  (interactive)
+  (cond ((projectile-project-root)
+         (let ((default-directory (projectile-project-root)))
+           (counsel-rg initvalue)))
+        ((and (equal major-mode 'java-mode)
+              (zerolee--eshell-get-java-package-root))
+         (let ((default-directory (zerolee--eshell-get-java-package-root)))
+           (counsel-rg initvalue)))
+        (t
+         (counsel-rg initvalue))))
+
+;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
+;;; zerolee--eshell-get-java-package-root 函数
+;;;###autoload
+(defun zerolee-go ()
+  (interactive)
+  (unless (let ((dumb-jump-default-project default-directory))
+            (dumb-jump-go))
+    (let* ((filename (thing-at-point 'filename t))
+           (suffix (nth 1 (split-string filename "\\."))))
+      (when filename
+        (if suffix
+            (cond ((and (equal major-mode 'c-mode)
+                        (or (string= "h" suffix)
+                            (string= "c" suffix)))
+                   (call-interactively #'projectile-find-file-dwim)))
+          (zerolee-rg (concat "\\b" filename "\\b")))))))
 
 (provide 'my-shell)
 ;;; my-shell.el ends here

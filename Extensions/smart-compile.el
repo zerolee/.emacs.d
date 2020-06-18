@@ -3,7 +3,7 @@
 ;; Copyright (C) 1998-2020  by Seiji Zenitani
 
 ;; Author: Seiji Zenitani <zenitani@mac.com>
-;; Version: 20200508
+;; Version: 20200619
 ;; Keywords: tools, unix
 ;; Created: 1998-12-27
 ;; Compatibility: Emacs 21 or later
@@ -61,7 +61,7 @@
                                  ("\\.[Ff]90\\'"     . "gfortran %f -o %n")
                                  ("\\.go\\'"         . "go run %f")
                                  ("\\.hs\\'"         . "ghc %f -o %n")
-                                 ("\\.java\\'"       . "javac -Xlint:fallthrough %f")
+                                 ("\\.java\\'"       . "javac -Xlint:deprecation -Xlint:fallthrough %f")
                                  ("\\.jl\\'"         . "julia %f")
                                  ("\\.js\\'"         . "js %f")
                                  ("\\.lua\\'"        . "lua %f")
@@ -73,6 +73,7 @@
                                  ("\\.py\\'"         . "python3 %f")
                                  ("\\.raku\\'"       . "perl6 %f")
                                  ("\\.rb\\'"         . "ruby %f")
+                                 ("\\.rs\\'"         . "rustc %f -o %n")
                                  ("Rakefile\\'"      . "rake")
                                  ("Gemfile\\'"       . "bundle install")
                                  ("\\.tex\\'"        . (tex-file))
@@ -141,12 +142,7 @@ which is defined in `smart-compile-alist'."
   (interactive "p")
   (let ((name (buffer-file-name))
         (not-yet t))
-
-    (if (not name)(error "cannot get filename."))
-    ;;     (message (number-to-string arg))
-
     (cond
-
      ;; local command
      ;; The prefix 4 (C-u M-x smart-compile) skips this section
      ;; in order to re-generate the compile-command
@@ -154,8 +150,7 @@ which is defined in `smart-compile-alist'."
            (local-variable-p 'compile-command)
            compile-command)
       (call-interactively 'compile)
-      (setq not-yet nil)
-      )
+      (setq not-yet nil))
 
      ;; make?
      ((and smart-compile-check-makefile
@@ -165,39 +160,33 @@ which is defined in `smart-compile-alist'."
           (progn
             (set (make-local-variable 'compile-command) "make ")
             (call-interactively 'compile)
-            (setq not-yet nil)
-            )
-        (setq smart-compile-check-makefile nil)))
+            (setq not-yet nil))
+        (setq smart-compile-check-makefile nil))))
+    ;; end of (cond ...)
 
-     ) ;; end of (cond ...)
+    (if (not name)(error "cannot get filename."))
+    ;;     (message (number-to-string arg))
 
     ;; compile
-    (let( (alist smart-compile-alist)
-          (case-fold-search nil)
-          (function nil) )
+    (let((alist smart-compile-alist)
+         (case-fold-search nil)
+         (function nil))
       (while (and alist not-yet)
         (if (or
              (and (symbolp (caar alist))
                   (eq (caar alist) major-mode))
              (and (stringp (caar alist))
-                  (string-match (caar alist) name))
-             )
+                  (string-match (caar alist) name)))
             (progn
               (setq function (cdar alist))
-              (if (stringp function)
-                  (progn
-                    (set (make-local-variable 'compile-command)
-                         (smart-compile-string function))
-                    (call-interactively 'compile)
-                    )
-                (if (listp function)
-                    (eval function)
-                  ))
+              (if (listp function)
+                  (eval function)
+                (set (make-local-variable 'compile-command)
+                     (smart-compile-string function))
+                (call-interactively 'compile))
               (setq alist nil)
-              (setq not-yet nil)
-              )
-          (setq alist (cdr alist)) )
-        ))
+              (setq not-yet nil))
+          (setq alist (cdr alist)))))
 
     ;; If compile-command is not defined and the contents begins with "#!",
     ;; set compile-command to filename.
@@ -206,19 +195,14 @@ which is defined in `smart-compile-alist'."
              (not (string-match "/\\.[^/]+$" name))
              (not
               (and (local-variable-p 'compile-command)
-                   compile-command))
-             )
+                   compile-command)))
         (save-restriction
           (widen)
           (if (equal "#!" (buffer-substring 1 (min 3 (point-max))))
-              (set (make-local-variable 'compile-command) name)
-            ))
-      )
+              (set (make-local-variable 'compile-command) name))))
 
     ;; compile
-    (if not-yet (call-interactively 'compile) )
-
-    ))
+    (and not-yet (call-interactively 'compile))))
 
 (defun smart-compile-string (format-string)
   "Document forthcoming..."
@@ -231,9 +215,7 @@ which is defined in `smart-compile-alist'."
             (setq format-string
                   (replace-match
                    (eval (cdar rlist)) t nil format-string)))
-          (setq rlist (cdr rlist))
-          )
-        ))
+          (setq rlist (cdr rlist)))))
   format-string)
 
 (provide 'smart-compile)

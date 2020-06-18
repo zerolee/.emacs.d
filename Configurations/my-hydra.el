@@ -21,7 +21,7 @@
   ("p" ivy-push-view)
   ("P" ivy-pop-view)
   ("y" company-yasnippet)
-  ("r" counsel-rg)
+  ("r" zerolee-rg)
   ("d" (dired default-directory))
   ("m" zerolee-emms-default)
   ("M" zerolee-emms-favourite)

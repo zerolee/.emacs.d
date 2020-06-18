@@ -34,7 +34,6 @@
               '((company-yasnippet company-capf)
                 company-dabbrev-code company-dabbrev
                 company-files))
-  (setq lsp-completion-styles '(basic))
   (setq lsp-enable-indentation nil)
   (setq lsp-enable-on-type-formatting nil)
   (setq lsp-auto-execute-action nil)
@@ -101,7 +100,11 @@
 (use-package eglot
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
-              ("M-." . xref-find-definitions)
+              ("M-." . (lambda ()
+                         (interactive)
+                         (condition-case nil
+                             (xref-find-definitions (symbol-name (symbol-at-point)))
+                           (error (zerolee-go)))))
               ("M-?" . xref-find-references)
               ("C-h ." . eglot-help-at-point)))
 
@@ -118,3 +121,20 @@
 ;;; cmake-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package cmake-mode)
+
+(use-package dumb-jump
+  :defer t
+  :init
+  (setq dumb-jump-prefer-searcher 'rg
+        dumb-jump-selector 'ivy)
+  :bind (("M-." . (lambda ()
+                    (interactive)
+                    (if (derived-mode-p 'emacs-lisp-mode)
+                        (xref-find-definitions (symbol-name (symbol-at-point)))
+                      (zerolee-go))))
+         ("M-?" . (lambda ()
+                    (interactive)
+                    (if (derived-mode-p 'emacs-lisp-mode)
+                        (xref-find-references (symbol-name (symbol-at-point)))
+                      (let ((dumb-jump-default-project default-directory))
+                        (call-interactively #'dumb-jump-quick-look)))))))

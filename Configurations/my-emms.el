@@ -277,23 +277,21 @@
 ;; 如何显示 track
 (setq emms-track-description-function
       #'(lambda (track)
-          (let ((type (emms-track-type track)))
+          (let ((type (emms-track-type track))
+                (name (emms-track-name track)))
             (concat "♪ "
                     (cond ((eq 'file type)
-                           (file-name-base (emms-track-name track)))
+                           (file-name-base name))
                           ((eq 'url type)
-                           (let ((hash-value (gethash (emms-format-url-track-name
-                                                       (emms-track-name track))
-                                                      zerolee--emms-hash-pls)))
-                             (if hash-value
-                                 hash-value
+                           (or (gethash (emms-format-url-track-name name)
+                                        zerolee--emms-hash-pls)
                                (file-name-base
                                 (substring (file-name-directory
                                             (emms-format-url-track-name
-                                             (emms-track-name track)))
-                                           0 -1)))))
-                          (t (concat (symbol-name type)
-                                     ": " (emms-track-name track))))))))
+                                             name))
+                                           0 -1))))
+                          (t
+                           (concat (symbol-name type) ": " name)))))))
 (when zerolee--emms-history-enable
   (emms-playlist-new zerolee--emms-history-buffer)
 
