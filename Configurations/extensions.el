@@ -211,8 +211,3 @@
   :commands (zerolee-eshell zerolee-compile zerolee-rg zerolee-go))
 
 (use-package magit :defer t)
-
-(use-package my-hydra-other
-  :ensure nil
-  :bind (:map Info-mode-map
-	      ("?" . hydra-info/body)))

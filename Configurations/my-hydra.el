@@ -7,7 +7,7 @@
    _l_: locate  _p_: ivy-push-view    _y_: yasnippet
    _a_: ag      _P_: ivy-pop-view     _k_: delete-window
    _z_: zff     _i_: imenu            _M_: emms-favourite
-   _v_: magit   _s_: swap-window      _w_: select-window
+   _v_: magit   _s_: swap-window      _j_: jump-window
    _r_: rg      _SPC_: shell          _c_: compile
   "
   ("b" ivy-switch-buffer)
@@ -26,7 +26,7 @@
   ("m" zerolee-emms-default)
   ("M" zerolee-emms-favourite)
   ("s" ace-swap-window)
-  ("w" ace-select-window)
+  ("j" ace-select-window)
   ("k" ace-delete-window)
   ("c" zerolee-compile)
   ("SPC" zerolee-eshell)
@@ -149,3 +149,73 @@
   ("k" (ove-emacs-get #'end-of-line "k"))
   ("m" (ove-emacs-get #'end-of-line "m"))
   ("t" (ove-emacs-get #'zerolee-search-forward-char "t")))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Info
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defhydra hydra-info (:color red
+                             :hint nil)
+  "
+  _]_ forward  (next logical node)       _l_ast (←)                 _\\^_up (↑)                        _f_ollow reference
+  _[_ backward (prev logical node)       _r_eturn (→)               _m_enu (↓) (C-u for new window)    _d_irectory
+  _n_ext (same level only)               _H_istory                  _g_oto (C-u for new window)        _a_propos
+  _p_rev (same level only)               _b_eginning of buffer      _e_nd of buffer                    _s_earch (_S_ case sensitive)
+  _i_dex item                            _,_ next index item        virtual _I_ndex
+ "
+  ("]"   Info-forward-node)
+  ("["   Info-backward-node)
+  ("n"   Info-next)
+  ("p"   Info-prev)
+  ("s"   Info-search)
+  ("S"   Info-search-case-sensitively)
+
+  ("l"   Info-history-back)
+  ("r"   Info-history-forward)
+  ("H"   Info-history)
+
+  ("^"   Info-up)
+  ("m"   Info-menu)
+  ("g"   Info-goto-node)
+  ("b"   beginning-of-buffer)
+  ("e"   end-of-buffer)
+
+  ("f"   Info-follow-reference)
+  ("i"   Info-index)
+  (","   Info-index-next)
+  ("I"   Info-virtual-index)
+
+  ("d"   Info-directory)
+  ("a"   info-apropos)
+
+  ("?"   Info-summary "Info summary")
+  ("h"   Info-help "Info help")
+  ("C-g" nil "cancel" :color blue))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defhydra hydra-gud (:color pink
+                            :hint nil)
+  "
+   _<f3>_:gdb  _<f4>_:until  _<f5>_:go  _<f6>_:stop  _<f7>_:step  _<f8>_:next  _<f9>_:cont  _<f10>_:finish
+  "
+  ("<f3>" (progn
+            (call-interactively #'gdb-many-windows)
+            (call-interactively #'tool-bar-mode)))
+  ("<f4>" gud-until)
+  ("<f5>" gud-go)
+  ("<f6>" gud-stop-subjob)
+  ("<f7>" gud-step)
+  ("<f8>" gud-next)
+  ("<f9>" gud-cont)
+  ("<f10>" gud-finish)
+  ("0" self-insert-command)
+  ("1" self-insert-command)
+  ("2" self-insert-command)
+  ("3" self-insert-command)
+  ("4" self-insert-command)
+  ("5" self-insert-command)
+  ("6" self-insert-command)
+  ("7" self-insert-command)
+  ("8" self-insert-command)
+  ("9" self-insert-command)
+  ("-" self-insert-command)
+  ("" nil))

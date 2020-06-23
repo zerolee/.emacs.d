@@ -39,6 +39,7 @@
   (setq lsp-auto-execute-action nil)
   (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
+  (define-key lsp-mode-map (kbd "M-?") #'xref-find-references)
   (define-key lsp-mode-map (kbd "C-h .")
     #'(lambda ()
         (interactive)
