@@ -142,7 +142,9 @@
 ;;; 配置窗口永远在右方，占据 45% 大小
 (dolist (buffer '("^\\*Help\\*$"
                   "^\\*lsp-help\\*$"
-                  "^\\*eglot-help"))
+                  "^\\*eglot-help"
+                  "^\\*Ibuffer\\*$"
+                  "^\\*vc-"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window

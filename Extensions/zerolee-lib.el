@@ -35,5 +35,12 @@
   (search-forward
    (char-to-string char) nil nil arg))
 
+(defun zerolee-goto-ibuffer ()
+  "打开并跳转到 Ibuffer"
+  (interactive)
+  (progn
+    (ibuffer-list-buffers)
+    (zerolee-goto-some-window "*Ibuffer*")))
+
 (provide 'zerolee-lib)
 ;;; zerolee-lib.el ends here
