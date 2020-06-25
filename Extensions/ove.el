@@ -28,7 +28,7 @@
     (t (:background "blue")))
   "Face for hi-lock mode."
   :group 'ove-face
-  :version "27.1")
+  :version "28.1")
 
 (let (ove-arg1
       ove-kill-or-save
@@ -43,17 +43,13 @@
 
   (defun ove-emacs-get (ove-move ove-arg2)
     "删除或者保存 region 中的数据"
-    (if (string-match ove-arg2 "<p")
-        (end-of-line))
-    (if (string-match ove-arg2 ">nckm")
-        (beginning-of-line))
     (let ((current-position (point)))
       (funcall ove-kill-or-save current-position
                (progn
                  (call-interactively ove-move)
                  (pulse-momentary-highlight-region current-position (point) 'ove-aquamarine)
                  (point))))
-    ;; k
+    ;; k 与 c 的区别
     (if (and (string-match ove-arg1 "k")
              (string-match ove-arg2 "<>npk"))
         (let ((pp (point)))
@@ -184,7 +180,8 @@
   :lighter ""
   :keymap (make-sparse-keymap)
   (if (not ove-mode) (setq cursor-type 'bar)
-    (setq cursor-type 'box))
+    (setq cursor-type 'box)
+    (shell-command "fcitx-remote -c"))
   (overwrite-mode 0))
 
 

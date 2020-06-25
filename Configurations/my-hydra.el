@@ -1,6 +1,7 @@
 ;;; -*- lexical-binding: t; -*-
 (require 'zerolee-lib)
 (require 'my-shell)
+(require 'thingatpt)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
@@ -40,8 +41,10 @@
 (defhydra hydra-emacs/ckm (:color blue
                                   :hint nil)
   ("<" (let ((current-prefix-arg (point-min)))
+         (end-of-line)
          (ove-emacs-get #'goto-char "<")))
   (">" (let ((current-prefix-arg (point-max)))
+         (beginning-of-line)
          (ove-emacs-get #'goto-char ">")))
   ("i" (ove-emacs-get #'beginning-of-line "i"))
   ("," (ove-emacs-get #'ove-function-arg-end ","))
@@ -56,26 +59,22 @@
           (when (char-equal (char-after) ?\ )
             (delete-char 1))))
   ("aw" (progn
-          (forward-word)
-          (backward-word)
+          (beginning-of-thing 'word)
           (ove-emacs-get #'(lambda () (interactive)
                              (forward-word)
                              (and (char-equal (char-after) ? )
                                   (forward-char))) "aw")))
   ("ew" (progn
-          (forward-word)
-          (backward-word)
+          (beginning-of-thing 'word)
           (ove-emacs-get #'forward-word "ew")))
   ("as" (progn
-          (forward-sexp)
-          (backward-sexp)
+          (beginning-of-thing 'sexp)
           (ove-emacs-get #'(lambda () (interactive)
                              (forward-sexp)
                              (and (char-equal (char-after) ? )
                                   (forward-char))) "as")))
   ("es" (progn
-          (forward-sexp)
-          (backward-sexp)
+          (beginning-of-thing 'sexp)
           (ove-emacs-get #'forward-sexp "es")))
   ("aS" (progn
           (backward-sentence)
@@ -133,8 +132,7 @@
          (paredit-backward-up)
          (ove-emacs-get #'forward-sexp "s")))
   ("d" (progn
-         (end-of-defun)
-         (beginning-of-defun)
+         (beginning-of-thing 'defun)
          (ove-emacs-get #'forward-sexp "s")))
   ("S" (ove-emacs-get #'forward-sentence "S"))
   ("P" (ove-emacs-get #'forward-paragraph "P"))
@@ -142,12 +140,20 @@
   ("s" (ove-emacs-get #'forward-sexp "s"))
   (";" (ove-emacs-get #'end-of-line ";"))
   ("n" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
+         (beginning-of-line)
          (ove-emacs-get #'end-of-line "n")))
   ("p" (let ((current-prefix-arg (- 1  (prefix-numeric-value current-prefix-arg))))
+         (end-of-line)
          (ove-emacs-get #'beginning-of-line "p")))
-  ("c" (ove-emacs-get #'end-of-line "c"))
-  ("k" (ove-emacs-get #'end-of-line "k"))
-  ("m" (ove-emacs-get #'end-of-line "m"))
+  ("c" (progn
+         (beginning-of-line)
+         (ove-emacs-get #'end-of-line "c")))
+  ("k" (progn
+         (beginning-of-line)
+         (ove-emacs-get #'end-of-line "k")))
+  ("m" (progn
+         (beginning-of-line)
+         (ove-emacs-get #'end-of-line "m")))
   ("t" (ove-emacs-get #'zerolee-search-forward-char "t")))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

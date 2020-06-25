@@ -304,7 +304,7 @@
                       (kill-ring-save (point-at-bol) (point-at-eol))))
                   (with-current-buffer zerolee--emms-history-buffer
                     (save-excursion
-                      (goto-char 0)
+                      (goto-char (point-min))
                       (emms-playlist-mode-yank)))))
   (add-hook 'kill-emacs-hook
             #'(lambda ()

@@ -53,6 +53,7 @@
                                  ;;  ("\\.c\\'"          . "gcc -O2 %f -lm -o %n && ./%n") ;; unix, macOS
                                  ;;  ("\\.c\\'"          . "gcc -O2 %f -lm -o %n && %n") ;; win
                                  ("\\.[Cc]+[Pp]*\\'" . "g++ -O2 %f -lm -o %n")
+                                 ("\\.[Ss]\\'"       . "as  %f")
                                  ("\\.cs\\'"         . "mcs %f")
                                  ("\\.cron\\(tab\\)?\\'" . "crontab %f")
                                  ("\\.cu\\'"         . "nvcc %f -o %n")

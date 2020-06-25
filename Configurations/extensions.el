@@ -120,7 +120,9 @@
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   :bind (("C-x C-f" . counsel-find-file)
-         ("M-x"     . counsel-M-x)
+         ("M-x"     . (lambda () (interactive)
+                        (shell-command "fcitx-remote -c")
+                        (counsel-M-x)))
          ("M-y"     . counsel-yank-pop)
          ("C-h f"   . counsel-describe-function)
          ("C-h v"   . counsel-describe-variable)

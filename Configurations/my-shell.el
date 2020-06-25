@@ -220,7 +220,8 @@
                         (or (string= "h" suffix)
                             (string= "c" suffix)))
                    (call-interactively #'projectile-find-file-dwim)))
-          (zerolee-rg (concat "\\b" filename "\\b")))))))
+          (zerolee-rg (concat "\\b" filename "\\b"))))))
+  (ove-mode 1))
 
 (provide 'my-shell)
 ;;; my-shell.el ends here

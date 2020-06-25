@@ -1,6 +1,6 @@
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
+;; -*- coding: utf-8; lexical-binding: t; -*-
+(dolist (feature '(menu tool scroll))
+  (funcall (intern (format "%s-bar-mode" feature)) -1))
 (run-with-idle-timer
  0 nil
  #'(lambda ()
