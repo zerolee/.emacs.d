@@ -1,3 +1,4 @@
+# -*- ove-mode: 1; cursor-type: box; -*-
 * init.el
   Emacs 启动时默认读取的配置文件，
   这个文件会读取 Configurations 下的相关文件，以及保存了 elpa 的一些相关设置
@@ -10,17 +11,17 @@
 ** emacs-std.el
    对 Emacs 自带的插件以及功能进行设置
 ** extensions.el
-   对除编程语言之外的其他扩展其他配置
+   编程语言无关的扩展的配置
 ** programs.el
-   对一些编程语言的配置
+   编程语言相关的配置
 ** my-macros.el
    保存一些键盘宏
 ** my-hydra.el
-   保存利用 hydra 插件定义的一些按键
+   hydra 配置相关
 ** my-emms.el
-   保存 emms 相关的配置
-** my-shell.el
-   配置 shell 和 compile
+   emms 相关的配置
+** my-tools.el
+   配置 shell 和 compile 等各种小工具
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
 ** antlr-mode.el         

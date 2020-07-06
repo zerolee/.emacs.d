@@ -1,4 +1,4 @@
-;;;  my-shell.el ---  shell 设置相关 -*- lexical-binding: t; -*-
+;;;  my-tools.el ---  shell 设置相关 -*- lexical-binding: t; -*-
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -153,8 +153,6 @@
                                (insert (concat "./" app))
                                (eshell-send-input)))))))))))
 
-;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
-;;; zerolee--eshell-get-java-package-root 函数
 ;;;###autoload
 (defun zerolee-compile (&optional arg)
   "对 `compile' 和 smart-compile 的一个轻微的包装"
@@ -171,8 +169,6 @@
         (t
          (smart-compile arg))))
 
-;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
-;;; zerolee--eshell-get-java-package-root 函数
 ;;;###autoload
 (defun zerolee-find-file ()
   "查找文件"
@@ -189,8 +185,6 @@
         (t
          (call-interactively #'counsel-fzf))))
 
-;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
-;;; zerolee--eshell-get-java-package-root 函数
 ;;;###autoload
 (defun zerolee-rg (&optional initvalue)
   "查找文件"
@@ -205,10 +199,9 @@
         (t
          (counsel-rg initvalue))))
 
-;;; 之所以放在这里，是因为可以方便使用 zerolee--eshell-get-java-package-name 和
-;;; zerolee--eshell-get-java-package-root 函数
 ;;;###autoload
 (defun zerolee-go ()
+  "综合了 dumb-jump-go projectile-find-file-dwim zerolee-rg 等的跳转函数"
   (interactive)
   (unless (let ((dumb-jump-default-project default-directory))
             (dumb-jump-go))
@@ -223,5 +216,23 @@
           (zerolee-rg (concat "\\b" filename "\\b"))))))
   (ove-mode 1))
 
-(provide 'my-shell)
-;;; my-shell.el ends here
+
+;;; 来源 https://github.com/bbatsov/crux/blob/2e16b828910c9b8acba37e712d21b517d2cf78cc/crux.el#L152
+;;; 使用外部程序打开相关文件
+;;;###autoload
+(defun crux-open-with (arg)
+  "Open visited file in default external program.
+When in dired mode, open file under the cursor.
+With a prefix ARG always prompt for command to use."
+  (interactive "P")
+  (let ((current-file-name
+         (if (eq major-mode 'dired-mode)
+             (dired-get-file-for-visit)
+           buffer-file-name))
+        (program
+         (if arg
+             (read-shell-command "Open current file with: ")
+           "xdg-open")))
+    (call-process program nil 0 nil current-file-name)))
+(provide 'my-tools)
+;;; my-tools.el ends here

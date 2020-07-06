@@ -181,7 +181,7 @@
   :keymap (make-sparse-keymap)
   (if (not ove-mode) (setq cursor-type 'bar)
     (setq cursor-type 'box)
-    (shell-command "fcitx-remote -c"))
+    (shell-command "fcitx-remote -c &> /dev/null"))
   (overwrite-mode 0))
 
 

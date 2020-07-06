@@ -1,6 +1,6 @@
 ;;; -*- lexical-binding: t; -*-
 (require 'zerolee-lib)
-(require 'my-shell)
+(require 'my-tools)
 (require 'thingatpt)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
@@ -9,7 +9,7 @@
    _a_: ag      _P_: ivy-pop-view     _k_: delete-window
    _z_: zff     _i_: imenu            _M_: emms-favourite
    _v_: magit   _s_: swap-window      _j_: jump-window
-   _r_: rg      _SPC_: shell          _c_: compile
+   _r_: rg      _SPC_: shell          _o_: open-with
   "
   ("b" ivy-switch-buffer)
   ("B" zerolee-goto-ibuffer)
@@ -17,6 +17,7 @@
   ("l" counsel-locate)
   ("a" counsel-ag)
   ("z" zerolee-find-file)
+  ("o" crux-open-with)
   ("i" counsel-imenu)
   ("v" magit)
   ("p" ivy-push-view)

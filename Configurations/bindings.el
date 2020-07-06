@@ -27,10 +27,6 @@
 ;; electric-newline-and-maybe-indent
 (global-set-key (kbd "C-j") 'newline-and-indent)
 
-
-;; remeber
-(global-set-key (kbd "<C-f5>") 'remember)
-
 ;; winner-mode
 ;; 主要用来撤销动作的
 (setq winner-dont-bind-my-keys t)
@@ -47,7 +43,7 @@
   (define-key Info-mode-map (kbd "?") #'hydra-info/body))
 (global-set-key (kbd "M-<SPC>") #'(lambda ()
                                     (interactive)
-                                    (shell-command "fcitx-remote -c")
+                                    (shell-command "fcitx-remote -c &> /dev/null")
                                     (hydra-f1/body)))
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
 (global-set-key (kbd "C-w") '(lambda () (interactive)

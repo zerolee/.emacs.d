@@ -1,4 +1,4 @@
-;;; smart-compile.el --- an interface to `compile'
+;;; smart-compile.el --- an interface to `compile' -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 1998-2020  by Seiji Zenitani
 

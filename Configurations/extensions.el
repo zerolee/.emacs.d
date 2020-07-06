@@ -21,7 +21,7 @@
          (lambda () (interactive)
            (if (and buffer-read-only
                     (not (memq major-mode
-                               '(treemacs-mode package-menu-mode)))
+                               '(treemacs-mode package-menu-mode ibuffer-mode)))
                     (not (derived-mode-p 'magit-mode)))
                (ove-mode 1)
              (setq cursor-type 'bar)))))
@@ -121,7 +121,7 @@
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . (lambda () (interactive)
-                        (shell-command "fcitx-remote -c")
+                        (shell-command "fcitx-remote -c &> /dev/null")
                         (counsel-M-x)))
          ("M-y"     . counsel-yank-pop)
          ("C-h f"   . counsel-describe-function)
@@ -155,8 +155,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package company
   :hook (after-init . global-company-mode)
+  :custom
+  (company-minimum-prefix-length 2)
+  (company-idle-delay 0)
   :config
-  (setq company-idle-delay 0)
   (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
     "Enable yasnippet but disable it inline."
     (if (eq command 'prefix)
@@ -208,8 +210,14 @@
   :ensure nil
   :commands (zerolee-emms-default zerolee-emms-favourite))
 
-(use-package my-shell
+(use-package my-tools
   :ensure nil
-  :commands (zerolee-eshell zerolee-compile zerolee-rg zerolee-go))
+  :commands (zerolee-eshell zerolee-compile zerolee-rg zerolee-go crux-open-with))
 
 (use-package magit :defer t)
+
+(use-package remember
+  :ensure nil
+  :custom
+  (remember-data-file "~/.emacs.d/notes.org")
+  :bind ("<C-f5>" . remember))

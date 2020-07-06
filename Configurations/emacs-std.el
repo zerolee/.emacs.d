@@ -144,7 +144,8 @@
                   "^\\*lsp-help\\*$"
                   "^\\*eglot-help"
                   "^\\*Ibuffer\\*$"
-                  "^\\*vc-"))
+                  "^\\*vc-"
+                  ".el.gz$"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window
