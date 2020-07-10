@@ -47,9 +47,6 @@
                   (xref--push-markers)
                   (ove-mode 1))))
 
-(use-package goto-chg
-  :bind (("C-." . goto-last-change)
-         ("C-," . goto-last-change-reverse)))
 
 (use-package mc-mark-more
   :ensure multiple-cursors

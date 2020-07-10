@@ -1,5 +1,4 @@
 ;;; -*- lexical-binding: t; -*-
-(require 'save-position)
 (setq display-time-default-load-average nil)
 (display-time)
 ;; 关掉开机信息
@@ -69,9 +68,7 @@
                 (ove-mode 0)))
 (advice-add 'org-open-at-point :before
             #'(lambda (&rest _)
-                (unless (and (boundp 'sp-position-ring)
-                             (sp--position-same-pos))
-                  (sp-push-position-to-ring))))
+                (xref--push-markers)))
 (add-hook 'org-mode-hook #'(lambda ()
                              (setq truncate-lines nil)))
 
@@ -145,7 +142,8 @@
                   "^\\*eglot-help"
                   "^\\*Ibuffer\\*$"
                   "^\\*vc-"
-                  ".el.gz$"))
+                  ".el.gz$"
+                  "^*eldoc"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window

@@ -23,6 +23,13 @@
 ;; 取消掉默认的输入法快捷键
 (global-unset-key (kbd "C-\\"))
 
+;;; goto-last-change
+(global-set-key (kbd "C-.")
+                #'(lambda () (interactive)
+                    (when (and buffer-undo-list
+                               (listp buffer-undo-list))
+                      (xref--push-markers)
+                      (goto-char (last (cadr buffer-undo-list) 0)))))
 
 ;; electric-newline-and-maybe-indent
 (global-set-key (kbd "C-j") 'newline-and-indent)
@@ -88,8 +95,8 @@
     #'(lambda ()
         (interactive)
         (let ((buffer
-               (get-buffer (format "*Flymake diagnostics for %s*" (current-buffer)))))
-          (if (zerolee-position-some-window buffer)
+               (format "*Flymake diagnostics for %s*" (current-buffer))))
+          (if (get-buffer-window buffer)
               (delete-windows-on buffer)
             (flymake-show-diagnostics-buffer))))))
 

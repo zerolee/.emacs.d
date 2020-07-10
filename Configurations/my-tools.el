@@ -23,6 +23,7 @@
 (require 'smart-compile)
 (require 'projectile)
 (require 'dumb-jump)
+(require 'dired)
 
 (defvar zerolee--eshell-path-hashtable (make-hash-table :test #'equal)
   "每次启动 eshell 的时候将启动时的路径存储进 hash-table 中")
@@ -136,7 +137,7 @@
                           (let ((buffer
                                  (get-buffer (concat "*eshell*<"
                                                      (number-to-string wn) ">"))))
-                            (if (zerolee-position-some-window buffer)
+                            (if (get-buffer-window buffer)
                                 (delete-windows-on buffer)
                               (eshell wn)))
                         (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
