@@ -14,8 +14,16 @@
 
 (use-package ove
   :ensure nil
-  :bind ("<escape>" . (lambda () (interactive)
-                        (ove-mode 1)))
+  :bind (("<escape>" . (lambda () (interactive)
+                         (ove-mode 1)))
+         ("C-w" . (lambda () (interactive)
+                    (if (use-region-p)
+                        (kill-region (region-beginning) (region-end))
+                      (ove-ckm "c"))))
+         ("M-w" . (lambda () (interactive)
+                    (if (use-region-p)
+                        (kill-ring-save (region-beginning) (region-end))
+                      (ove-ckm "m")))))
   :hook ((prog-mode text-mode comint-mode special-mode)
          .
          (lambda () (interactive)

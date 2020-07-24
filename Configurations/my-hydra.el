@@ -1,7 +1,5 @@
 ;;; -*- lexical-binding: t; -*-
 (require 'zerolee-lib)
-(require 'my-tools)
-(require 'thingatpt)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
@@ -35,147 +33,16 @@
   ("<f1>" nil)
   ("M-<SPC>" nil))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; hydra-esc
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defhydra hydra-emacs/ckm (:color blue
-                                  :hint nil)
-  ("<" (let ((current-prefix-arg (point-min)))
-         (end-of-line)
-         (ove-emacs-get #'goto-char "<")))
-  (">" (let ((current-prefix-arg (point-max)))
-         (beginning-of-line)
-         (ove-emacs-get #'goto-char ">")))
-  ("i" (ove-emacs-get #'beginning-of-line "i"))
-  ("," (ove-emacs-get #'ove-function-arg-end ","))
-  ("e," (progn
-          (ove-function-arg-begin)
-          (ove-emacs-get #'ove-function-arg-end ",")))
-  ("a," (progn
-          (ove-function-arg-begin)
-          (ove-emacs-get #'ove-function-arg-end ",")
-          (when (char-equal (char-after) ?\,)
-            (delete-char 1))
-          (when (char-equal (char-after) ?\ )
-            (delete-char 1))))
-  ("aw" (progn
-          (beginning-of-thing 'word)
-          (ove-emacs-get #'(lambda () (interactive)
-                             (forward-word)
-                             (and (char-equal (char-after) ? )
-                                  (forward-char))) "aw")))
-  ("ew" (progn
-          (beginning-of-thing 'word)
-          (ove-emacs-get #'forward-word "ew")))
-  ("as" (progn
-          (beginning-of-thing 'sexp)
-          (ove-emacs-get #'(lambda () (interactive)
-                             (forward-sexp)
-                             (and (char-equal (char-after) ? )
-                                  (forward-char))) "as")))
-  ("es" (progn
-          (beginning-of-thing 'sexp)
-          (ove-emacs-get #'forward-sexp "es")))
-  ("aS" (progn
-          (backward-sentence)
-          (ove-emacs-get #'forward-sentence "aS")))
-  ("aP" (progn
-          (backward-paragraph)
-          (ove-emacs-get #'forward-paragraph "aP")))
-  ("a'" (progn
-          (zerolee-search-forward-char -1 ?')
-          (ove-emacs-get '(lambda () (interactive)
-                            (zerolee-search-forward-char 2 ?\')) "a'")))
-  ("a<" (progn
-          (zerolee-search-forward-char -1 ?<)
-          (ove-emacs-get '(lambda () (interactive)
-                            (let ((flag 1))
-                              (forward-char 1)
-                              (while (> flag 0)
-                                (cond ((char-equal (char-after (point)) ?>) (setq flag (1- flag)))
-                                      ((char-equal (char-after (point)) ?<) (setq flag (1+ flag))))
-                                (forward-char 1)))) "a>")))
-  ("at" (progn
-          (web-mode-element-beginning)
-          (ove-emacs-get #'web-mode-element-end "at")))
-  ("e'" (progn
-          (zerolee-search-forward-char -1 ?')
-          (forward-char 1)
-          (ove-emacs-get '(lambda () (interactive)
-                            (zerolee-search-forward-char 1 ?\')
-                            (backward-char 1)) "e'")))
-  ("e<" (progn
-          (zerolee-search-forward-char -1 ?<)
-          (forward-char 1)
-          (ove-emacs-get '(lambda () (interactive)
-                            (let ((flag 1))
-                              (while (> flag 0)
-                                (cond ((char-equal (char-after (point)) ?>) (setq flag (1- flag)))
-                                      ((char-equal (char-after (point)) ?<) (setq flag (1+ flag))))
-                                (forward-char 1)))
-                            (backward-char 1)) "e>")))
-
-  ("et" (progn
-          (web-mode-element-beginning)
-          (web-mode-tag-end)
-          (ove-emacs-get '(lambda () (interactive)
-                            (web-mode-element-end)
-                            (backward-char 1)
-                            (web-mode-tag-beginning)) "at")))
-  ("el" (progn
-          (paredit-backward-up)
-          (forward-char 1)
-          (ove-emacs-get '(lambda () (interactive)
-                            (paredit-forward-up)
-                            (backward-char 1)) "el")))
-  ("l" (progn
-         (paredit-backward-up)
-         (ove-emacs-get #'forward-sexp "s")))
-  ("d" (progn
-         (beginning-of-thing 'defun)
-         (ove-emacs-get #'forward-sexp "s")))
-  ("S" (ove-emacs-get #'forward-sentence "S"))
-  ("P" (ove-emacs-get #'forward-paragraph "P"))
-  ("w" (ove-emacs-get #'forward-word "w"))
-  ("s" (ove-emacs-get #'forward-sexp "s"))
-  (";" (ove-emacs-get #'end-of-line ";"))
-  ("n" (let ((current-prefix-arg (1+ (prefix-numeric-value current-prefix-arg))))
-         (beginning-of-line)
-         (ove-emacs-get #'end-of-line "n")))
-  ("p" (let ((current-prefix-arg (- 1  (prefix-numeric-value current-prefix-arg))))
-         (end-of-line)
-         (ove-emacs-get #'beginning-of-line "p")))
-  ("c" (progn
-         (beginning-of-line)
-         (ove-emacs-get #'end-of-line "c")))
-  ("k" (progn
-         (beginning-of-line)
-         (ove-emacs-get #'end-of-line "k")))
-  ("m" (progn
-         (beginning-of-line)
-         (ove-emacs-get #'end-of-line "m")))
-  ("t" (ove-emacs-get #'zerolee-search-forward-char "t")))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Info
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defhydra hydra-info (:color red
                              :hint nil)
   "
-  _]_ forward  (next logical node)       _l_ast (←)                 _\\^_up (↑)                        _f_ollow reference
-  _[_ backward (prev logical node)       _r_eturn (→)               _m_enu (↓) (C-u for new window)    _d_irectory
-  _n_ext (same level only)               _H_istory                  _g_oto (C-u for new window)        _a_propos
-  _p_rev (same level only)               _b_eginning of buffer      _e_nd of buffer                    _s_earch (_S_ case sensitive)
-  _i_dex item                            _,_ next index item        virtual _I_ndex
+  _g_oto             _l_ast (←)      _\\^_up (↑)
+  _i_dex item        _r_eturn (→)    _m_enu (↓)
+  virtual _I_ndex    _H_istory       _,_next index item
  "
-  ("]"   Info-forward-node)
-  ("["   Info-backward-node)
-  ("n"   Info-next)
-  ("p"   Info-prev)
-  ("s"   Info-search)
-  ("S"   Info-search-case-sensitively)
-
   ("l"   Info-history-back)
   ("r"   Info-history-forward)
   ("H"   Info-history)
@@ -183,16 +50,10 @@
   ("^"   Info-up)
   ("m"   Info-menu)
   ("g"   Info-goto-node)
-  ("b"   beginning-of-buffer)
-  ("e"   end-of-buffer)
 
-  ("f"   Info-follow-reference)
   ("i"   Info-index)
   (","   Info-index-next)
   ("I"   Info-virtual-index)
-
-  ("d"   Info-directory)
-  ("a"   info-apropos)
 
   ("?"   Info-summary "Info summary")
   ("h"   Info-help "Info help")

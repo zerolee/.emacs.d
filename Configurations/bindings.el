@@ -1,5 +1,4 @@
 ;;; -*- lexical-binding: t; -*-
-(require 'zerolee-lib)
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
@@ -53,14 +52,6 @@
                                     (shell-command "fcitx-remote -c &> /dev/null")
                                     (hydra-f1/body)))
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
-(global-set-key (kbd "C-w") '(lambda () (interactive)
-                               (if (use-region-p)
-                                   (kill-region (region-beginning) (region-end))
-                                 (ove-ckm "c"))))
-(global-set-key (kbd "M-w") '(lambda () (interactive)
-                               (if (use-region-p)
-                                   (kill-ring-save (region-beginning) (region-end))
-                                 (ove-ckm "m"))))
 
 ;;;
 (global-set-key (kbd "M-0") 'delete-window)
