@@ -22,7 +22,6 @@
 (require 'esh-mode)
 (require 'smart-compile)
 (require 'projectile)
-(require 'dumb-jump)
 (require 'dired)
 
 (defvar zerolee--eshell-path-hashtable (make-hash-table :test #'equal)
@@ -202,19 +201,17 @@
 
 ;;;###autoload
 (defun zerolee-go ()
-  "综合了 dumb-jump-go projectile-find-file-dwim zerolee-rg 等的跳转函数"
+  "综合了 projectile-find-file-dwim zerolee-rg 等的跳转函数"
   (interactive)
-  (unless (let ((dumb-jump-default-project default-directory))
-            (dumb-jump-go))
-    (let* ((filename (thing-at-point 'filename t))
-           (suffix (nth 1 (split-string filename "\\."))))
-      (when filename
-        (if suffix
-            (cond ((and (equal major-mode 'c-mode)
-                        (or (string= "h" suffix)
-                            (string= "c" suffix)))
-                   (call-interactively #'projectile-find-file-dwim)))
-          (zerolee-rg (concat "\\b" filename "\\b"))))))
+  (let* ((filename (thing-at-point 'filename t))
+         (suffix (nth 1 (split-string filename "\\."))))
+    (when filename
+      (if suffix
+          (cond ((and (equal major-mode 'c-mode)
+                      (or (string= "h" suffix)
+                          (string= "c" suffix)))
+                 (call-interactively #'projectile-find-file-dwim)))
+        (zerolee-rg (concat "\\b" filename "\\b")))))
   (ove-mode 1))
 
 

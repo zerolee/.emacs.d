@@ -94,17 +94,24 @@
 (use-package eglot
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
-              ("M-." . (lambda ()
-                         (interactive)
-                         (condition-case nil
-                             (xref-find-definitions (symbol-name (symbol-at-point)))
-                           (error (zerolee-go)))))
-              ("M-?" . xref-find-references)
               ("C-h ." . (lambda ()
                            (interactive)
                            (if (get-buffer-window eldoc--doc-buffer)
                                (delete-windows-on eldoc--doc-buffer)
-                             (eldoc-doc-buffer t))))))
+                             (eldoc-doc-buffer t)))))
+  :hook ((eglot-managed-mode
+          .
+          (lambda ()
+            (when (eglot-managed-p)
+              (add-hook 'xref-backend-functions 'dumb-jump-xref-activate nil t)
+              (setq-local company-backends
+                          '((company-yasnippet company-capf)
+                            company-dabbrev-code company-dabbrev
+                            company-files)))))
+         (eglot-server-initialized
+          .
+          (lambda (_server)
+            (add-hook 'xref-backend-functions 'dumb-jump-xref-activate nil t)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; markdown-mode
@@ -121,18 +128,25 @@
 (use-package cmake-mode)
 
 (use-package dumb-jump
-  :defer t
+  :defer 1
   :init
   (setq dumb-jump-prefer-searcher 'rg
         dumb-jump-selector 'ivy)
-  :bind (("M-." . (lambda ()
-                    (interactive)
-                    (if (derived-mode-p 'emacs-lisp-mode)
-                        (xref-find-definitions (symbol-name (symbol-at-point)))
-                      (zerolee-go))))
-         ("M-?" . (lambda ()
-                    (interactive)
-                    (if (derived-mode-p 'emacs-lisp-mode)
-                        (xref-find-references (symbol-name (symbol-at-point)))
-                      (let ((dumb-jump-default-project default-directory))
-                        (call-interactively #'dumb-jump-quick-look)))))))
+  :config
+  (advice-add 'dumb-jump-get-project-root :around
+              #'(lambda (_orig-func filepath)
+                  (s-chop-suffix
+                   "/"
+                   (expand-file-name
+                    (or
+                     dumb-jump-project
+                     (locate-dominating-file filepath #'dumb-jump-get-config)
+                     default-directory)))))
+  (advice-add 'xref-find-definitions :around
+              #'(lambda (func identifier)
+                  (condition-case nil
+                      (funcall func identifier)
+                    (error (zerolee-go)))))
+  (set-default 'xref-backend-functions
+               (push #'dumb-jump-xref-activate
+                     (default-value 'xref-backend-functions))))

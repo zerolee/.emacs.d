@@ -24,6 +24,7 @@
                     (if (use-region-p)
                         (kill-ring-save (region-beginning) (region-end))
                       (ove-ckm "m")))))
+  :commands (ove-mode ove-ckm)
   :hook ((prog-mode text-mode comint-mode special-mode)
          .
          (lambda () (interactive)
