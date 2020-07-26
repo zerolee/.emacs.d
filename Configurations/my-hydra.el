@@ -3,11 +3,10 @@
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
-   _l_: locate  _p_: ivy-push-view    _y_: yasnippet
-   _a_: ag      _P_: ivy-pop-view     _k_: delete-window
+   _l_: locate  _SPC_: shell          _o_: open-with
+   _a_: ag      _r_: rg               _k_: delete-window
    _z_: zff     _i_: imenu            _M_: emms-favourite
    _v_: magit   _s_: swap-window      _j_: jump-window
-   _r_: rg      _SPC_: shell          _o_: open-with
   "
   ("b" ivy-switch-buffer)
   ("B" zerolee-goto-ibuffer)
@@ -18,9 +17,6 @@
   ("o" crux-open-with)
   ("i" counsel-imenu)
   ("v" magit)
-  ("p" ivy-push-view)
-  ("P" ivy-pop-view)
-  ("y" company-yasnippet)
   ("r" zerolee-rg)
   ("d" (dired default-directory))
   ("m" zerolee-emms-default)

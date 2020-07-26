@@ -22,7 +22,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp 相关的通用配置
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lsp-common-set ()
+(defun lsp--common-set ()
   (lsp)
   (setq-local company-backends
               '((company-yasnippet company-capf)
@@ -54,7 +54,7 @@
   :defer t
   :hook ((c-mode c++-mode objc-mode) . (lambda ()
                                          (require 'ccls)
-                                         (lsp-common-set))))
+                                         (lsp--common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
@@ -66,14 +66,14 @@
         "~/backups/src/jdt-language-server-latest/")
   :hook (java-mode . (lambda ()
                        (require 'lsp-java)
-                       (lsp-common-set))))
+                       (lsp--common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html javascript css
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package lsp-mode
   :commands lsp
-  :hook ((js-mode css-mode html-mode web-mode) . lsp-common-set))
+  :hook ((js-mode css-mode html-mode web-mode) . lsp--common-set))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
@@ -94,6 +94,8 @@
 (use-package eglot
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
+              ("M-." . xref-find-definitions)
+              ("M-?" . xref-find-references)
               ("C-h ." . (lambda ()
                            (interactive)
                            (if (get-buffer-window eldoc--doc-buffer)
@@ -103,7 +105,6 @@
           .
           (lambda ()
             (when (eglot-managed-p)
-              (add-hook 'xref-backend-functions 'dumb-jump-xref-activate nil t)
               (setq-local company-backends
                           '((company-yasnippet company-capf)
                             company-dabbrev-code company-dabbrev
@@ -134,14 +135,9 @@
         dumb-jump-selector 'ivy)
   :config
   (advice-add 'dumb-jump-get-project-root :around
-              #'(lambda (_orig-func filepath)
-                  (s-chop-suffix
-                   "/"
-                   (expand-file-name
-                    (or
-                     dumb-jump-project
-                     (locate-dominating-file filepath #'dumb-jump-get-config)
-                     default-directory)))))
+              #'(lambda (func filepath)
+                  (let ((dumb-jump-default-project default-directory))
+                    (funcall func filepath))))
   (advice-add 'xref-find-definitions :around
               #'(lambda (func identifier)
                   (condition-case nil
