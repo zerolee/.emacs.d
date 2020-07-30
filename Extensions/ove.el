@@ -21,6 +21,7 @@
 (require 'sgml-mode)
 (require 'hideshow)
 (require 'paredit)
+(require 'avy)
 
 (defgroup ove-face nil
   "类 vim 模式的的 emacs 按键风格"
@@ -183,7 +184,9 @@
                             (beginning-of-line)
                             (ove--emacs-get #'end-of-line "m")))
     (define-key map "t" #'(lambda () (interactive)
-                            (ove--emacs-get #'zerolee-search-forward-char "t")))
+                            (ove--emacs-get #'avy-goto-char "t")))
+    (define-key map "f" #'(lambda () (interactive)
+                            (ove--emacs-get #'avy-goto-char-in-line "f")))
     map)
   "Keymap for ckm commands.")
 (let (ove-arg1
@@ -348,7 +351,7 @@
   :keymap (make-sparse-keymap)
   (if (not ove-mode) (setq cursor-type 'bar)
     (setq cursor-type 'box)
-    (shell-command "fcitx-remote -c &> /dev/null"))
+    (call-process "fcitx-remote" nil nil nil "-c"))
   (overwrite-mode 0))
 
 

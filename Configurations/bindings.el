@@ -47,10 +47,11 @@
 ;;; hydra
 (with-eval-after-load 'info
   (define-key Info-mode-map (kbd "?") #'hydra-info/body))
-(global-set-key (kbd "M-<SPC>") #'(lambda ()
-                                    (interactive)
-                                    (shell-command "fcitx-remote -c &> /dev/null")
-                                    (hydra-f1/body)))
+(global-set-key (kbd "M-<SPC>")
+                #'(lambda ()
+                    (interactive)
+                    (call-process "fcitx-remote" nil nil nil "-c")
+                    (hydra-f1/body)))
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
 
 ;;;

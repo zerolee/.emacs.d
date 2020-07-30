@@ -125,9 +125,13 @@
                           "bookmarks" "VERSION" "emms-history")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
+  (with-eval-after-load 'ivy
+    (require 'counsel)
+    (require 'ove)
+    (require 'dumb-jump))
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . (lambda () (interactive)
-                        (shell-command "fcitx-remote -c &> /dev/null")
+                        (call-process "fcitx-remote" nil nil nil "-c")
                         (counsel-M-x)))
          ("M-y"     . counsel-yank-pop)
          ("C-h f"   . counsel-describe-function)
@@ -184,18 +188,21 @@
 ;; M-r 跳出外围块(去掉外层代码)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package paredit
-  :hook ((scheme-mode  lisp-mode emacs-lisp-mode inferior-lisp-mode geiser-repl-mode sly-mrepl-mode) . enable-paredit-mode)
+  :hook ((scheme-mode  lisp-mode emacs-lisp-mode
+                       inferior-lisp-mode geiser-repl-mode sly-mrepl-mode)
+         . enable-paredit-mode)
   :config
   (setq paredit-lighter nil)
   (define-key paredit-mode-map (kbd "M-s") nil)
   (define-key paredit-mode-map (kbd "M-r") nil)
   (define-key paredit-mode-map (kbd "M-?") nil)
   (define-key paredit-mode-map (kbd "M-<up>") 'paredit-splice-sexp)
-  (define-key paredit-mode-map (kbd "M-<down>") '(lambda ()
-                                                   (interactive)
-                                                   (zerolee-search-forward-char 1 ?\))
-                                                   (paredit-newline)
-                                                   (ove-mode 0)))
+  (define-key paredit-mode-map (kbd "M-<down>")
+    '(lambda ()
+       (interactive)
+       (zerolee-search-forward-char 1 ?\))
+       (paredit-newline)
+       (ove-mode 0)))
   (define-key paredit-mode-map (kbd "(") nil)
   (define-key paredit-mode-map (kbd ")") nil)
   (define-key paredit-mode-map (kbd "[") nil)
@@ -218,7 +225,8 @@
 
 (use-package my-tools
   :ensure nil
-  :commands (zerolee-eshell zerolee-compile zerolee-rg zerolee-go crux-open-with))
+  :commands (zerolee-eshell zerolee-find-file zerolee-compile
+                            zerolee-rg zerolee-go crux-open-with))
 
 (use-package magit :defer t)
 

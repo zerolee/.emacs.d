@@ -1,11 +1,14 @@
 ;;; -*- lexical-binding: t; -*-
 (setq display-time-default-load-average nil)
+(setq display-time-mail-string "")
 (display-time)
 ;; 关掉开机信息
 (setq inhibit-startup-message t)
 
 ;;; mode-line 上取消 eldoc 显示
 (setq eldoc-minor-mode-string "")
+
+(setq auto-revert-mode-text "")
 
 (setq column-number-mode t)
 
@@ -69,8 +72,8 @@
 (advice-add 'org-open-at-point :before
             #'(lambda (&rest _)
                 (xref--push-markers)))
-(add-hook 'org-mode-hook #'(lambda ()
-                             (setq truncate-lines nil)))
+(add-hook 'org-mode-hook
+          #'(lambda () (setq truncate-lines nil)))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
@@ -108,6 +111,7 @@
 
 ;;; 配置字体
 (add-to-list 'default-frame-alist '(font . "Sarasa Fixed SC"))
+(set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend)
 
 ;;; xref-find-definitions
 (advice-add 'xref-find-definitions :after
@@ -126,6 +130,7 @@
                   "^\\*Compile"
                   "^\\*Completions\\*$"
                   "^\\*compilation\\*$"
+                  "^\\*Backtrace\\*$"
                   "^\\*.*Shell Command.*\\*$"
                   "^\\*e?shell\\*"))
   (add-to-list 'display-buffer-alist
