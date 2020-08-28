@@ -22,6 +22,10 @@
 (require 'hideshow)
 (require 'paredit)
 (require 'avy)
+(require 'xref)
+(require 'view)
+(require 'hugomd)
+(require 'org)
 
 (defgroup ove-face nil
   "类 vim 模式的的 emacs 按键风格"
@@ -551,6 +555,28 @@
 (ove--set-prefix-arg ove-mode-map)
 (ove--set-prefix-arg ove-emacs/ckm-map)
 
+(advice-add 'org-insert-heading-respect-content :after
+            #'(lambda (&rest _)
+                (ove-mode 0)))
+(advice-add 'org-meta-return :after
+            #'(lambda (&rest _)
+                (ove-mode 0)))
+(advice-add 'org-open-at-point :before
+            #'(lambda (&rest _)
+                (xref--push-markers)
+                (ove-mode 1)))
+  ;;; view-file 启动由 ove-mode 而不是 view-mode
+(advice-add 'view-mode :around
+            #'(lambda (_orig-func &rest _)
+                (ove-mode 1)
+                (when (or (equal major-mode 'markdown-mode)
+                          (equal major-mode 'gfm-mode)
+                          (equal major-mode 'org-mode))
+                  (hugomd-preview))))
+  ;;; xref-find-definitions
+(advice-add 'xref-find-definitions :after
+            #'(lambda (&rest _)
+                (ove-mode 1)))
 
 (provide 'ove)
 ;;; ove.el ends here

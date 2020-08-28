@@ -92,6 +92,17 @@
               (delete-windows-on buffer)
             (flymake-show-diagnostics-buffer))))))
 
+;;; eshell
+(add-hook 'eshell-mode-hook
+          #'(lambda ()
+              (define-key eshell-mode-map (kbd "C-d")
+                #'(lambda (arg)
+                    "Delete a character or quit eshell if there's nothing to delete."
+                    (interactive "p")
+                    (if (and (eolp) (looking-back eshell-prompt-regexp nil))
+                        (eshell-life-is-too-much)
+                      (delete-char arg))))))
+
 ;;; emacs-lisp
 (define-key lisp-interaction-mode-map
   (kbd "C-c <return>") #'emacs-lisp-macroexpand)

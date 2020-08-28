@@ -63,15 +63,6 @@
       '("~/note/plan"  "~/note/emacs"))
 (setq org-html-htmlize-output-type nil)
 
-(advice-add 'org-insert-heading-respect-content :after
-            #'(lambda (&rest _)
-                (ove-mode 0)))
-(advice-add 'org-meta-return :after
-            #'(lambda (&rest _)
-                (ove-mode 0)))
-(advice-add 'org-open-at-point :before
-            #'(lambda (&rest _)
-                (xref--push-markers)))
 (add-hook 'org-mode-hook
           #'(lambda () (setq truncate-lines nil)))
 
@@ -80,43 +71,27 @@
 (setenv "FZF_DEFAULT_COMMAND" "fd --type file")
 
 ;;; 模板导入
-(advice-add 'find-file :after
-            #'(lambda (&rest _)
-                (let* ((name (and (buffer-file-name)
-                                  (not (file-exists-p (buffer-file-name)))
-                                  (file-name-extension
-                                   (concat "arbitrary"
-                                           (file-name-nondirectory
-                                            (buffer-file-name))))))
-                       (realname (and name (concat name "." name))))
-                  (and realname
-                       (member realname (directory-files "~/模板"))
-                       (insert-file-contents (concat "~/模板/" realname))
-                       (yas-expand-snippet (buffer-string)
-                                           (point-min) (point-max))))))
+(add-hook 'find-file-hook
+          #'(lambda ()
+              (let* ((name (and (not (file-exists-p (buffer-file-name)))
+                                (file-name-extension
+                                 (concat "arbitrary"
+                                         (file-name-nondirectory
+                                          (buffer-file-name))))))
+                     (realname (and name (concat name "." name))))
+                (and realname
+                     (member realname (directory-files "~/模板"))
+                     (insert-file-contents (concat "~/模板/" realname))
+                     (yas-expand-snippet (buffer-string)
+                                         (point-min) (point-max))))))
 
 ;; Using MELPA
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
-
-;;; view-file 启动由 ove-mode 而不是 view-mode
-(advice-add 'view-mode :around
-            #'(lambda (_orig-func &rest _)
-                (ove-mode 1)
-                (when (or (equal major-mode 'markdown-mode)
-                          (equal major-mode 'gfm-mode)
-                          (equal major-mode 'org-mode))
-                  (hugomd-preview))))
-
 ;;; 配置字体
 (add-to-list 'default-frame-alist '(font . "Sarasa Fixed SC"))
 (set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend)
-
-;;; xref-find-definitions
-(advice-add 'xref-find-definitions :after
-            #'(lambda (&rest _)
-                (ove-mode 1)))
 
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
 (setq frame-title-format

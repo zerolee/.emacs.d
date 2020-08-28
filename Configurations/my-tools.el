@@ -136,7 +136,7 @@
                           (let ((buffer
                                  (get-buffer (concat "*eshell*<"
                                                      (number-to-string wn) ">"))))
-                            (if (get-buffer-window buffer)
+                            (if (and buffer (get-buffer-window buffer))
                                 (delete-windows-on buffer)
                               (eshell wn)))
                         (puthash fnd (1+ max) zerolee--eshell-path-hashtable)
