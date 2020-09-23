@@ -218,19 +218,47 @@
 ;;; 来源 https://github.com/bbatsov/crux/blob/2e16b828910c9b8acba37e712d21b517d2cf78cc/crux.el#L152
 ;;; 使用外部程序打开相关文件
 ;;;###autoload
-(defun crux-open-with (arg)
-  "Open visited file in default external program.
-When in dired mode, open file under the cursor.
-With a prefix ARG always prompt for command to use."
+(defun zerolee-open-with (arg)
+  "使用外部程序打开浏览的文件或者当前光标下的链接
+处于 dired mode 时, 打开当前光标下的文件
+处于 org mode 时，若当前光标下存在文件链接，使用外部程序打开链接文件
+使用 prefix ARG 时指定使用的外部程序 "
   (interactive "P")
   (let ((current-file-name
          (if (eq major-mode 'dired-mode)
              (dired-get-file-for-visit)
-           buffer-file-name))
+           (if (and
+                (eq major-mode 'org-mode)
+                (help-at-pt-string))
+               (let ((current-string (split-string (help-at-pt-string) ":")))
+                 (concat (if (string-match
+                              (string-trim (nth 1 current-string))
+                              "https")
+                             (concat (string-trim (nth 1 current-string)) ":")
+                           nil)
+                         (expand-file-name
+                          (string-trim
+                           (car (last current-string 1))))))
+             (or (thing-at-point 'url) buffer-file-name))))
         (program
          (if arg
              (read-shell-command "Open current file with: ")
            "xdg-open")))
     (call-process program nil 0 nil current-file-name)))
+
+
+;;;###autoload
+(defun zerolee-delete-window ()
+  "delete dedicate 状态为 side 的窗口"
+  (interactive)
+  (require 'ace-window)
+  (let (side)
+    (dolist (window (window-list))
+      (when (equal (window-dedicated-p window) 'side)
+        (setq side t)
+        (delete-window window)))
+    (unless side
+      (ace-delete-window))))
+
 (provide 'my-tools)
 ;;; my-tools.el ends here

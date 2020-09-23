@@ -106,8 +106,10 @@
                   "^\\*Completions\\*$"
                   "^\\*compilation\\*$"
                   "^\\*Backtrace\\*$"
+                  "^\\*Ibuffer\\*$"
                   "^\\*.*Shell Command.*\\*$"
-                  "^\\*e?shell\\*"))
+                  "^\\*e?shell\\*"
+                  "^\\*Messages\\*$"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window
@@ -120,7 +122,6 @@
 (dolist (buffer '("^\\*Help\\*$"
                   "^\\*lsp-help\\*$"
                   "^\\*eglot-help"
-                  "^\\*Ibuffer\\*$"
                   "^\\*vc-"
                   ".el.gz$"
                   "^*eldoc"))

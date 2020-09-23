@@ -40,8 +40,7 @@
   :commands hugomd-preview)
 
 (use-package diminish)
-(use-package hydra
-  :custom (hydra-hint-display-type 'message))
+(use-package hydra)
 
 (use-package projectile
   :defer t
@@ -226,7 +225,8 @@
 (use-package my-tools
   :ensure nil
   :commands (zerolee-eshell zerolee-find-file zerolee-compile
-                            zerolee-rg zerolee-go crux-open-with))
+                            zerolee-rg zerolee-go zerolee-open-with
+                            zerolee-delete-window))
 
 (use-package magit :defer t)
 

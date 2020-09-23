@@ -148,7 +148,9 @@
                                                  (end-of-thing 'url)) "L")))
     (define-key map " " #'(lambda () (interactive)
                             (ove--emacs-get #'(lambda () (interactive)
-                                                (end-of-thing 'whitespace)) " ")))
+                                                (if current-prefix-arg
+                                                    (beginning-of-thing 'whitespace)
+                                                  (end-of-thing 'whitespace))) " ")))
     (define-key map "a " #'(lambda () (interactive)
                              (beginning-of-thing 'whitespace)
                              (ove--emacs-get #'(lambda () (interactive)
@@ -178,6 +180,12 @@
     (define-key map "p" #'(lambda () (interactive)
                             (end-of-line)
                             (ove--emacs-get #'beginning-of-line "p")))
+
+    (define-key map "b" #'(lambda () (interactive)
+                            (if current-prefix-arg
+                                (kill-new (buffer-name))
+                              (kill-new (or (buffer-file-name)
+                                            default-directory)))))
     (define-key map "c" #'(lambda () (interactive)
                             (beginning-of-line)
                             (ove--emacs-get #'end-of-line "c")))
