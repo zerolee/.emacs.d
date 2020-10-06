@@ -30,7 +30,8 @@
          (lambda () (interactive)
            (if (and buffer-read-only
                     (not (memq major-mode
-                               '(treemacs-mode package-menu-mode ibuffer-mode)))
+                               '(treemacs-mode package-menu-mode ibuffer-mode
+                                               bookmark-bmenu-mode)))
                     (not (derived-mode-p 'magit-mode)))
                (ove-mode 1)
              (setq cursor-type 'bar)))))
