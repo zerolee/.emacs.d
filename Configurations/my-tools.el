@@ -22,66 +22,53 @@
 (defvar zerolee--eshell-path-hashtable (make-hash-table :test #'equal)
   "每次启动 eshell 的时候将启动时的路径存储进 hash-table 中")
 
+(defconst zerolee--eshell-app-alist
+  '((java-mode . (".class" (zerolee--eshell-get-java-package-name) "java "))
+    (c-mode . ("" "" "./")))
+  "该代码生成的程序后缀 包名 程序执行时长相")
+
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
-(defsubst zerolee--eshell-get-java-package-content ()
-  (let* ((first-line
-          (save-excursion
-            (goto-char (point-min))
-            (buffer-substring-no-properties (point-min) (line-end-position))))
-         (pos (string-match "\\<package\\>" first-line)))
-    (if (and pos (<= pos 1))
-        (replace-regexp-in-string
-         "\\." "/"
-         (string-trim (substring first-line (+ 8 pos) -1)))
-      nil)))
+(defsubst zerolee--eshell-get-java-package-name ()
+  (let ((first-line
+         (save-excursion
+           (goto-char (point-min))
+           (buffer-substring-no-properties (point-min) (line-end-position)))))
+    (when (string-match "^package\\b" first-line)
+      (replace-regexp-in-string
+       "[.;]" "/"
+       (string-trim (substring first-line 8))))))
 
 (defun zerolee--eshell-get-project-root ()
   "获取关联项目的 root"
   (require 'projectile)
   (or (projectile-project-root)
-      (if (equal major-mode 'java-mode)
-          (let ((root (zerolee--eshell-get-java-package-content)))
-            (when root
-              (let ((pos (string-match root default-directory)))
-                (substring default-directory 0 pos)))))
+      (if (buffer-file-name)
+          (substring (buffer-file-name) 0
+                     (- (length (zerolee--eshell-get-sourcecode-name)))))
       default-directory))
 
 (defsubst zerolee--eshell-get-app ()
   "获取需要运行的程序，如果所需要运行的程序不存在返回 nil"
-  (let ((app
-         (if (region-active-p)
-             (let ((program
-                    (buffer-substring-no-properties
-                     (region-beginning) (region-end))))
-               (if (and (equal major-mode 'java-mode)
-                        (file-exists-p
-                         (concat
-                          (file-name-directory (buffer-file-name)) program ".class")))
-                   (concat
-                    (file-name-directory
-                     (zerolee--eshell-get-java-package-name))
-                    program)))
-           (if (or (and (equal major-mode 'java-mode)
-                        (file-exists-p (replace-in-string ".java" ".class" (buffer-file-name))))
-                   (and (buffer-file-name)
-                        (file-exists-p (file-name-base (buffer-file-name)))))
-               (car
-                (split-string (zerolee--eshell-get-java-package-name) "\\."))))))
+  (let* ((program
+          (if (region-active-p)
+              (buffer-substring-no-properties
+               (region-beginning) (region-end))
+            (file-name-base (buffer-file-name))))
+         (app
+          (if (file-exists-p
+               (concat (file-name-directory (buffer-file-name)) program
+                       (nth 1 (assoc major-mode zerolee--eshell-app-alist))))
+              (concat (file-name-directory (zerolee--eshell-get-sourcecode-name))
+                      program))))
     (when app
-      (if (equal major-mode 'java-mode)
-          (concat "java " app)
-        (concat "./" app)))))
+      (concat (nth 3 (assoc major-mode zerolee--eshell-app-alist)) app))))
 
-(defun zerolee--eshell-get-java-package-name ()
-  (let ((root (zerolee--eshell-get-java-package-content))
-        (bfn (buffer-file-name)))
-    (if root
-        (let ((pos (string-match root bfn)))
-          (substring bfn pos))
-      (file-name-nondirectory (buffer-file-name)))))
+(defun zerolee--eshell-get-sourcecode-name ()
+  (concat (eval (nth 2 (assoc major-mode zerolee--eshell-app-alist)))
+          (file-name-nondirectory (buffer-file-name))))
 
-(defsubst zerolee--run (num app)
+(defsubst zerolee--eshell-run (num app)
   "当 num 为 1 时运行指定程序，否则打开一个新的 gnome-terminal"
   (let ((default-directory (zerolee--eshell-get-project-root))
         (height (round (* 0.45 (frame-height))))
@@ -89,8 +76,7 @@
         (left (round (+ 10 (cadar (frame-geometry)))))
         (up (round (+ (cddar (frame-geometry)) (* 0.51 (frame-outer-height))))))
     (shell-command (concat
-                    "EMACS_START=nil "
-                    "gnome-terminal --working-directory="
+                    "EMACS_START=nil gnome-terminal --working-directory="
                     default-directory
                     " --geometry="
                     (format "%sx%s+%s+%s" width height left up)
@@ -119,11 +105,11 @@
                (zerolee--eshell-get-project-root)))
            (wn (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
-           (app (zerolee--eshell-get-app)))
+           (app (when (buffer-file-name) (zerolee--eshell-get-app))))
       (if (and
            (or app (= num 2))
            (< num 3))
-          (zerolee--run num app)
+          (zerolee--eshell-run num app)
         (if wn
             (let ((buffer
                    (get-buffer (concat "*eshell*<"
@@ -144,7 +130,7 @@
     (if (not (equal major-mode 'java-mode))
         (smart-compile arg)
       (set (make-local-variable 'compile-command)
-           (concat "javac " (zerolee--eshell-get-java-package-name)))
+           (concat "javac " (zerolee--eshell-get-sourcecode-name)))
       (call-interactively #'compile))))
 
 ;;;###autoload
