@@ -15,9 +15,6 @@
 ;; filenames from the hard disk, and text from the buffer.
 (global-set-key (kbd "s-SPC") 'hippie-expand)
 
-;; Compile
-(global-set-key (kbd "<C-f9>") 'compile)
-
 ;; input-method
 ;; 取消掉默认的输入法快捷键
 (global-unset-key (kbd "C-\\"))

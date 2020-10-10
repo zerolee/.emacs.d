@@ -18,14 +18,7 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'thingatpt)
-(require 'sgml-mode)
-(require 'hideshow)
 (require 'paredit)
-(require 'avy)
-(require 'xref)
-(require 'view)
-(require 'hugomd)
-(require 'org)
 
 (defgroup ove-face nil
   "类 vim 模式的的 emacs 按键风格"
@@ -95,14 +88,15 @@
                                                 (zerolee-search-forward-char 2 ?\')) "a'")))
     (define-key map "a<" #'(lambda () (interactive)
                              (zerolee-search-forward-char -1 ?<)
-                             (ove--emacs-get '(lambda () (interactive)
-                                                (let ((flag 1))
-                                                  (forward-char 1)
-                                                  (while (> flag 0)
-                                                    (cond ((char-equal (char-after (point)) ?>) (setq flag (1- flag)))
-                                                          ((char-equal (char-after (point)) ?<) (setq flag (1+ flag))))
-                                                    (forward-char 1)))) "a>")))
+                             (ove--emacs-get #'(lambda () (interactive)
+                                                 (let ((flag 1))
+                                                   (forward-char 1)
+                                                   (while (> flag 0)
+                                                     (cond ((char-equal (char-after) ?>) (cl-decf flag))
+                                                           ((char-equal (char-after) ?<) (cl-incf flag)))
+                                                     (forward-char 1)))) "a>")))
     (define-key map "at" #'(lambda () (interactive)
+                             (require 'sgml-mode)
                              (sgml-skip-tag-forward 1)
                              (sgml-skip-tag-backward 1)
                              (ove--emacs-get #'sgml-skip-tag-forward "at")))
@@ -115,15 +109,16 @@
     (define-key map "e<" #'(lambda () (interactive)
                              (zerolee-search-forward-char -1 ?<)
                              (forward-char 1)
-                             (ove--emacs-get '(lambda () (interactive)
-                                                (let ((flag 1))
-                                                  (while (> flag 0)
-                                                    (cond ((char-equal (char-after (point)) ?>) (setq flag (1- flag)))
-                                                          ((char-equal (char-after (point)) ?<) (setq flag (1+ flag))))
-                                                    (forward-char 1)))
-                                                (backward-char 1)) "e>")))
+                             (ove--emacs-get #'(lambda () (interactive)
+                                                 (let ((flag 1))
+                                                   (while (> flag 0)
+                                                     (cond ((char-equal (char-after) ?>) (cl-decf flag))
+                                                           ((char-equal (char-after) ?<) (cl-incf flag)))
+                                                     (forward-char 1)))
+                                                 (backward-char 1)) "e>")))
 
     (define-key map "et" #'(lambda () (interactive)
+                             (require 'sgml-mode)
                              (sgml-skip-tag-forward 1)
                              (sgml-skip-tag-backward 1)
                              (forward-sexp)
@@ -148,7 +143,7 @@
                                                  (end-of-thing 'url)) "L")))
     (define-key map " " #'(lambda () (interactive)
                             (ove--emacs-get #'(lambda () (interactive)
-                                                (if current-prefix-arg
+                                                (if (= -1 (prefix-numeric-value current-prefix-arg))
                                                     (beginning-of-thing 'whitespace)
                                                   (end-of-thing 'whitespace))) " ")))
     (define-key map "a " #'(lambda () (interactive)
@@ -206,22 +201,21 @@
       emacs-ckm-point
       cpa)
   (defun ove-ckm (which-ckm)
-    (setq ove-arg1 which-ckm)
-    (setq emacs-ckm-point (point))
+    (setq ove-arg1 which-ckm
+          emacs-ckm-point (point)
+          cpa current-prefix-arg)
     (if (string-equal which-ckm "m")
         (setq ove-kill-or-save #'kill-ring-save)
       (setq ove-kill-or-save #'kill-region))
-    (when current-prefix-arg
-      (setq cpa current-prefix-arg))
     (set-transient-map ove-emacs/ckm-map t))
 
   (defun ove--emacs-get (ove-move ove-arg2)
-    "删除或者保存 region 中的数据"
-    (let ((pnv (prefix-numeric-value (or cpa current-prefix-arg))))
-      (when (string= ove-arg2 "p")
-        (setq current-prefix-arg (- 1 pnv)))
-      (when (string= ove-arg2 "n")
-        (setq current-prefix-arg (1+ pnv))))
+    "删除或者保存 region 中的数据."
+    (setq current-prefix-arg (prefix-numeric-value (or cpa current-prefix-arg)))
+    (when (string= ove-arg2 "p")
+      (setq current-prefix-arg (- 1 current-prefix-arg)))
+    (when (string= ove-arg2 "n")
+      (cl-incf current-prefix-arg))
     (let ((current-position (point)))
       (funcall ove-kill-or-save current-position
                (progn
@@ -230,16 +224,11 @@
                   current-position (point) 'ove-aquamarine)
                  (point))))
     ;; k 与 c 的区别
-    (if (and (string= ove-arg1 "k")
-             (string-match ove-arg2 "<>npk"))
-        (let ((pp (point)))
-          (if (and  (search-forward "\n" nil  t 1)
-                    (= (1+ pp) (point)))
-              (delete-char -1))
-          (goto-char pp)))
+    (and (string= ove-arg1 "k") (string-match ove-arg2 "<>npk")
+         (char-after) (delete-char 1))
     ;; 如果复制的话，恢复其位置
-    (if (string-equal ove-arg1 "m")
-        (goto-char emacs-ckm-point))
+    (when (string-equal ove-arg1 "m")
+      (goto-char emacs-ckm-point))
     (setq overriding-terminal-local-map nil
           cpa nil)))
 
@@ -250,37 +239,29 @@
     (parse-partial-sexp (point) point)))
 
 (defun ove--eval-sexp-dwim ()
-  "如果当前所处位置是 list 或字符串或符号结尾则执行这个 sexp
-
-   若果在字符串内，则假设字符串在 list 内，则执行整个 list
-   如果在一个符号内，且这个符号以括号开头则跳出整个 list，
-   否则执行这个符号"
+  "如果当前所处位置是 list 或字符串或符号结尾则执行这个 sexp.
+若果在字符串内，则假设字符串在 list 内，则执行整个 list;
+如果在一个符号内，且这个符号以括号开头则跳出整个 list;
+否则执行这个符号."
   (interactive)
   (save-excursion
     (let ((state (ove--current-parse-state)))
-      (if (equal last-command 'ove--eval-sexp-dwim)
-          (end-of-defun)
-        (if (nth 3 state)
-            (up-list (1+ (nth 0 state)) t)
-          (if (char-equal (char-before (point)) ?\()
-              (up-list (nth 0 state))
-            (progn
-              (backward-sexp 1)
-              (if (char-equal (char-before (point)) ?\()
-                  (up-list (nth 0 state))
-                (forward-sexp 1)))))))
-    (my-eval-last-sexp)
-    (setq this-command 'ove--eval-sexp-dwim)))
+      (cond ((equal last-command 'ove--eval-sexp-dwim) (end-of-defun))
+            ((nth 3 state) (up-list (1+ (nth 0 state)) t))
+            ((char-equal (char-before) ?\() (up-list (nth 0 state)))
+            (t (backward-sexp 1)
+               (if (char-equal (char-before) ?\()
+                   (up-list (nth 0 state))
+                 (forward-sexp 1))))
+      (my-eval-last-sexp)
+      (setq this-command 'ove--eval-sexp-dwim))))
 
 (defun ove--function-arg-pinfo ()
-  "获取当前函数所有参数的位置信息，两个一组以列表的方式返回"
+  "获取当前函数所有参数的位置信息，两个一组以列表的方式返回."
   (save-excursion
     (let (position
           positions)
-      (backward-up-list 1 t)
-      (when (char-equal (char-after) ?\")
-        (backward-up-list))
-      (forward-char)
+      (goto-char (1+ (nth 1 (syntax-ppss))))
       (push (point-marker) position)
       (while (not (char-equal (char-after) ?\)))
         (forward-sexp)
@@ -294,17 +275,13 @@
       (reverse positions))))
 
 (defun ove--function-arg-info ()
-  "获取当前位置当前参数的位置信息，两个一组以列表的方式返回"
-  (let* ((cp (point))
-         (positions (ove--function-arg-pinfo))
-         (position (car positions)))
-    (while positions
-      (if (and (>= cp (marker-position (cadr position)))
-               (<= cp (marker-position (car position))))
-          (setq positions nil)
-        (setq positions (cdr positions))
-        (setq position (car positions))))
-    position))
+  "获取当前位置当前参数的位置信息，两个一组以列表的方式返回."
+  (let ((cp (point)))
+    (catch 'done
+      (dolist (p (ove--function-arg-pinfo))
+        (when (and (>= cp (marker-position (cadr p)))
+                   (<= cp (marker-position (car p))))
+          (throw 'done p))))))
 
 (defun ove--function-arg-begin ()
   (interactive)
@@ -314,20 +291,15 @@
   (interactive)
   (goto-char (car (ove--function-arg-info))))
 
-(defun ove--function-arg-overlay ()
-  (interactive)
-  (ove--function-arg-overlay-get (ove--function-arg-info)))
-
 (let (overlay
       positions
       (map (make-sparse-keymap)))
-  (define-key map (kbd "<tab>") 'ove--function-arg-next)
-  (define-key map (kbd "<backtab>") 'ove--function-arg-prev)
-  (defun ove--function-arg-overlay-get (arg)
-    (interactive)
+  (define-key map (kbd "<tab>") #'ove--function-arg-next)
+  (define-key map (kbd "<backtab>") #'ove--function-arg-prev)
+  (defun ove--function-arg-overlay ()
     (setq positions (ove--function-arg-pinfo))
-    (setq overlay (make-overlay (cadr arg)
-                                (car arg)))
+    (setq overlay (make-overlay (cadr (ove--function-arg-info))
+                                (car (ove--function-arg-info))))
     (overlay-put overlay 'face 'highlight)
     (overlay-put overlay 'keymap map))
   (defun ove--function-arg-next ()
@@ -380,12 +352,11 @@
 (define-key ove-mode-map (kbd "b") 'backward-char)
 (define-key ove-mode-map (kbd "B") #'(lambda ()
                                        (interactive)
-                                       (if (member (char-before) '(?\, ?  ?\C-j))
-                                           (while (member (char-before) '(?\, ?  ?\C-j))
-                                             (backward-char))
-                                         (ove--function-arg-begin)
-                                         (when (member (char-after) '(?\C-j ? ))
-                                           (forward-to-word 1)))))
+                                       (while (member (char-before) '(?\, ?  ?\C-j ?\C-i))
+                                         (backward-char))
+                                       (ove--function-arg-begin)
+                                       (when (member (char-after) '(?\C-j ? ?\C-i))
+                                         (forward-to-word 1))))
 (define-key ove-mode-map (kbd "C-b") #'(lambda ()
                                          (interactive)
                                          (ove-mode 0)))
@@ -552,16 +523,11 @@
 (define-key ove-mode-map (kbd ";") 'ove--eval-sexp-dwim)
 (define-key ove-mode-map (kbd ".") 'repeat)
 
-(defun ove--set-prefix-arg (map)
-  (dotimes (i 10)
-    (define-key map (number-to-string i)
-      (lambda () (interactive)
-        (if (numberp last-command)
-            (setq prefix-arg (+ (* last-command 10) i))
-          (setq prefix-arg i))
-        (setq this-command prefix-arg)))))
-(ove--set-prefix-arg ove-mode-map)
-(ove--set-prefix-arg ove-emacs/ckm-map)
+(dotimes (i 10)
+  (define-key ove-mode-map (number-to-string i) #'digit-argument)
+  (define-key ove-emacs/ckm-map (number-to-string i) #'digit-argument))
+(define-key ove-mode-map "-" #'negative-argument)
+(define-key ove-emacs/ckm-map "-" #'negative-argument)
 
 (advice-add 'org-insert-heading-respect-content :after
             #'(lambda (&rest _)
@@ -577,9 +543,7 @@
 (advice-add 'view-mode :around
             #'(lambda (_orig-func &rest _)
                 (ove-mode 1)
-                (when (or (equal major-mode 'markdown-mode)
-                          (equal major-mode 'gfm-mode)
-                          (equal major-mode 'org-mode))
+                (when (memq major-mode '(markdown-mode gfm-mode org-mode))
                   (hugomd-preview))))
   ;;; xref-find-definitions
 (advice-add 'xref-find-definitions :after
