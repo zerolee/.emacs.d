@@ -18,7 +18,6 @@
 ;;; Code:
 (require 'cl-lib)
 (require 'thingatpt)
-(require 'paredit)
 
 (defgroup ove-face nil
   "类 vim 模式的的 emacs 按键风格"
@@ -48,16 +47,9 @@
                             (ove--emacs-get #'beginning-of-line "i")))
     (define-key map "," #'(lambda () (interactive)
                             (ove--emacs-get #'ove--function-arg-end ",")))
-    (define-key map "e," #'(lambda () (interactive)
-                             (ove--function-arg-begin)
-                             (ove--emacs-get #'ove--function-arg-end ",")))
     (define-key map "a," #'(lambda () (interactive)
-                             (ove--function-arg-begin)
-                             (ove--emacs-get #'ove--function-arg-end ",")
-                             (when (char-equal (char-after) ?\,)
-                               (delete-char 1))
-                             (when (char-equal (char-after) ?\ )
-                               (delete-char 1))))
+                             (goto-char (cdr (nth 1 (ove--function-arg-info))))
+                             (ove--emacs-get #'ove--function-arg-end ",")))
     (define-key map "aw" #'(lambda () (interactive)
                              (beginning-of-thing 'word)
                              (ove--emacs-get #'(lambda () (interactive)
@@ -175,7 +167,6 @@
     (define-key map "p" #'(lambda () (interactive)
                             (end-of-line)
                             (ove--emacs-get #'beginning-of-line "p")))
-
     (define-key map "b" #'(lambda () (interactive)
                             (if current-prefix-arg
                                 (kill-new (buffer-name))
@@ -262,70 +253,69 @@
     (let (position
           positions)
       (goto-char (1+ (nth 1 (syntax-ppss))))
-      (push (point-marker) position)
+      (setq position (point-marker))
       (while (not (char-equal (char-after) ?\)))
         (forward-sexp)
         (when (char-equal (char-after) ?\,)
           (push (point-marker) position)
           (push position positions)
           (forward-char)
-          (setq position (cons (point-marker) '()))))
+          (setq position (point-marker))))
       (push (point-marker) position)
       (push position positions)
       (reverse positions))))
 
 (defun ove--function-arg-info ()
-  "获取当前位置当前参数的位置信息，两个一组以列表的方式返回."
-  (let ((cp (point)))
+  "通过 PINFO 获取当前位置当前参数的位置信息.
+return: (first current last), 每个元素由 (right . left)组成， 不存在则为 nil."
+  (let* ((cp (point))
+         (pinfo (ove--function-arg-pinfo))
+         first (current (car pinfo)) last)
     (catch 'done
-      (dolist (p (ove--function-arg-pinfo))
-        (when (and (>= cp (marker-position (cadr p)))
-                   (<= cp (marker-position (car p))))
-          (throw 'done p))))))
-
-(defun ove--function-arg-begin ()
-  (interactive)
-  (goto-char (cadr (ove--function-arg-info))))
+      (while pinfo
+        (if (<= cp (marker-position (car current)))
+            (progn (setq last (cadr pinfo))
+                   (throw 'done (cons first (cons current (cons last '())))))
+          (setq first current)
+          (setq pinfo (cdr pinfo))
+          (setq current (car pinfo)))))))
 
 (defun ove--function-arg-end ()
+  "去当前位置的终点."
   (interactive)
-  (goto-char (car (ove--function-arg-info))))
+  (goto-char (car (nth 1 (ove--function-arg-info)))))
+
+(defun ove--function-arg-goto (index &optional overlay)
+  "去指定位置 INDEX，并返回该位置坐标, OVERLAY 存在则移动 OVERLAY."
+  (let ((current (nth index (ove--function-arg-info))))
+    (when current
+      (goto-char (cdr current))
+      (when overlay
+        (move-overlay overlay (cdr current) (car current)))
+      (while (member (char-after) '(?\C-j ? ?\C-i))
+        (forward-char 1))
+      current)))
 
 (let (overlay
-      positions
+      current
       (map (make-sparse-keymap)))
   (define-key map (kbd "<tab>") #'ove--function-arg-next)
   (define-key map (kbd "<backtab>") #'ove--function-arg-prev)
   (defun ove--function-arg-overlay ()
-    (setq positions (ove--function-arg-pinfo))
-    (setq overlay (make-overlay (cadr (ove--function-arg-info))
-                                (car (ove--function-arg-info))))
+    (setq current (nth 1 (ove--function-arg-info)))
+    (setq overlay (make-overlay (cdr current) (car current)))
     (overlay-put overlay 'face 'highlight)
     (overlay-put overlay 'keymap map))
   (defun ove--function-arg-next ()
     (interactive)
-    (let ((index (1+ (cl-position (overlay-end overlay) positions
-                                  :key #'(lambda (ps)
-                                           (marker-position (car ps))))))
-          next-position)
-      (if (= index (length positions))
-          (progn (up-list 1 t)
-                 (delete-overlay overlay)
-                 (while (member (char-after) '(?\, ?\) ?\;))
-                   (forward-char)))
-        (setq next-position (elt positions index))
-        (move-overlay overlay (cadr next-position) (car next-position))
-        (goto-char (cadr next-position)))))
+    (unless (ove--function-arg-goto 2 overlay)
+      (up-list 1 t)
+      (delete-overlay overlay)
+      (while (member (char-after) '(?\, ?\) ?\;))
+        (forward-char))))
   (defun ove--function-arg-prev ()
     (interactive)
-    (let ((index (1- (cl-position (overlay-end overlay) positions
-                                  :key #'(lambda (ps)
-                                           (marker-position (car ps))))))
-          prev-position)
-      (when (>= index 0)
-        (setq prev-position (elt positions index))
-        (move-overlay overlay (cadr prev-position) (car prev-position))
-        (goto-char (cadr prev-position))))))
+    (ove--function-arg-goto 0 overlay)))
 
 ;;;###autoload
 (define-minor-mode ove-mode
@@ -352,11 +342,7 @@
 (define-key ove-mode-map (kbd "b") 'backward-char)
 (define-key ove-mode-map (kbd "B") #'(lambda ()
                                        (interactive)
-                                       (while (member (char-before) '(?\, ?  ?\C-j ?\C-i))
-                                         (backward-char))
-                                       (ove--function-arg-begin)
-                                       (when (member (char-after) '(?\C-j ? ?\C-i))
-                                         (forward-to-word 1))))
+                                       (ove--function-arg-goto 0)))
 (define-key ove-mode-map (kbd "C-b") #'(lambda ()
                                          (interactive)
                                          (ove-mode 0)))
@@ -377,9 +363,7 @@
 (define-key ove-mode-map (kbd "f") 'forward-char)
 (define-key ove-mode-map (kbd "F") #'(lambda ()
                                        (interactive)
-                                       (if (member (char-after) '(?\,))
-                                           (forward-to-word 1)
-                                         (ove--function-arg-end))))
+                                       (ove--function-arg-goto 2)))
 (define-key ove-mode-map (kbd "C-f") #'(lambda ()
                                          (interactive)
                                          (or (eolp)
@@ -495,7 +479,7 @@
 (define-key ove-mode-map (kbd "X")
   #'(lambda ()
       (interactive)
-      (if hs-minor-mode
+      (if (bound-and-true-p hs-minor-mode)
           (hs-minor-mode -1)
         (hs-minor-mode)
         (hs-hide-all))))
