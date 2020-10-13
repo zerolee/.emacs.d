@@ -98,7 +98,11 @@
                     (interactive "p")
                     (if (and (eolp) (looking-back eshell-prompt-regexp nil))
                         (eshell-life-is-too-much)
-                      (delete-char arg))))))
+                      (delete-char arg))))
+              (define-key eshell-mode-map (kbd "C-r")
+                #'(lambda ()
+                    (interactive)
+                    (counsel-esh-history)))))
 
 ;;; emacs-lisp
 (define-key lisp-interaction-mode-map

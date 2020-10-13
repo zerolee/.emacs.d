@@ -19,46 +19,31 @@
 ;; 使用 sp-get-position-from-ring    来跳转不同的位置
 ;; 使用 sp-show-all-position-in-ring 来查看所有的位置
 ;; 你可以将他们绑定到你喜欢的按键上
-;; 新版本参考了 sams-lib.el
+;; 新版本参考了 https://github.com/zerolee/.emacs.d/blob/d9cb7901befc358331167c6c845a83eb7ed44ff3/Extensions/sams-lib.el#L666
 
 ;;; Code:
-(require 'ivy)
 (require 'zerolee-lib)
 
 
-(defvar sp-position-ring nil
-  "这是用来保存位置信息的，理论上无限制.")
+(defvar sp-position-ring nil "这是用来保存位置信息的，理论上无限制.")
 
 (defun sp--goto-position (marker)
-  "去正确的 buffer 中正确的位置."
+  "去正确的 buffer 中正确的 MARKER 位置."
   (let ((buffer (marker-buffer marker)))
     (zerolee-goto-some-window buffer)
     (switch-to-buffer buffer)
     (goto-char marker)))
 
-(defun sp--clear-non-exist-buffer ()
-  "清除已经被杀掉的 buffer"
-  (dolist (var sp-position-ring)
-    (unless (member (marker-buffer (cdr var)) (buffer-list))
-      (setq sp-position-ring (remove var sp-position-ring)))))
-
-(defun sp--context-mark ()
-  "当前位置相关信息.
-
-展示信息：字符串，为了给 ivy 提供显示使用
-位置信息：(buffer-name . name)"
-  (let ((current-line (number-to-string (1+ (count-lines 1 (point-at-bol)))))
-        (context-string (buffer-substring (point-at-bol) (point-at-eol))))
-    (put-text-property 0 (length current-line) 'face 'font-lock-keyword-face current-line)
-    (concat (buffer-name)
-            ":"
-            current-line
-            ": " context-string)))
-
 (defsubst sp--position-info ()
-  "位置信息."
-  (cons (sp--context-mark)
-        (point-marker)))
+  "当前位置相关信息.
+展示信息：字符串，供显示使用
+位置信息：(buffer-name . name)"
+  (let ((line-number (number-to-string (line-number-at-pos)))
+        (string (buffer-substring (point-at-bol) (point-at-eol))))
+    (put-text-property 0 (length line-number) 'face 'font-lock-keyword-face line-number)
+    (cons
+     (format "%s:%s:%s" (buffer-name) line-number string)
+     (point-marker))))
 
 (defsubst sp--position-same-pos ()
   (and sp-position-ring
@@ -73,7 +58,7 @@
       (progn
         (setq sp-position-ring (cdr sp-position-ring))
         (message "移除当前所在位置的 MARKER"))
-    (setq sp-position-ring (cons (sp--position-info) sp-position-ring))
+    (push (sp--position-info) sp-position-ring)
     (message "添加当前位置的 MARKER")))
 
 ;;;###autoload
@@ -100,11 +85,14 @@
 (defun sp-show-all-position-in-ring ()
   "显示所有被标记的位置信息."
   (interactive)
-  (sp--clear-non-exist-buffer)
-  (ivy-read "mark ring: " sp-position-ring
-            :action '(lambda (x)
-                       (if (null sp-position-ring)
-                           (error "POSITION-RING 为空，请先 MARK")
-                         (sp--goto-position (cdr x))))))
+  (dolist (var sp-position-ring)
+    (unless (member (marker-buffer (cdr var)) (buffer-list))
+      (setq sp-position-ring (remove var sp-position-ring))));清除已经被杀掉的 buffer
+  (if (null sp-position-ring)
+      (error "POSITION-RING 为空，请先 MARK")
+    (sp--goto-position
+     (alist-get (completing-read "mark ring: " sp-position-ring)
+                sp-position-ring nil nil #'string-equal))))
+
 (provide 'save-position)
 ;;; save-position.el ends here

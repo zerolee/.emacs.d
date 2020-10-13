@@ -268,17 +268,16 @@
 (defun ove--function-arg-info ()
   "通过 PINFO 获取当前位置当前参数的位置信息.
 return: (first current last), 每个元素由 (right . left)组成， 不存在则为 nil."
-  (let* ((cp (point))
-         (pinfo (ove--function-arg-pinfo))
-         first (current (car pinfo)) last)
+  (let ((cp (point))
+        (pinfo (ove--function-arg-pinfo))
+        first)
     (catch 'done
       (while pinfo
-        (if (<= cp (marker-position (car current)))
-            (progn (setq last (cadr pinfo))
-                   (throw 'done (cons first (cons current (cons last '())))))
-          (setq first current)
-          (setq pinfo (cdr pinfo))
-          (setq current (car pinfo)))))))
+        (let ((current (car pinfo)))
+          (if (<= cp (marker-position (car current)))
+              (throw 'done (list first current (cadr pinfo)))
+            (setq first current)
+            (setq pinfo (cdr pinfo))))))))
 
 (defun ove--function-arg-end ()
   "去当前位置的终点."
