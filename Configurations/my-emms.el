@@ -96,22 +96,19 @@
   #'(lambda ()
       "选择当前播放列表"
       (interactive)
-      (ivy-read "选择一个列表为当前列表：" (mapcar #'buffer-name emms-playlist-buffers)
-                :action '(lambda (x)
-                           (emms-playlist-set-playlist-buffer x)
-                           (message "%s 为当前播放列表" x)))))
+      (message "%s 为当前播放列表"
+               (emms-playlist-set-playlist-buffer
+                (completing-read "选择一个列表为当前列表："
+                                 (mapcar #'buffer-name emms-playlist-buffers))))))
 (define-key emms-playlist-mode-map (kbd "B")
   #'(lambda ()
       "选择已经打开播放列表"
       (interactive)
-      (ivy-read "选择一个已经打开播放列表：" (mapcar #'buffer-name emms-playlist-buffers)
-                :action '(lambda (x)
-                           (switch-to-buffer x)
-                           (setq emms-playlist-buffer-name x)
-                           (when (string= x zerolee--emms-history-buffer)
-                             (goto-char (point-min))
-                             (emms-uniq))
-                           (emms-playlist-mode-play-current-track)))))
+      (setq emms-playlist-buffer-name
+            (completing-read "选择一个已经打开播放列表："
+                             (mapcar #'buffer-name emms-playlist-buffers)))
+      (switch-to-buffer emms-playlist-buffer-name)
+      (emms-playlist-mode-play-current-track)))
 (define-key emms-playlist-mode-map (kbd "l")
   #'(lambda ()
       (interactive)
@@ -277,9 +274,10 @@
   "开关 emms popup"
   (if (get-buffer-window emms-playlist-buffer-name)
       (delete-windows-on emms-playlist-buffer-name)
-    (if (> (window-width) 50)
-        (emms-playlist-mode-go-popup)
-      (emms-playlist-mode-go))
+    (if (or (< (window-width) 50)
+            (eq major-mode 'emms-playlist-mode))
+        (emms-playlist-mode-go)
+      (emms-playlist-mode-go-popup))
     (emms-playlist-mode-center-current)
     (setq emms-playlist-buffer-name (buffer-name))))
 
@@ -294,38 +292,24 @@
 (defun zerolee-emms-favourite ()
   (interactive)
   (when (file-exists-p zerolee--emms-favourite)
-    (ivy-read "select favourite playlist: "
-              (cons emms-source-file-default-directory
-                    (cddr (directory-files zerolee--emms-favourite)))
-              :action '(lambda (x)
-                         (if (get-buffer-window emms-playlist-buffer-name)
-                             (progn
-                               (select-window (get-buffer-window emms-playlist-buffer-name))
-                               (setq emms-playlist-buffer-name
-                                     (concat " *" (file-name-base x) "*"))
-                               (if (get-buffer emms-playlist-buffer-name)
-                                   (progn (switch-to-buffer (get-buffer emms-playlist-buffer-name))
-                                          (emms-playlist-mode-play-current-track))
-                                 (emms-playlist-new emms-playlist-buffer-name)
-                                 (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                                 (if (string-equal x emms-source-file-default-directory)
-                                     (emms-play-directory-tree x)
-                                   (emms-play-playlist (concat zerolee--emms-favourite x)))
-                                 (emms-playlist-mode-go)
-                                 (emms-playlist-mode-center-current)))
-                           (setq emms-playlist-buffer-name
-                                 (concat " *" (file-name-base x) "*"))
-                           (if (get-buffer emms-playlist-buffer-name)
-                               (progn (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                                      (zerolee--emms-toggle-popup)
-                                      (emms-playlist-mode-play-current-track))
-                             (emms-playlist-new emms-playlist-buffer-name)
-                             (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
-                             (if (string-equal x emms-source-file-default-directory)
-                                 (emms-play-directory-tree x)
-                               (emms-play-playlist (concat zerolee--emms-favourite x)))
-                             (zerolee--emms-toggle-popup))))
-              :initial-input "m3u")))
+    (let ((love (completing-read "select favourite playlist: "
+                                 (cons emms-source-file-default-directory
+                                       (cddr (directory-files zerolee--emms-favourite)))
+                                 nil nil "m3u"))
+          (window (get-buffer-window emms-playlist-buffer-name)))
+      (setq emms-playlist-buffer-name
+            (concat " *" (file-name-base love) "*"))
+      (and window (select-window window))
+      (if (get-buffer emms-playlist-buffer-name)
+          (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
+        (emms-playlist-new emms-playlist-buffer-name)
+        (emms-playlist-set-playlist-buffer (get-buffer emms-playlist-buffer-name))
+        (if (string-equal love emms-source-file-default-directory)
+            (emms-add-directory-tree love)
+          (emms-add-playlist (concat zerolee--emms-favourite love))))
+      (unless (eq (current-buffer) emms-playlist-buffer)
+        (zerolee--emms-toggle-popup))
+      (emms-playlist-mode-play-current-track))))
 
 (provide 'my-emms)
 ;;; my-emms.el ends here
