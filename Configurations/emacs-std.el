@@ -109,7 +109,8 @@
                   "^\\*Ibuffer\\*$"
                   "^\\*.*Shell Command.*\\*$"
                   "^\\*e?shell\\*"
-                  "^\\*Messages\\*$"))
+                  "^\\*Messages\\*$"
+                  "^\\*ansi-term\\*"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window

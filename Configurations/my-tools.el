@@ -68,30 +68,28 @@
   (concat (eval (nth 2 (assoc major-mode zerolee--eshell-app-alist)))
           (file-name-nondirectory (buffer-file-name))))
 
-(defsubst zerolee--eshell-run (num app)
-  "当 NUM 为 1 时运行指定程序 APP，否则打开一个新的 gnome-terminal."
-  (let ((height (round (* 0.45 (frame-height))))
-        (width (round (+ 1 (frame-width))))
-        (left (round (+ 10 (cadar (frame-geometry)))))
-        (up (round (+ (cddar (frame-geometry)) (* 0.51 (frame-outer-height))))))
-    (shell-command (concat
-                    "EMACS_START=nil gnome-terminal --working-directory="
-                    (zerolee--eshell-get-project-root)
-                    " --geometry="
-                    (format "%sx%s+%s+%s" width height left up)
-                    (when (= 1 num)
-                      (concat " -x bash -c '" app ";read' "))
-                    "&> /dev/null"))))
+(defsubst zerolee--ansi-term (app)
+  "运行 APP."
+  (require 'term)
+  (term-send-string (pop-to-buffer-same-window
+                     (term-ansi-make-term
+                      (generate-new-buffer-name "*ansi-term*") "bash"))
+                    app)
+  (term-send-input)
+  (set-process-sentinel (get-process (buffer-name))
+                        #'(lambda (proc _)
+                            (when (eq 'exit (process-status proc))
+                              (kill-buffer (process-buffer proc))))))
 
 ;;;###autoload
 (defun zerolee-eshell (&optional num)
   "若处于 `eshell-mode' 中则删除该窗口.
 否则的话，获取【正确】的关联目录，关联目录是否关联 eshell;
 已关联的话直接打开关联的 eshell，否则的话打开一个新的 eshell;
-存在可运行的程序时，默认打开 gnome-terminal 运行;
+存在可运行的程序时，默认打开 `ansi-term' 运行;
 NUM 为 2 强制打开 gnome-terminal;
-NUM 为 3 强制打开 eshell;
-NUM 为 4 强制当前目录启动 eshell."
+NUM 为 3 强制录启动 eshell;
+NUM 为 4 强制当前目打开 eshell."
   (interactive "p")
   (require 'eshell)
   (require 'esh-mode)
@@ -104,20 +102,19 @@ NUM 为 4 强制当前目录启动 eshell."
            (wn (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
            (app (when (buffer-file-name) (zerolee--eshell-get-app))))
-      (if (and (or app (= num 2)) (< num 3))
-          (zerolee--eshell-run num app)
-        (if wn
-            (let ((buffer (get-buffer (format "*eshell*<%s>" wn))))
-              (if (and buffer (get-buffer-window buffer))
-                  (delete-windows-on buffer)
-                (eshell wn)))
-          (puthash default-directory (1+ max) zerolee--eshell-path-hashtable)
-          (eshell (1+ max))
-          (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
+      (cond ((and app (= num 1)) (zerolee--ansi-term app))
+            ((= num 2) (call-process-shell-command "EMACS_START=nil gnome-terminal"))
+            (wn (let ((buffer (get-buffer (format "*eshell*<%s>" wn))))
+                  (if (and buffer (get-buffer-window buffer))
+                      (delete-windows-on buffer)
+                    (eshell wn))))
+            (t (puthash default-directory (1+ max) zerolee--eshell-path-hashtable)
+               (eshell (1+ max))
+               (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
 
 ;;;###autoload
 (defun zerolee-compile (&optional arg)
-  "对 `compile' 和 smart-compile 的一个轻微的包装"
+  "对 `compile' 和 `smart-compile' 的一个轻微的包装."
   (interactive "p")
   (require 'smart-compile)
   (let ((default-directory (zerolee--eshell-get-project-root)))

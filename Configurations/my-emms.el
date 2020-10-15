@@ -53,16 +53,13 @@
 
 (advice-add 'emms-source-playlist-pls-files :around
             #'(lambda (_orig-func &rest _)
-                (let ((files nil)
-                      file)
+                (let ((files nil))
                   (save-excursion
                     (goto-char (point-min))
                     (while (re-search-forward "^File\\([0-9]*\\)=\\(.+\\)$" nil t)
-                      (progn
-                        (setq file (match-string 2))
-                        (push file files)
-                        (when (re-search-forward (format "^Title%s=\\(.+\\)$" (match-string 1)) nil t)
-                          (puthash file (match-string 1) zerolee--emms-hash-pls)))))
+                      (push (match-string 2) files)
+                      (when (re-search-forward (format "^Title%s=\\(.+\\)$" (match-string 1)) nil t)
+                        (puthash (car files) (match-string 1) zerolee--emms-hash-pls))))
                   (nreverse files))))
 
 (if (file-directory-p "~/音乐")
