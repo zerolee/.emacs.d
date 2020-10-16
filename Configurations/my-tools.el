@@ -1,4 +1,4 @@
-;;;  my-tools.el ---  shell 设置相关 -*- lexical-binding: t; -*-
+;;;  my-tools.el ---  一些小工具合集 -*- lexical-binding: t; -*-
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -15,7 +15,8 @@
 
 ;;; Commentary:
 
-;;; 主要对 Emacs 自带的 [e]shell进行配置
+;;; 主要针对对 Emacs 自带的 [e]shell、ansi-term 进行配置
+;;; 此外，此处也搜集了一些方便使用的小工具函数
 ;;; Code:
 (require 'thingatpt)
 
@@ -30,14 +31,12 @@
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
 (defsubst zerolee--eshell-get-java-package-name ()
-  (let ((first-line
-         (save-excursion
-           (goto-char (point-min))
-           (buffer-substring-no-properties (point-min) (line-end-position)))))
-    (when (string-match "^package\\b" first-line)
-      (replace-regexp-in-string
-       "[.;]" "/"
-       (string-trim (substring first-line 8))))))
+  (pcase (split-string
+          (save-excursion
+            (goto-char (point-min))
+            (buffer-substring-no-properties (point-min) (line-end-position))))
+    (`(,(pred (string= "package")) ,java-package-name)
+     (replace-regexp-in-string "[.;]" "/" java-package-name))))
 
 (defun zerolee--eshell-get-project-root ()
   "获取关联项目的 root"
@@ -88,8 +87,8 @@
 已关联的话直接打开关联的 eshell，否则的话打开一个新的 eshell;
 存在可运行的程序时，默认打开 `ansi-term' 运行;
 NUM 为 2 强制打开 gnome-terminal;
-NUM 为 3 强制录启动 eshell;
-NUM 为 4 强制当前目打开 eshell."
+NUM 为 3 强制启动 eshell;
+NUM 为 4 强制当前目录打开 eshell."
   (interactive "p")
   (require 'eshell)
   (require 'esh-mode)
@@ -166,13 +165,10 @@ NUM 为 4 强制当前目打开 eshell."
   (let ((current-file-name
          (cond ((eq major-mode 'dired-mode) (dired-get-file-for-visit))
                ((help-at-pt-string)
-                (let ((current-string
-                       (nth 1 (split-string (help-at-pt-string)))))
-                  (if (string-match "^file:" current-string)
-                      (expand-file-name (substring current-string 5))
-                    (if (not (string-match "^[a-z]+:" current-string))
-                        (expand-file-name current-string)
-                      current-string))))
+                (pcase (cdr (split-string (help-at-pt-string) ":" t " "))
+                  ((or `(,path) `(,(pred (string= "file")) ,path) `(,proto ,path ,num))
+                   (expand-file-name path))
+                  (`(,proto ,path) (concat proto ":" path))))
                (t (or (thing-at-point 'url) buffer-file-name))))
         (program (if arg
                      (read-shell-command "Open current file with: ")
