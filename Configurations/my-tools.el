@@ -21,12 +21,13 @@
 (require 'thingatpt)
 
 (defvar zerolee--eshell-path-hashtable (make-hash-table :test #'equal)
-  "每次启动 eshell 的时候将启动时的路径存储进 hash-table 中")
+  "每次启动 eshell 的时候将启动时的路径存储进 hash-table 中.
+格式为 (path . (eshell-num . term-buffer)).")
 
 (defconst zerolee--eshell-app-alist
   '((java-mode . (".class" (zerolee--eshell-get-java-package-name) "java "))
     (c-mode . ("" "" "./")))
-  "该代码生成的程序后缀 包名 程序执行时长相")
+  "该代码生成的程序后缀 包名 程序执行时长相.")
 
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
@@ -35,7 +36,7 @@
           (save-excursion
             (goto-char (point-min))
             (buffer-substring-no-properties (point-min) (line-end-position))))
-    (`(,(pred (string= "package")) ,java-package-name)
+    (`(,(pred (string= "package")) ,java-package-name . ,_)
      (replace-regexp-in-string "[.;]" "/" java-package-name))))
 
 (defun zerolee--eshell-get-project-root ()
@@ -67,22 +68,29 @@
   (concat (eval (nth 2 (assoc major-mode zerolee--eshell-app-alist)))
           (file-name-nondirectory (buffer-file-name))))
 
-(defsubst zerolee--ansi-term (app)
-  "运行 APP."
+(defsubst zerolee--ansi-term (app et)
+  "运行 APP, ET 为 Eshell num 与 `ansi-term' buffer."
   (require 'term)
+  (if (and et (cdr et))
+      (pop-to-buffer-same-window (get-buffer (cdr et)))
+    (if et
+        (setcdr et (generate-new-buffer-name "*ansi-term*"))
+      (setq et (cons nil (generate-new-buffer-name "*ansi-term*"))))
+    (puthash default-directory et zerolee--eshell-path-hashtable))
   (term-send-string (pop-to-buffer-same-window
-                     (term-ansi-make-term
-                      (generate-new-buffer-name "*ansi-term*") "bash"))
+                     (term-ansi-make-term (cdr et) "bash"))
                     app)
   (term-send-input)
   (set-process-sentinel (get-process (buffer-name))
                         #'(lambda (proc _)
                             (when (eq 'exit (process-status proc))
-                              (kill-buffer (process-buffer proc))))))
+                              (kill-buffer (process-buffer proc))
+                              (setcdr et nil)
+                              (puthash default-directory et zerolee--eshell-path-hashtable)))))
 
 ;;;###autoload
 (defun zerolee-eshell (&optional num)
-  "若处于 `eshell-mode' 中则删除该窗口.
+  "若处于 `eshell-mode' 或 `term-mode' 中则删除该窗口.
 否则的话，获取【正确】的关联目录，关联目录是否关联 eshell;
 已关联的话直接打开关联的 eshell，否则的话打开一个新的 eshell;
 存在可运行的程序时，默认打开 `ansi-term' 运行;
@@ -92,24 +100,29 @@ NUM 为 4 强制当前目录打开 eshell."
   (interactive "p")
   (require 'eshell)
   (require 'esh-mode)
-  (if (eq major-mode 'eshell-mode)
+  (if (memq major-mode  '(term-mode eshell-mode))
       (delete-window)
     (let* ((default-directory
              (if (= 4 num)
                  default-directory
                (zerolee--eshell-get-project-root)))
-           (wn (gethash default-directory zerolee--eshell-path-hashtable))
+           (et (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
            (app (when (buffer-file-name) (zerolee--eshell-get-app))))
-      (cond ((and app (= num 1)) (zerolee--ansi-term app))
+      (cond ((and app (= num 1)) (zerolee--ansi-term app et))
             ((= num 2) (call-process-shell-command "EMACS_START=nil gnome-terminal"))
-            (wn (let ((buffer (get-buffer (format "*eshell*<%s>" wn))))
-                  (if (and buffer (get-buffer-window buffer))
-                      (delete-windows-on buffer)
-                    (eshell wn))))
-            (t (puthash default-directory (1+ max) zerolee--eshell-path-hashtable)
-               (eshell (1+ max))
-               (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
+            ((and et (car et))
+             (let ((buffer (get-buffer (format "*eshell*<%s>" (car et)))))
+               (if (and buffer (get-buffer-window buffer))
+                   (delete-windows-on buffer)
+                 (eshell (car et)))))
+            (t
+             (if et
+                 (setcar et (1+ max))
+               (setq et (list (1+ max))))
+             (puthash default-directory et zerolee--eshell-path-hashtable)
+             (eshell (1+ max))
+             (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
 
 ;;;###autoload
 (defun zerolee-compile (&optional arg)
