@@ -18,20 +18,55 @@
 ;;; 主要针对对 Emacs 自带的 [e]shell、ansi-term 进行配置
 ;;; 此外，此处也搜集了一些方便使用的小工具函数
 ;;; Code:
-(require 'thingatpt)
+(eval-when-compile (require 'subr-x))
 
 (defvar zerolee--eshell-path-hashtable (make-hash-table :test #'equal)
   "每次启动 eshell 的时候将启动时的路径存储进 hash-table 中.
 格式为 (path . (eshell-num . term-buffer)).")
 
-(defconst zerolee--eshell-app-alist
-  '((java-mode . (".class" (zerolee--eshell-get-java-package-name) "java "))
-    (c-mode . ("" "" "./")))
-  "该代码生成的程序后缀 包名 程序执行时长相.")
+(defconst zerolee--compile-alist
+  '((emacs-lisp-mode    . (emacs-lisp-byte-compile))
+    (html-mode          . (browse-url-of-buffer))
+    (nxhtml-mode        . (browse-url-of-buffer))
+    (html-helper-mode   . (browse-url-of-buffer))
+    (octave-mode        . (run-octave))
+    ("\\.c\\'"          . "gcc -O2 %f -lm -o %n")
+    ("\\.[Cc]+[Pp]*\\'" . "g++ -O2 %f -lm -o %n")
+    ("\\.[Ss]\\'"       . "as  %f")
+    ("\\.cs\\'"         . "mcs %f")
+    ("\\.cron\\(tab\\)?\\'" . "crontab %f")
+    ("\\.cu\\'"         . "nvcc %f -o %n")
+    ("\\.cuf\\'"        . "pgfortran %f -o %n")
+    ("\\.[Ff]\\'"       . "gfortran %f -o %n")
+    ("\\.[Ff]90\\'"     . "gfortran %f -o %n")
+    ("\\.go\\'"         . "go run %f")
+    ("\\.hs\\'"         . "ghc %f -o %n")
+    ("\\.java\\'"       . "javac -Xlint:deprecation -Xlint:fallthrough %f")
+    ("\\.jl\\'"         . "julia %f")
+    ("\\.js\\'"         . "js %f")
+    ("\\.lua\\'"        . "lua %f")
+    ("\\.m\\'"          . "gcc -O2 %f -lobjc -lpthread -o %n")
+    ("\\.mp\\'"         . "mptopdf %f")
+    ("\\.php\\'"        . "php -l %f")
+    ("\\.pl\\'"         . "perl %f")
+    ("\\.p[l]?6\\'"     . "perl6 %f")
+    ("\\.py\\'"         . "python3 %f")
+    ("\\.raku\\'"       . "perl6 %f")
+    ("\\.rb\\'"         . "ruby %f")
+    ("\\.rs\\'"         . "rustc %f -o %n")
+    ("Rakefile\\'"      . "rake")
+    ("Gemfile\\'"       . "bundle install")
+    ("\\.tex\\'"        . (tex-file))
+    ("\\.texi\\'"       . "makeinfo %f")
+    ;;  ("\\.pl\\'"         . "perl -cw %f") ; syntax check
+    ;;  ("\\.rb\\'"         . "ruby -cw %f") ; syntax check
+    )  "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.
+当文件名与 REGEXP 匹配 或者 `major-mode' 与 MAJOR-MODE 匹配时，
+执行 STRING 中内容 %f 被文件名替换， %n 被无后缀文件名替换.")
 
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
-(defsubst zerolee--eshell-get-java-package-name ()
+(defsubst zerolee--get-java-package-name ()
   (pcase (split-string
           (save-excursion
             (goto-char (point-min))
@@ -39,17 +74,20 @@
     (`(,(pred (string= "package")) ,java-package-name . ,_)
      (replace-regexp-in-string "[.;]" "/" java-package-name))))
 
-(defun zerolee--eshell-get-project-root ()
-  "获取关联项目的 root"
+(defun zerolee--get-code-info (N)
+  "根据 N 获取该代码生成的程序后缀0、包名1、程序执行时长相2."
+  (nth N (pcase major-mode
+           ('java-mode `(".class" ,(zerolee--get-java-package-name) "java "))
+           ('c-mode `("" "" "./")))))
+
+(defun zerolee--get-project-root ()
+  "获取关联项目的 root."
   (require 'projectile)
   (or (projectile-project-root)
-      (if (buffer-file-name)
-          (substring (buffer-file-name) 0
-                     (- (length (zerolee--eshell-get-sourcecode-name)))))
-      default-directory))
+      (string-trim-right default-directory (zerolee--get-code-info 1))))
 
-(defsubst zerolee--eshell-get-app ()
-  "获取需要运行的程序，如果所需要运行的程序不存在返回 nil"
+(defsubst zerolee--get-run-app ()
+  "获取需要运行的程序，如果所需要运行的程序不存在返回 nil."
   (let* ((program
           (if (region-active-p)
               (buffer-substring-no-properties
@@ -58,20 +96,15 @@
          (app
           (if (file-exists-p
                (concat (file-name-directory (buffer-file-name)) program
-                       (nth 1 (assoc major-mode zerolee--eshell-app-alist))))
-              (concat (file-name-directory (zerolee--eshell-get-sourcecode-name))
-                      program))))
+                       (zerolee--get-code-info 0)))
+              (concat (zerolee--get-code-info 1) program))))
     (when app
-      (concat (nth 3 (assoc major-mode zerolee--eshell-app-alist)) app))))
-
-(defun zerolee--eshell-get-sourcecode-name ()
-  (concat (eval (nth 2 (assoc major-mode zerolee--eshell-app-alist)))
-          (file-name-nondirectory (buffer-file-name))))
+      (concat (zerolee--get-code-info 2) app))))
 
 (defsubst zerolee--ansi-term (app et)
   "运行 APP, ET 为 Eshell num 与 `ansi-term' buffer."
   (require 'term)
-  (if (and et (cdr et))
+  (if (cdr et)
       (pop-to-buffer-same-window (get-buffer (cdr et)))
     (if et
         (setcdr et (generate-new-buffer-name "*ansi-term*"))
@@ -81,12 +114,13 @@
                      (term-ansi-make-term (cdr et) "bash"))
                     app)
   (term-send-input)
-  (set-process-sentinel (get-process (buffer-name))
-                        #'(lambda (proc _)
-                            (when (eq 'exit (process-status proc))
-                              (kill-buffer (process-buffer proc))
-                              (setcdr et nil)
-                              (puthash default-directory et zerolee--eshell-path-hashtable)))))
+  (set-process-sentinel
+   (get-process (buffer-name))
+   #'(lambda (proc _)
+       (when (eq 'exit (process-status proc))
+         (kill-buffer (process-buffer proc))
+         (setcdr et nil)
+         (puthash default-directory et zerolee--eshell-path-hashtable)))))
 
 ;;;###autoload
 (defun zerolee-eshell (&optional num)
@@ -105,13 +139,13 @@ NUM 为 4 强制当前目录打开 eshell."
     (let* ((default-directory
              (if (= 4 num)
                  default-directory
-               (zerolee--eshell-get-project-root)))
+               (zerolee--get-project-root)))
            (et (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
-           (app (when (buffer-file-name) (zerolee--eshell-get-app))))
+           (app (when (buffer-file-name) (zerolee--get-run-app))))
       (cond ((and app (= num 1)) (zerolee--ansi-term app et))
             ((= num 2) (call-process-shell-command "EMACS_START=nil gnome-terminal"))
-            ((and et (car et))
+            ((car et)
              (let ((buffer (get-buffer (format "*eshell*<%s>" (car et)))))
                (if (and buffer (get-buffer-window buffer))
                    (delete-windows-on buffer)
@@ -124,32 +158,59 @@ NUM 为 4 强制当前目录打开 eshell."
              (eshell (1+ max))
              (puthash "max" (1+ max) zerolee--eshell-path-hashtable))))))
 
-;;;###autoload
-(defun zerolee-compile (&optional arg)
-  "对 `compile' 和 `smart-compile' 的一个轻微的包装."
-  (interactive "p")
-  (require 'smart-compile)
-  (let ((default-directory (zerolee--eshell-get-project-root)))
-    (if (not (equal major-mode 'java-mode))
-        (smart-compile arg)
-      (set (make-local-variable 'compile-command)
-           (concat "javac " (zerolee--eshell-get-sourcecode-name)))
-      (call-interactively #'compile))))
+(defsubst zerolee--format-compile (compiler)
+  "替换 COMPILER 中的 %n, %f."
+  (let ((base (concat (zerolee--get-code-info 1)
+                      (file-name-base buffer-file-name)))
+        (name (concat (zerolee--get-code-info 1)
+                      (file-name-nondirectory buffer-file-name))))
+    (string-replace "%n" base (string-replace "%f" name compiler))))
 
 ;;;###autoload
-(defun zerolee-find-file (&optional NUM)
-  "查找文件：NUM=1 且存在 .gitignore 时调用 `counsel-git' 否则调用 `counsel-fzf'."
+(defun zerolee-compile ()
+  "对 `compile' 的一个轻微的包装."
+  (interactive)
+  (let ((default-directory (zerolee--get-project-root))
+        (name (buffer-file-name))
+        (compiler nil))
+    (cond ((and (local-variable-p 'compile-command) compile-command))
+          ((or (file-readable-p "Makefile")
+               (file-readable-p "makefile"))
+           (set (make-local-variable 'compile-command) "make "))
+          (name
+           (if (catch 'done
+                 (dolist (alist zerolee--compile-alist)
+                   (when (or (and (symbolp (car alist))
+                                  (eq (car alist) major-mode))
+                             (and (stringp (car alist))
+                                  (string-match (car alist) name)))
+                     (setq compiler (cdr alist))
+                     (throw 'done compiler))))
+               (if (listp compiler)
+                   (eval compiler)
+                 (set (make-local-variable 'compile-command)
+                      (zerolee--format-compile compiler)))
+             (if (string= "#!" (buffer-substring-no-properties 1 3))
+                 (set (make-local-variable 'compile-command) name)))))
+    ;; compile
+    (when (or (null compiler)
+              (not (listp compiler)))
+      (call-interactively 'compile))))
+
+;;;###autoload
+(defun zerolee-find-file (&optional N)
+  "查找文件：N=1 且存在 .gitignore 时调用 `counsel-git' 否则调用 `counsel-fzf'."
   (interactive "p")
-  (let ((default-directory (zerolee--eshell-get-project-root)))
-    (if (and (file-readable-p ".gitignore") (= 1 NUM))
+  (let ((default-directory (zerolee--get-project-root)))
+    (if (and (file-readable-p ".gitignore") (= 1 N))
         (call-interactively #'counsel-git)
       (call-interactively #'counsel-fzf))))
 
 ;;;###autoload
 (defun zerolee-rg (&optional initvalue)
-  "查找文件"
+  "给定默认目录以及初始值 INITVALUE 后对 `counsel-rg' 的一个轻微的包装."
   (interactive)
-  (let ((default-directory (zerolee--eshell-get-project-root)))
+  (let ((default-directory (zerolee--get-project-root)))
     (counsel-rg initvalue)))
 
 ;;;###autoload
@@ -172,14 +233,14 @@ NUM 为 4 强制当前目录打开 eshell."
 (defun zerolee-open-with (arg)
   "使用外部程序打开浏览的文件或者当前光标下的链接.
 处于 dired mode 时, 打开当前光标下的文件;
-若当前光标下存在文件链接，使用外部程序打开链接文件;
+若当前光标下存在链接，使用外部程序打开链接;
 使用 prefix ARG 时指定使用的外部程序."
   (interactive "P")
   (let ((current-file-name
          (cond ((eq major-mode 'dired-mode) (dired-get-file-for-visit))
                ((help-at-pt-string)
                 (pcase (cdr (split-string (help-at-pt-string) ":" t " "))
-                  ((or `(,path) `(,(pred (string= "file")) ,path) `(,proto ,path ,num))
+                  ((or `(,path) `(,(pred (string= "file")) ,path) `(,_ ,path ,_))
                    (expand-file-name path))
                   (`(,proto ,path) (concat proto ":" path))))
                (t (or (thing-at-point 'url) buffer-file-name))))
@@ -191,12 +252,12 @@ NUM 为 4 强制当前目录打开 eshell."
 
 ;;;###autoload
 (defun zerolee-delete-window ()
-  "delete dedicate 状态为 side 的窗口"
+  "Delete dedicate 状态为 side 的窗口."
   (interactive)
   (require 'ace-window)
   (let (side)
     (dolist (window (window-list))
-      (when (equal (window-dedicated-p window) 'side)
+      (when (eq (window-dedicated-p window) 'side)
         (setq side t)
         (delete-window window)))
     (unless side

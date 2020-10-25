@@ -24,7 +24,7 @@
                 #'(lambda () (interactive)
                     (when (and buffer-undo-list
                                (listp buffer-undo-list))
-                      (xref--push-markers)
+                      (xref-push-marker-stack)
                       (goto-char (last (cadr buffer-undo-list) 0)))))
 
 ;; electric-newline-and-maybe-indent
@@ -66,6 +66,10 @@
 (global-set-key (kbd "s-L") 'windmove-swap-states-right)
 (global-set-key (kbd "s-J") 'windmove-swap-states-down)
 (global-set-key (kbd "s-K") 'windmove-swap-states-up)
+(global-set-key (kbd "S-<up>") 'enlarge-window)
+(global-set-key (kbd "S-<down>") 'shrink-window)
+(global-set-key (kbd "S-<left>") 'shrink-window-horizontally)
+(global-set-key (kbd "S-<right>") 'enlarge-window-horizontally)
 
 
 ;;; dired

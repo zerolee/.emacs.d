@@ -35,19 +35,3 @@
    用来预览 Markdown、Org 文件
 ** zerolee-lib.el
    一些个人使用的函数
-** smart-compile.el
-   1. [[https://github.com/zenitani/elisp/blob/master/smart-compile.el][smart-compile]] : An interface to compile.
-
-   2. 其他类似工具：
-
-      [[https://github.com/emacsorphanage/quickrun/blob/master/quickrun.el][quickrun.el]] is Emacs port of [[https://github.com/thinca/vim-quickrun][quickrun.vim]]
-
-      [[https://github.com/zilongshanren/spacemacs-private/blob/develop/layers/zilongshanren-programming/local/compile-dwim/compile-dwim.el][compile-dwim]]
-      
-      Features:
-      
-      1. Smart compile and run command for associated mode.
-      
-      2. File timestamp check both compiling and runing
-      
-      3. Easy for customization

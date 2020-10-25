@@ -17,7 +17,7 @@
   :init
   (defconst zerolee--ove-not-startup-mode
     '(treemacs-mode package-menu-mode ibuffer-mode bookmark-bmenu-mode
-                    process-menu-mode)
+                    process-menu-mode occur-mode apropos-mode)
     "ove 默认不启动的 mode")
   :bind (("<escape>" . (lambda () (interactive) (ove-mode 1)))
          ("C-w" . (lambda () (interactive)
@@ -31,7 +31,7 @@
   :commands (ove-mode ove-ckm)
   :hook ((prog-mode text-mode comint-mode special-mode)
          .
-         (lambda () (interactive)
+         (lambda ()
            (if (and buffer-read-only
                     (not (memq major-mode zerolee--ove-not-startup-mode))
                     (not (derived-mode-p 'magit-mode)))
@@ -55,7 +55,7 @@
   (setq projectile-completion-system 'ivy)
   (advice-add 'projectile-find-file-dwim :before
               #'(lambda (&rest _)
-                  (xref--push-markers)
+                  (xref-push-marker-stack)
                   (ove-mode 1))))
 
 
@@ -196,7 +196,7 @@
   (define-key paredit-mode-map (kbd "M-<down>")
     '(lambda ()
        (interactive)
-       (zerolee-search-forward-char 1 ?\))
+       (search-forward ")" (point-at-eol) t 1)
        (paredit-newline)
        (ove-mode 0)))
   (define-key paredit-mode-map (kbd "(") nil)

@@ -29,12 +29,6 @@
   "查看 buffer 在打开的 window 中的位置，不存在返回 nil"
   (cl-position buffer (mapcar #'window-buffer (window-list))))
 
-(defun zerolee-search-forward-char (arg char)
-  "查找单个字符 char arg 次"
-  (interactive "*p\ncZap: ")
-  (search-forward
-   (char-to-string char) nil nil arg))
-
 (defun zerolee-goto-ibuffer ()
   "打开并跳转到 Ibuffer"
   (interactive)
