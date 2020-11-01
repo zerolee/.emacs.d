@@ -208,11 +208,6 @@
               #'(lambda (&optional _) (unless mark-active
                                         (ove-mode 0)))))
 
-(use-package key-chord
-  :config
-  (key-chord-mode 1)
-  (key-chord-define-global "df" '(lambda () (interactive) (ove-mode 1))))
-
 (use-package emms :defer t)
 
 (use-package my-emms

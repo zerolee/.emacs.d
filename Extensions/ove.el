@@ -204,9 +204,19 @@
                             (beginning-of-line)
                             (ove--emacs-get #'end-of-line "m")))
     (define-key map "t" #'(lambda () (interactive)
-                            (ove--emacs-get #'avy-goto-char "t")))
+                            (ove--emacs-get
+                             #'(lambda () (interactive)
+                                 (let ((p (point)))
+                                   (call-interactively #'avy-goto-char)
+                                   (when (> (point) p)
+                                     (forward-char)))) "t")))
     (define-key map "f" #'(lambda () (interactive)
-                            (ove--emacs-get #'avy-goto-char-in-line "f")))
+                            (ove--emacs-get
+                             #'(lambda () (interactive)
+                                 (let ((p (point)))
+                                   (call-interactively #'avy-goto-char-in-line)
+                                   (when (> (point) p)
+                                     (forward-char)))) "f")))
     map)
   "Keymap for ckm commands.")
 (let (ove-arg1
