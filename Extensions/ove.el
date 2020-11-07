@@ -16,6 +16,8 @@
 ;;; Commentary:
 
 ;;; Code:
+(require 'thunk)
+
 (defgroup ove-face nil
   "类 vim 模式的的 emacs 按键风格"
   :group 'ove-face)
@@ -56,21 +58,37 @@
 
 (defun ove--list-dwim (N)
   "N=1: el, N=0:l."
-  (let ((state (ove--current-parse-state))
-        (lr (ove--parse-abracket)))
+  (thunk-let ((state (ove--current-parse-state))
+              (lr (ove--parse-abracket)))
     (if (or (< 0 (car state))
             (nth 3 state))
         (paredit-backward-up)
-      (when (car lr)
+      (when (and (car lr) (cadr lr))
         (goto-char (car lr))))
     (forward-char N)
     #'(lambda () (interactive)
-        (if (cadr lr)
-            (goto-char (1+ (cadr lr)))
-          (if (= N 1)
-              (paredit-forward-up)
-            (forward-sexp)))
+        (if (or (< 0 (car state))
+                (nth 3 state))
+            (if (= N 1)
+                (paredit-forward-up)
+              (forward-sexp))
+          (when (and (cadr lr) (car lr))
+            (goto-char (1+ (cadr lr)))))
         (backward-char N))))
+
+(defun ove--html-tag (N)
+  "N=1: et, N=0:at."
+  (require 'sgml-mode)
+  (while (thing-at-point-looking-at "</[a-z]+>[ \n]*")
+    (sgml-skip-tag-backward 1))
+  (sgml-skip-tag-backward 1)
+  (if (string= "<!--" (buffer-substring-no-properties (point) (+ (point) 4)))
+      (sgml-skip-tag-backward 1))
+  (and (= N 1) (search-forward ">" (point-at-eol) t))
+  #'(lambda () (interactive)
+      (and (= N 1) (sgml-skip-tag-backward 1))
+      (sgml-skip-tag-forward 1)
+      (and (= N 1)(search-backward "<" (point-at-bol) t))))
 
 (defvar ove-emacs/ckm-map
   (let ((map (make-sparse-keymap)))
@@ -121,10 +139,7 @@
           (ove--emacs-get '(lambda () (interactive)
                              (search-forward "'" (point-at-eol) t 2)) "a'")))
     (define-key map "at" #'(lambda () (interactive)
-                             (require 'sgml-mode)
-                             (sgml-skip-tag-forward 1)
-                             (sgml-skip-tag-backward 1)
-                             (ove--emacs-get #'sgml-skip-tag-forward "at")))
+                             (ove--emacs-get (ove--html-tag 0) "at")))
     (define-key map "e'"
       #'(lambda () (interactive)
           (search-backward "'" (point-at-bol) t 1)
@@ -133,13 +148,7 @@
                              (search-forward "'" (point-at-eol) t 1)
                              (backward-char 1)) "e'")))
     (define-key map "et" #'(lambda () (interactive)
-                             (require 'sgml-mode)
-                             (sgml-skip-tag-forward 1)
-                             (sgml-skip-tag-backward 1)
-                             (forward-sexp)
-                             (ove--emacs-get '(lambda () (interactive)
-                                                (sgml-skip-tag-forward 1)
-                                                (backward-sexp)) "at")))
+                             (ove--emacs-get (ove--html-tag 1) "et")))
     (define-key map "el" #'(lambda () (interactive)
                              (ove--emacs-get (ove--list-dwim 1) "el")))
     (define-key map "l" #'(lambda () (interactive)

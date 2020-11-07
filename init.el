@@ -3,8 +3,7 @@
       (cons "~/.emacs.d/Configurations"
             (cons "~/.emacs.d/Extensions" load-path)))
 
-(setq custom-file
-      (expand-file-name "Configurations/custom.el" user-emacs-directory))
+(setq custom-file "~/.emacs.d/Configurations/custom.el")
 
 (load "emacs-std")
 (load "extensions")
@@ -12,7 +11,7 @@
 (load "my-macros")
 (load "my-hydra")
 (load "bindings")
-(load-file custom-file)
+(load custom-file)
 
 (provide 'init)
 ;;; init.el ends heres

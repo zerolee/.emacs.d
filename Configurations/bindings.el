@@ -117,13 +117,13 @@
 (global-set-key [key-chord ?d ?f] #'(lambda () (interactive) (ove-mode 1)))
 (setq input-method-function
       #'(lambda (first-char)
-          (catch 'done
-            (when (and (memq first-char '(?d ?f))
-                       (not (sit-for 0.05 'no-redisplay)))
+          (if (and (memq first-char '(?d ?f))
+                   (not (sit-for 0.05 'no-redisplay)))
               (let* ((input-method-function nil)
                      (next-char (read-event)))
                 (if (and (memq next-char '(?d ?f))
                          (not (eq first-char next-char)))
-                    (throw 'done (list 'key-chord ?d ?f))
-                  (push next-char unread-command-events))))
+                    (list 'key-chord ?d ?f)
+                  (push next-char unread-command-events)
+                  (list first-char)))
             (list first-char))))

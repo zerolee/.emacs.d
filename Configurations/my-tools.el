@@ -218,12 +218,17 @@ NUM 为 4 强制当前目录打开 eshell."
   "综合了 `projectile-find-file-dwim' `zerolee-rg' 等的跳转函数."
   (interactive)
   (require 'projectile)
+  (require 'ffap)
   (if (save-excursion
         (search-backward "#include" (line-beginning-position) t))
       (condition-case nil
           (call-interactively #'projectile-find-file-dwim)
         (error (call-interactively #'ffap)))
-    (zerolee-rg (concat "\\b" (thing-at-point 'filename t) "\\b")))
+    (if (nth 3 (syntax-ppss))
+        (if (ffap-file-at-point)
+            (find-file (ffap-file-at-point))
+          (call-interactively #'ffap))
+      (zerolee-rg (concat "\\b" (thing-at-point 'filename t) "\\b"))))
   (ove-mode 1))
 
 
