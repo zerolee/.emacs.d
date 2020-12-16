@@ -19,6 +19,7 @@
 ;;; 个人配置 emms 的文件
 ;;; Code:
 (require 'ivy)
+(require 'zerolee-lib)
 
 (require 'emms-source-file)
 (require 'emms-source-playlist)
@@ -115,11 +116,8 @@
   #'(lambda (times)
       "跳转到指定时间，格式 min:seconds，min 可省略."
       (interactive "s[min:]seconds: ")
-      (let ((seconds 0))
-        (dolist (time (mapcar #'string-to-number (split-string times ":")))
-          (setq seconds (+ time (* seconds 60))))
-        (emms-ensure-player-playing-p)
-        (emms-player-seek-to seconds))))
+      (emms-ensure-player-playing-p)
+      (emms-player-seek-to (zerolee-time-to-seconds times))))
 (define-key emms-playlist-mode-map (kbd "M-p")
   #'(lambda ()
       (interactive)

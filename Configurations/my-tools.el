@@ -48,19 +48,17 @@
     ("\\.m\\'"          . "gcc -O2 %f -lobjc -lpthread -o %n")
     ("\\.mp\\'"         . "mptopdf %f")
     ("\\.php\\'"        . "php -l %f")
-    ("\\.pl\\'"         . "perl %f")
+    ("\\.pl\\'"         . "perl %f");;"perl -cw %f" ; syntax check
     ("\\.p[l]?6\\'"     . "perl6 %f")
     ("\\.py\\'"         . "python3 %f")
     ("\\.raku\\'"       . "perl6 %f")
-    ("\\.rb\\'"         . "ruby %f")
+    ("\\.rb\\'"         . "ruby %f")   ;; "ruby -cw %f" ; syntax check
     ("\\.rs\\'"         . "rustc %f -o %n")
     ("Rakefile\\'"      . "rake")
     ("Gemfile\\'"       . "bundle install")
     ("\\.tex\\'"        . (tex-file))
-    ("\\.texi\\'"       . "makeinfo %f")
-    ;;  ("\\.pl\\'"         . "perl -cw %f") ; syntax check
-    ;;  ("\\.rb\\'"         . "ruby -cw %f") ; syntax check
-    )  "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.
+    ("\\.texi\\'"       . "makeinfo %f"))
+  "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.
 当文件名与 REGEXP 匹配 或者 `major-mode' 与 MAJOR-MODE 匹配时，
 执行 STRING 中内容 %f 被文件名替换， %n 被无后缀文件名替换.")
 
