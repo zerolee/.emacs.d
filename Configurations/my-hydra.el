@@ -1,5 +1,9 @@
-;;; -*- lexical-binding: t; -*-
+;;; my-hydra.el --- hydra 相关配置 -*- lexical-binding: t; -*-
+;;; Commentary:
+
+;;; Code:
 (require 'zerolee-lib)
+(require 'hydra)
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "
@@ -83,3 +87,6 @@
   ("9" self-insert-command)
   ("-" self-insert-command)
   ("" nil))
+
+(provide 'my-hydra)
+;;; my-hydra.el ends here

@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t; -*-
+;;; bindings.el --- 按键绑定相关 -*- lexical-binding: t; -*-
+;;; Commentary:
+
+;;; Code:
+
 ;; shift the meaning of C-s and C-M-s
 ;; shift the meaning of M-% and C-M-%
 (global-set-key (kbd "C-s") 'isearch-forward-regexp)
@@ -25,7 +29,8 @@
                     (when (and buffer-undo-list
                                (listp buffer-undo-list))
                       (xref-push-marker-stack)
-                      (goto-char (last (cadr buffer-undo-list) 0)))))
+                      (goto-char (or (last (cadr buffer-undo-list) 0)
+                                     (point))))))
 
 ;; electric-newline-and-maybe-indent
 (global-set-key (kbd "C-j") 'newline-and-indent)
@@ -47,7 +52,7 @@
 (global-set-key (kbd "M-<SPC>")
                 #'(lambda ()
                     (interactive)
-                    (call-process "fcitx-remote" nil nil nil "-c")
+                    (call-process "fcitx5-remote" nil nil nil "-c")
                     (hydra-f1/body)))
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
 
@@ -127,3 +132,6 @@
                   (push next-char unread-command-events)
                   (list first-char)))
             (list first-char))))
+
+(provide 'bindings)
+;;; bindings.el ends here

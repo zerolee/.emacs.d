@@ -1,4 +1,7 @@
-;;; -*- lexical-binding: t; -*-
+;;; extensions.el --- 编程语言之外的第三方扩展相关配置 -*- lexical-binding: t; -*-
+;;; Commentary:
+
+;;; Code:
 (require 'zerolee-lib)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
@@ -17,7 +20,7 @@
   :init
   (defconst zerolee--ove-not-startup-mode
     '(treemacs-mode package-menu-mode ibuffer-mode bookmark-bmenu-mode
-                    process-menu-mode occur-mode apropos-mode)
+                    process-menu-mode occur-mode apropos-mode proced-mode)
     "ove 默认不启动的 mode")
   :bind (("<escape>" . (lambda () (interactive) (ove-mode 1)))
          ("C-w" . (lambda () (interactive)
@@ -133,7 +136,7 @@
     (require 'dumb-jump))
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . (lambda () (interactive)
-                        (call-process "fcitx-remote" nil nil nil "-c")
+                        (call-process "fcitx5-remote" nil nil nil "-c")
                         (counsel-M-x)))
          ("M-y"     . counsel-yank-pop)
          ("C-h f"   . counsel-describe-function)
@@ -227,3 +230,6 @@
   :custom
   (remember-data-file "~/.emacs.d/notes.org")
   :bind ("<C-f5>" . remember))
+
+(provide 'extensions)
+;;; extensions.el ends here

@@ -1,4 +1,8 @@
-;;; -*- lexical-binding: t; -*-
+;;; programs.el --- 编程相关的一些配置 -*- lexical-binding: t; -*-
+;;; Commentary:
+
+;;; Code:
+(require 'use-package)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -22,6 +26,7 @@
 ;; lsp 相关的通用配置
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lsp--common-set ()
+  "Lsp 的一些通用配置."
   (lsp)
   (setq-local company-backends
               '((company-yasnippet company-capf)
@@ -99,7 +104,7 @@
                            (interactive)
                            (if (get-buffer-window eldoc--doc-buffer)
                                (delete-windows-on eldoc--doc-buffer)
-                             (eldoc-doc-buffer t)))))
+                             (eldoc-doc-buffer)))))
   :hook ((eglot-managed-mode
           .
           (lambda ()
@@ -148,3 +153,6 @@
   (set-default 'xref-backend-functions
                (push #'dumb-jump-xref-activate
                      (default-value 'xref-backend-functions))))
+
+(provide 'programs)
+;;; programs.el ends here

@@ -1,4 +1,7 @@
-;;; -*- lexical-binding: t; -*-
+;;; emacs-std.el --- Emacs 的一些基础配置-*- lexical-binding: t; -*-
+;;; Commentary:
+
+;;; Code:
 (setq display-time-default-load-average nil)
 (setq display-time-mail-string "")
 (display-time)
@@ -120,8 +123,7 @@
                  (window-height   . 0.33))))
 
 ;;; 配置窗口永远在右方，占据 45% 大小
-(dolist (buffer '("^\\*Help\\*$"
-                  "^\\*lsp-help\\*$"
+(dolist (buffer '("^\\*lsp-help\\*$"
                   "^\\*eglot-help"
                   "^\\*vc-"
                   ".el.gz$"
@@ -136,3 +138,6 @@
 ;;; 备份文件
 (add-to-list 'backup-directory-alist
              '("\\.*$" . "~/tmp/emacs_backup_file"))
+
+(provide 'emacs-std)
+;;; emacs-std.el ends here
