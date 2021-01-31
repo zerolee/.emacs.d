@@ -1,4 +1,4 @@
-;;;  my-emms.el ---  配置 emms -*- lexical-binding: t; -*-
+;;;  init-emms.el ---  配置 emms -*- lexical-binding: t; -*-
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -240,7 +240,7 @@
                        (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
                          (when (string-match sbf favourite)
                            (find-file (concat zerolee--emms-favourite favourite))
-                           (ove-mode 1)
+                           (vesie-mode 1)
                            (search-forward name nil t 1)
                            (beginning-of-line)))))
                     (t (error "Can't visit this track type in Dired"))))
@@ -306,5 +306,5 @@
         (zerolee--emms-toggle-popup))
       (emms-playlist-mode-play-current-track))))
 
-(provide 'my-emms)
-;;; my-emms.el ends here
+(provide 'init-emms)
+;;; init-emms.el ends here

@@ -32,9 +32,11 @@
               '((company-yasnippet company-capf)
                 company-dabbrev-code company-dabbrev
                 company-files))
-  (setq lsp-enable-indentation nil
-        lsp-enable-on-type-formatting nil
-        lsp-auto-execute-action nil)
+  (setq-local read-process-output-max (* 1024 1024))
+  (setq lsp-enable-on-type-formatting nil
+        lsp-auto-execute-action nil
+        lsp-auto-configure nil)
+  (add-hook 'completion-at-point-functions #'lsp-completion-at-point nil t)
   (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
   (define-key lsp-mode-map (kbd "M-?") #'xref-find-references)
@@ -45,7 +47,13 @@
             (delete-windows-on "*lsp-help*")
           (lsp-describe-thing-at-point))))
   (define-key lsp-mode-map (kbd "s-l") nil)
-  (setq abbrev-mode nil))
+  (setq abbrev-mode nil)
+  (lsp-diagnostics-mode 1)
+  (advice-add 'lsp-completion--regex-fuz :around
+              #'(lambda (_orig-func str)
+                  (format "^%s" str)))
+  (add-hook 'lsp-on-idle-hook #'lsp--document-highlight nil t)
+  (lsp-enable-imenu))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
@@ -112,7 +120,9 @@
               (setq-local company-backends
                           '((company-yasnippet company-capf)
                             company-dabbrev-code company-dabbrev
-                            company-files)))))
+                            company-files))
+              (setq-local completion-styles
+                          '(basic partial-completion emacs22)))))
          (eglot-server-initialized
           .
           (lambda (_server)

@@ -1,4 +1,4 @@
-# -*- ove-mode: 1; cursor-type: box; -*-
+# -*- vesie-mode: 1; cursor-type: box; -*-
 * init.el
   Emacs 启动时默认读取的配置文件，
   这个文件会读取 Configurations 下的相关文件，以及保存了 elpa 的一些相关设置
@@ -14,21 +14,21 @@
    编程语言无关的扩展的配置
 ** programs.el
    编程语言相关的配置
-** my-macros.el
+** init-macros.el
    保存一些键盘宏
-** my-hydra.el
+** init-hydra.el
    hydra 配置相关
-** my-emms.el
+** init-emms.el
    emms 相关的配置
-** my-tools.el
+** init-tools.el
    配置 shell 和 compile 等各种小工具
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
 ** antlr-mode.el         
 ** save-position.el
    主要使用来保存、恢复、查看当前位置信息的
-** ove.el
-   替代原本 [[file:Configurations/my-hydra.el][my-hydra]] 中的 ESC 绑定的一些命令，可以不需要修饰键
+** vesie.el
+   替代原本 [[file:Configurations/init-hydra.el][init-hydra]] 中的 ESC 绑定的一些命令，可以不需要修饰键
    使用 emacs 的命令， 类似于 vim 的模式
 ** hugomd.el
    用来预览 Markdown、Org 文件

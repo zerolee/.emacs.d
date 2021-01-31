@@ -119,7 +119,7 @@
 (define-key emacs-lisp-mode-map (kbd "C-c <return>") #'emacs-lisp-macroexpand)
 
 ;;; key-chord "df"
-(global-set-key [key-chord ?d ?f] #'(lambda () (interactive) (ove-mode 1)))
+(global-set-key [key-chord ?d ?f] #'(lambda () (interactive) (vesie-mode 1)))
 (setq input-method-function
       #'(lambda (first-char)
           (if (and (memq first-char '(?d ?f))

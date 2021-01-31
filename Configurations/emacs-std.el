@@ -37,7 +37,7 @@
 ;;;Also highlight parens,
 (show-paren-mode t)
 ;;showing matching parentheses
-;;(setq show-paren-delay 0
+;;(setq show-paren-delay 0)
 (setq show-paren-style 'parenthesis)
 ;; showing region between parentheses
 ;;(setq show-paren-style 'expression)
@@ -56,6 +56,8 @@
 (put 'upcase-region 'disabled 0)
 (put 'downcase-region 'disabled 0)
 
+;;; narrow
+(put 'narrow-to-region 'disabled nil)
 
 (delete-selection-mode t)
 
@@ -72,21 +74,6 @@
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
 (setenv "FZF_DEFAULT_COMMAND" "fd --type file")
-
-;;; 模板导入
-(add-hook 'find-file-hook
-          #'(lambda ()
-              (let* ((name (and (not (file-exists-p (buffer-file-name)))
-                                (file-name-extension
-                                 (concat "arbitrary"
-                                         (file-name-nondirectory
-                                          (buffer-file-name))))))
-                     (realname (and name (concat name "." name))))
-                (and realname
-                     (member realname (directory-files "~/模板"))
-                     (insert-file-contents (concat "~/模板/" realname))
-                     (yas-expand-snippet (buffer-string)
-                                         (point-min) (point-max))))))
 
 ;; Using MELPA
 (setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")

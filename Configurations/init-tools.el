@@ -1,4 +1,4 @@
-;;;  my-tools.el ---  一些小工具合集 -*- lexical-binding: t; -*-
+;;;  init-tools.el ---  一些小工具合集 -*- lexical-binding: t; -*-
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -227,7 +227,7 @@ NUM 为 4 强制当前目录打开 eshell."
             (find-file (ffap-file-at-point))
           (call-interactively #'ffap))
       (zerolee-rg (concat "\\b" (thing-at-point 'filename t) "\\b"))))
-  (ove-mode 1))
+  (vesie-mode 1))
 
 
 ;;; 来源 https://github.com/bbatsov/crux/blob/2e16b828910c9b8acba37e712d21b517d2cf78cc/crux.el#L152
@@ -266,5 +266,5 @@ NUM 为 4 强制当前目录打开 eshell."
     (unless side
       (ace-delete-window))))
 
-(provide 'my-tools)
-;;; my-tools.el ends here
+(provide 'init-tools)
+;;; init-tools.el ends here

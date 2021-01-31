@@ -1,4 +1,4 @@
-;;; my-hydra.el --- hydra 相关配置 -*- lexical-binding: t; -*-
+;;; init-hydra.el --- hydra 相关配置 -*- lexical-binding: t; -*-
 ;;; Commentary:
 
 ;;; Code:
@@ -88,5 +88,5 @@
   ("-" self-insert-command)
   ("" nil))
 
-(provide 'my-hydra)
-;;; my-hydra.el ends here
+(provide 'init-hydra)
+;;; init-hydra.el ends here

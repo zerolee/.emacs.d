@@ -15,30 +15,30 @@
          ("s-," . sp-get-position-from-ring)
          ("s-/" . sp-show-all-position-in-ring)))
 
-(use-package ove
+(use-package vesie
   :ensure nil
   :init
-  (defconst zerolee--ove-not-startup-mode
+  (defconst zerolee--vesie-not-startup-mode
     '(treemacs-mode package-menu-mode ibuffer-mode bookmark-bmenu-mode
                     process-menu-mode occur-mode apropos-mode proced-mode)
-    "ove 默认不启动的 mode")
-  :bind (("<escape>" . (lambda () (interactive) (ove-mode 1)))
+    "vesie 默认不启动的 mode")
+  :bind (("<escape>" . (lambda () (interactive) (vesie-mode 1)))
          ("C-w" . (lambda () (interactive)
                     (if (use-region-p)
                         (kill-region (region-beginning) (region-end))
-                      (ove-ckm "c"))))
+                      (vesie-ckm "c"))))
          ("M-w" . (lambda () (interactive)
                     (if (use-region-p)
                         (kill-ring-save (region-beginning) (region-end))
-                      (ove-ckm "m")))))
-  :commands (ove-mode ove-ckm)
+                      (vesie-ckm "m")))))
+  :commands (vesie-mode vesie-ckm)
   :hook ((prog-mode text-mode comint-mode special-mode)
          .
          (lambda ()
            (if (and buffer-read-only
-                    (not (memq major-mode zerolee--ove-not-startup-mode))
+                    (not (memq major-mode zerolee--vesie-not-startup-mode))
                     (not (derived-mode-p 'magit-mode)))
-               (ove-mode 1)
+               (vesie-mode 1)
              (setq cursor-type 'bar)))))
 
 (use-package hugomd
@@ -59,7 +59,7 @@
   (advice-add 'projectile-find-file-dwim :before
               #'(lambda (&rest _)
                   (xref-push-marker-stack)
-                  (ove-mode 1))))
+                  (vesie-mode 1))))
 
 
 (use-package mc-mark-more
@@ -112,7 +112,26 @@
 ;; yasnippet
 (use-package yasnippet-snippets
   :diminish yas-minor-mode
-  :hook (after-init . yas-global-mode))
+  :hook (after-init . yas-global-mode)
+  :config
+  (defun zerolee--autoinsert()
+    "打开文件时从当前目录开始往上查找模板文件，查找到则插入模板.
+若是没有查找到则到'~/模板/'目录下查找，找到则插入模板，否则不对文件做任何处理."
+    (let* ((name (and (not (file-exists-p (buffer-file-name)))
+                      (file-name-extension
+                       (concat "arbitrary"
+                               (file-name-nondirectory
+                                (buffer-file-name))))))
+           (realname (and name (concat name "." name)))
+           (place (and realname
+                       (or (locate-dominating-file (buffer-file-name) realname)
+                           (and (member realname (directory-files "~/模板"))
+                                "~/模板/")))))
+      (when place
+        (insert-file-contents (concat place realname))
+        (yas-expand-snippet (buffer-string)
+                            (point-min) (point-max)))))
+  (add-hook 'find-file-hook #'zerolee--autoinsert))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; ivy
@@ -132,7 +151,7 @@
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   (with-eval-after-load 'ivy
     (require 'counsel)
-    (require 'ove)
+    (require 'vesie)
     (require 'dumb-jump))
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . (lambda () (interactive)
@@ -201,7 +220,7 @@
        (interactive)
        (search-forward ")" (point-at-eol) t 1)
        (paredit-newline)
-       (ove-mode 0)))
+       (vesie-mode 0)))
   (define-key paredit-mode-map (kbd "(") nil)
   (define-key paredit-mode-map (kbd ")") nil)
   (define-key paredit-mode-map (kbd "[") nil)
@@ -209,15 +228,15 @@
   (define-key paredit-mode-map (kbd ";") nil)
   (advice-add 'paredit-comment-dwim :after
               #'(lambda (&optional _) (unless mark-active
-                                        (ove-mode 0)))))
+                                        (vesie-mode 0)))))
 
 (use-package emms :defer t)
 
-(use-package my-emms
+(use-package init-emms
   :ensure nil
   :commands (zerolee-emms-default zerolee-emms-favourite))
 
-(use-package my-tools
+(use-package init-tools
   :ensure nil
   :commands (zerolee-eshell zerolee-find-file zerolee-compile
                             zerolee-rg zerolee-go zerolee-open-with

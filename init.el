@@ -11,8 +11,8 @@
 (require 'emacs-std)
 (require 'extensions)
 (require 'programs)
-(require 'my-macros)
-(require 'my-hydra)
+(require 'init-macros)
+(require 'init-hydra)
 (require 'bindings)
 (load custom-file)
 
