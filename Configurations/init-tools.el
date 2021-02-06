@@ -76,7 +76,9 @@
   "根据 N 获取该代码生成的程序后缀0、包名1、程序执行时长相2."
   (nth N (pcase major-mode
            ('java-mode `(".class" ,(zerolee--get-java-package-name) "java "))
-           ('c-mode `("" "" "./")))))
+           ('c-mode `("" "" "./"))
+           ('js-mode `("" "scripts/" ""))
+           ('css-mode `("" "styles/" "")))))
 
 (defun zerolee--get-project-root ()
   "获取关联项目的 root."

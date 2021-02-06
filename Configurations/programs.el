@@ -3,6 +3,7 @@
 
 ;;; Code:
 (require 'use-package)
+(require 'diminish)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -27,11 +28,14 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun lsp--common-set ()
   "Lsp 的一些通用配置."
+  (when (eq major-mode 'css-mode)
+    (setq-local lsp-diagnostics-provider :none)
+    (eldoc-mode -1))
   (lsp)
   (setq-local company-backends
               '((company-yasnippet company-capf)
                 company-dabbrev-code company-dabbrev
-                company-files))
+                company-files company-keywords))
   (setq-local read-process-output-max (* 1024 1024))
   (setq lsp-enable-on-type-formatting nil
         lsp-auto-execute-action nil
@@ -85,20 +89,80 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package lsp-mode
   :commands lsp
-  :hook ((js-mode css-mode html-mode web-mode) . lsp--common-set))
+  :hook ((js-mode css-mode) . lsp--common-set))
+
+(use-package emmet-mode
+  :ensure nil
+  :diminish emmet-mode
+  :hook (sgml-mode css-mode)
+  :bind (:map emmet-mode-keymap
+              ("C-c e p" . emmet-prev-edit-point)
+              ("C-c e n" . emmet-next-edit-point)
+              ("C-j" . nil))
+  :custom
+  (emmet-move-cursor-between-quotes t)
+  :config
+  (defsubst zerolee--emmet-maybe-expand ()
+    (interactive)
+    (cond ((and (memq (char-after) '(?\C-j nil ? ))
+                (not (memq (char-before) '(?\C-j ?> ?\" ? )))
+                (not (nth 3 (syntax-ppss)))
+                (not (looking-back "<[a-z]+" (line-beginning-position))))
+           (call-interactively #'emmet-expand-line))
+          ((or (and (looking-at "<[/a]")
+                    (not (looking-back "^[ \t]+" (line-beginning-position))))
+               (and (nth 3 (syntax-ppss)) (eq (char-after) ?\")))
+           (condition-case nil
+               (if zerolee-emmet-first-backtab
+                   (progn
+                     (push (point-marker) zerolee-emmet-edit-ring)
+                     (goto-char zerolee-emmet-first-backtab)
+                     (setq zerolee-emmet-first-backtab nil))
+                 (push (point-marker) zerolee-emmet-edit-ring)
+                 (call-interactively #'emmet-next-edit-point))
+             (error
+              (if (or (looking-at "</")
+                      (looking-at "\"/>"))
+                  (progn
+                    (require 'sgml-mode)
+                    (sgml-skip-tag-forward 1)
+                    (if (or (looking-back "</td>" (- (point) 5))
+                            (and (looking-back "</a>" (- (point) 4))
+                                 (looking-at "[ \t\n]*</li>")))
+                        (sgml-skip-tag-forward 2))
+                    (if (or (looking-back "</li>" (- (point) 5))
+                            (looking-back "</dd>" (- (point) 5)))
+                        (sgml-skip-tag-forward 1))
+                    (newline-and-indent 1))
+                (call-interactively #'indent-for-tab-command)))))
+          (t
+           (if (equal last-command 'indent-for-tab-command)
+               (call-interactively #'emmet-next-edit-point)
+             (call-interactively #'indent-for-tab-command)
+             (setq this-command 'indent-for-tab-command)))))
+  (define-key emmet-mode-keymap (kbd "<tab>") #'zerolee--emmet-maybe-expand)
+  (define-key emmet-mode-keymap (kbd "<backtab>")
+    #'(lambda () (interactive)
+        (unless zerolee-emmet-first-backtab
+          (setq zerolee-emmet-first-backtab (point-marker)))
+        (if zerolee-emmet-edit-ring
+            (goto-char (pop zerolee-emmet-edit-ring))
+          (call-interactively #'emmet-prev-edit-point))))
+  (add-hook 'sgml-mode-hook
+            #'(lambda ()
+                (setq-local company-backends
+                            '(company-yasnippet company-dabbrev-code
+                                                company-keywords
+                                                company-files
+                                                company-dabbrev))
+                (setq-local zerolee-emmet-edit-ring nil)
+                (setq-local zerolee-emmet-first-backtab nil))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用 antlr mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (autoload 'antlr-v4-mode "antlr-mode" nil t)
 (push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; web-mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package web-mode
-  :mode (("\\.html\\'" . web-mode)
-         ("\\.htm\\'" . web-mode)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; eglot
@@ -120,7 +184,7 @@
               (setq-local company-backends
                           '((company-yasnippet company-capf)
                             company-dabbrev-code company-dabbrev
-                            company-files))
+                            company-files company-keywords))
               (setq-local completion-styles
                           '(basic partial-completion emacs22)))))
          (eglot-server-initialized

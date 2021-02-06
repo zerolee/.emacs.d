@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: setTimeout("function", interval)
+# key: set
+# --
+setTimeout("$1", $2);

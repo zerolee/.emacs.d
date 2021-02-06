@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: for (key in array)
+# --
+for (${1:key} in ${2:array}) {
+    $0
+}

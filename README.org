@@ -24,7 +24,8 @@
    配置 shell 和 compile 等各种小工具
 * Extensions
   该文件夹下存放一些第三方扩展(非 elpa 安装的)
-** antlr-mode.el         
+** antlr-mode.el
+** emmet-mode.el
 ** save-position.el
    主要使用来保存、恢复、查看当前位置信息的
 ** vesie.el

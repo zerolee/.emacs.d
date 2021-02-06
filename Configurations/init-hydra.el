@@ -2,8 +2,17 @@
 ;;; Commentary:
 
 ;;; Code:
-(require 'zerolee-lib)
 (require 'hydra)
+
+(defun zerolee-goto-ibuffer ()
+  "打开并跳转到 Ibuffer."
+  (interactive)
+  (require 'zerolee-lib)
+  (require 'ibuffer)
+  (progn
+    (ibuffer-list-buffers)
+    (zerolee-goto-some-window "*Ibuffer*")))
+
 (defhydra hydra-f1 (:color teal
                            :hint nil)
   "

@@ -122,13 +122,13 @@
                        (concat "arbitrary"
                                (file-name-nondirectory
                                 (buffer-file-name))))))
-           (realname (and name (concat name "." name)))
-           (place (and realname
-                       (or (locate-dominating-file (buffer-file-name) realname)
-                           (and (member realname (directory-files "~/模板"))
+           (template (and name (concat name "." name)))
+           (place (and template
+                       (or (locate-dominating-file (buffer-file-name) template)
+                           (and (member template (directory-files "~/模板"))
                                 "~/模板/")))))
       (when place
-        (insert-file-contents (concat place realname))
+        (insert-file-contents (concat place template))
         (yas-expand-snippet (buffer-string)
                             (point-min) (point-max)))))
   (add-hook 'find-file-hook #'zerolee--autoinsert))
@@ -186,12 +186,20 @@
   :custom
   (company-minimum-prefix-length 2)
   (company-idle-delay 0)
+  (company-backends
+   '((company-capf :with company-yasnippet)
+     (company-dabbrev-code company-keywords company-files)
+     company-dabbrev))
+  :bind (:map company-active-map
+              ("M-/" . company-other-backend))
   :config
   (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
     "Enable yasnippet but disable it inline."
     (if (eq command 'prefix)
         (when-let ((prefix (funcall fun 'prefix)))
-          (unless (memq (char-before (- (point) (length prefix))) '(?. ?> ?\())
+          (unless (or (memq (char-before (- (point) (length prefix)))
+                            '(?. ?> ?\( ?\) ?{ ?} ?\" ?' ?`))
+                      (nth 3 (syntax-ppss)))
             prefix))
       (funcall fun command arg)))
   (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline))
@@ -214,7 +222,8 @@
   (define-key paredit-mode-map (kbd "M-s") nil)
   (define-key paredit-mode-map (kbd "M-r") nil)
   (define-key paredit-mode-map (kbd "M-?") nil)
-  (define-key paredit-mode-map (kbd "M-<up>") 'paredit-splice-sexp)
+  (define-key paredit-mode-map (kbd "M-<up>") nil)
+  (global-set-key (kbd "M-<up>") #'paredit-splice-sexp)
   (define-key paredit-mode-map (kbd "M-<down>")
     '(lambda ()
        (interactive)

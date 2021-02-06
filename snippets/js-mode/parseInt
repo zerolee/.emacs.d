@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: parseInt(string)
+# key: parse
+# --
+parseInt(${1:"$2"});

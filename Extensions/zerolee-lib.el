@@ -29,13 +29,6 @@
   "查看 BUFFER 在打开的 window 中的位置，不存在返回 nil."
   (cl-position buffer (mapcar #'window-buffer (window-list))))
 
-(defun zerolee-goto-ibuffer ()
-  "打开并跳转到 Ibuffer."
-  (interactive)
-  (progn
-    (ibuffer-list-buffers)
-    (zerolee-goto-some-window "*Ibuffer*")))
-
 (defun zerolee-time-to-seconds (times)
   "将由冒号分割的字符串形式的 TIMES 转换为整数形式的秒."
   (let ((seconds 0))

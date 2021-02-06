@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: <abbr> ... </abbr>
+# --
+<abbr${1: title="$2"}>$0</abbr>

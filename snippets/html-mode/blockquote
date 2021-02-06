@@ -1,0 +1,4 @@
+# -*- mode: snippet -*-
+# name: <blockquote> ... </blockquote>
+# --
+<blockquote${1: cite="$2"}>$0</blockquote>
