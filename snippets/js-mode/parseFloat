@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: parseFloat(string)
+# key: parseFloat
+# --
+parseFloat(${1:"$2"});

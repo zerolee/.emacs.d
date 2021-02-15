@@ -2,4 +2,4 @@
 # name: parseInt(string)
 # key: parse
 # --
-parseInt(${1:"$2"});
+parseInt(${1:"$2"}${3:, ${4:10}});

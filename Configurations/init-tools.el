@@ -122,6 +122,19 @@
          (setcdr et nil)
          (puthash default-directory et zerolee--eshell-path-hashtable)))))
 
+(defsubst zerolee--open-js-comint (&optional arg)
+  "开启一个 js-repl, 参数为 4， 则重启该实例"
+  (interactive "P")
+  (require 'js-comint)
+  (let ((window (selected-window))
+        (buffer (get-buffer "*Javascript REPL*")))
+    (if (= arg 4)
+        (call-interactively #'js-comint-reset-repl)
+      (if (and buffer (get-buffer-window buffer))
+          (delete-windows-on buffer)
+        (call-interactively #'run-js)))
+    (select-window window)))
+
 ;;;###autoload
 (defun zerolee-eshell (&optional num)
   "若处于 `eshell-mode' 或 `term-mode' 中则删除该窗口.
@@ -134,7 +147,8 @@ NUM 为 4 强制当前目录打开 eshell."
   (interactive "p")
   (require 'eshell)
   (require 'esh-mode)
-  (if (memq major-mode  '(term-mode eshell-mode))
+  (if (or (memq major-mode  '(term-mode eshell-mode))
+          (derived-mode-p 'comint-mode))
       (delete-window)
     (let* ((default-directory
              (if (= 4 num)
@@ -143,7 +157,8 @@ NUM 为 4 强制当前目录打开 eshell."
            (et (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
            (app (when (buffer-file-name) (zerolee--get-run-app))))
-      (cond ((and app (= num 1)) (zerolee--ansi-term app et))
+      (cond ((eq major-mode 'js-mode) (zerolee--open-js-comint num))
+            ((and app (= num 1)) (zerolee--ansi-term app et))
             ((= num 2) (call-process-shell-command "EMACS_START=nil gnome-terminal"))
             ((car et)
              (let ((buffer (get-buffer (format "*eshell*<%s>" (car et)))))

@@ -100,7 +100,8 @@
                   "^\\*.*Shell Command.*\\*$"
                   "^\\*e?shell\\*"
                   "^\\*Messages\\*$"
-                  "^\\*ansi-term\\*"))
+                  "^\\*ansi-term\\*"
+                  "^\\*Javascript REPL"))
   (add-to-list 'display-buffer-alist
                `(,buffer
                  (display-buffer-reuse-window

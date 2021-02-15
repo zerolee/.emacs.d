@@ -23,9 +23,13 @@
 ** init-tools.el
    配置 shell 和 compile 等各种小工具
 * Extensions
-  该文件夹下存放一些第三方扩展(非 elpa 安装的)
+  该文件夹下存放一些自己或者他人写的第三方扩展(非 elpa 安装的)
 ** antlr-mode.el
 ** emmet-mode.el
+** js-comint.el
+   项目地址： [[https://github.com/redguardtoo/js-comint][js-comint]]
+   补充了俩函数 js-eval-last-sexp 和 js-eval-current-defun
+   微调了下 js-comint-send-region
 ** save-position.el
    主要使用来保存、恢复、查看当前位置信息的
 ** vesie.el
@@ -35,3 +39,5 @@
    用来预览 Markdown、Org 文件
 ** zerolee-lib.el
    一些个人使用的函数
+* snippets
+  yasnippet 使用的模板文件
