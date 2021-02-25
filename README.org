@@ -26,6 +26,9 @@
   该文件夹下存放一些自己或者他人写的第三方扩展(非 elpa 安装的)
 ** antlr-mode.el
 ** emmet-mode.el
+   项目地址：[[https://github.com/smihica/emmet-mode][emmet-mode]]
+   一些更改，将 pr 里的一些东西进行了合并，比如 boolean 属性，bug 修复。
+   此外，emmet-transform 函数中使用 (memq major-mode emmet-css-major-modes) 代替 emmet-use-css-transform
 ** js-comint.el
    项目地址： [[https://github.com/redguardtoo/js-comint][js-comint]]
    补充了俩函数 js-eval-last-sexp 和 js-eval-current-defun

@@ -246,7 +246,7 @@ e. g. without semicolons")
   "Major modes that use emmet for CSS, rather than HTML.")
 
 (defun emmet-transform (input)
-  (if (or (emmet-detect-style-tag-and-attr) emmet-use-css-transform)
+  (if (or (memq major-mode emmet-css-major-modes) (emmet-detect-style-tag-and-attr))
       (emmet-css-transform input)
     (emmet-html-transform input)))
 

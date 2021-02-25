@@ -139,6 +139,15 @@
           (search-backward "'" (point-at-bol) t 1)
           (vesie--emacs-get '(lambda () (interactive)
                                (search-forward "'" (point-at-eol) t 2)) "a'")))
+    (define-key map "qt"
+      #'(lambda () (interactive)
+          (if (looking-at "[ \t\n?\C-j]*<")
+              (vesie--emacs-get #'sgml-skip-tag-forward "qt")
+            (if (or (nth 3 (syntax-ppss))
+                    (not (eq (char-after) ? )))
+                (search-backward " "))
+            (vesie--emacs-get #'(lambda () (interactive)
+                                  (forward-sexp 2)) "qt"))))
     (define-key map "at" #'(lambda () (interactive)
                              (vesie--emacs-get (vesie--html-tag 0) "at")))
     (define-key map "e'"

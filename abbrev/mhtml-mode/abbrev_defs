@@ -1,0 +1,15 @@
+;;-*-coding: utf-8;-*-
+(define-abbrev-table 'mhtml-mode-abbrev-table
+  '(
+    ("alc" "align=\"center\"" nil :count 3)
+    ("all" "align=\"left\"" nil :count 5)
+    ("alr" "align=\"right\"" nil :count 1)
+    ("b" "border=" nil :count 1)
+    ("bgc" "bgcolor=" nil :count 4)
+    ("cp" "cellpadding=" nil :count 3)
+    ("cs" "cellspacing=" nil :count 2)
+    ("h" "height=" nil :count 5)
+    ("valt" "valign=\"top\"" nil :count 5)
+    ("w" "width=" nil :count 3)
+   ))
+

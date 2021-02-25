@@ -102,28 +102,43 @@
   :bind (:map emmet-mode-keymap
               ("C-c e p" . emmet-prev-edit-point)
               ("C-c e n" . emmet-next-edit-point)
+              ("M-p" . emmet-expand-line)
+              ("M-n" . company-abbrev)
               ("C-j" . nil))
   :custom
   (emmet-move-cursor-between-quotes t)
+  :defines (zerolee-emmet-first-backtab zerolee-emmet-edit-ring)
   :config
   (defun zerolee--emmet-newline-and-indent ()
     (require 'sgml-mode)
-    (sgml-skip-tag-forward 1)
-    (if (or (looking-back "</td>" (- (point) 5))
-            (and (looking-back "</a>" (- (point) 4))
-                 (looking-at "[ \t\n]*</li>")))
-        (sgml-skip-tag-forward 2))
-    (if (or (looking-back "</li>" (- (point) 5))
-            (looking-back "</dd>" (- (point) 5)))
-        (sgml-skip-tag-forward 1))
+    (unless (and (eq (char-before) ?>)
+                 (eq (char-after) ?\C-j))
+      (if (nth 4 (syntax-ppss))
+          (search-forward "-->")
+        (sgml-skip-tag-forward 1)))
+    (while (or (looking-back "li>\\|dd>\\|th>\\|option>\\|td>\\|tr>\\|tbody>"
+                             (- (point) 8))
+               (looking-at "[ \t\n]*</\\(map\\|nav\\)>")
+               (and (looking-back "</a>" (- (point) 4))
+                    (looking-at "[ \t\n]*</li>")))
+      (sgml-skip-tag-forward 1))
     (newline-and-indent 1))
   (defsubst zerolee--emmet-maybe-expand ()
+    "1. 在合适的位置调用 emmet 进行展开.
+2. 在需要 indent 的地方进行 indent.
+3. 在需要将光标移动到下一个编辑点时移动到下一个编辑点.
+4. 在需要新起一行的时候新起一行."
     (interactive)
-    (cond ((and (memq (char-after) '(?\C-j nil ? ))
+    (cond ((and (or (memq (char-after) '(?\C-j nil ? ))
+                    (and (eq (char-after) ?<)
+                         (looking-back " [a-z]+" (- (point) 5))))
                 (not (memq (char-before) '(?\C-j ?> ?\" ? )))
                 (not (nth 3 (syntax-ppss)))
+                (not (nth 4 (syntax-ppss)))
                 (not (looking-back "<[a-z]+" (line-beginning-position))))
-           (call-interactively #'emmet-expand-line))
+           (unless (call-interactively #'emmet-expand-line)
+             (end-of-line)
+             (newline-and-indent 1)))
           ((or (and (looking-at "<[/a]")
                     (not (looking-back "^[ \t]+" (line-beginning-position))))
                (and (nth 3 (syntax-ppss))
@@ -131,7 +146,7 @@
                         (and (eq (char-before) ?\') (eq (char-after) ?\))))))
            (condition-case nil
                (if (and zerolee-emmet-first-backtab
-                        (/= zerolee-emmet-first-backtab (point-marker)))
+                        (> zerolee-emmet-first-backtab (point-marker)))
                    (progn
                      (push (point-marker) zerolee-emmet-edit-ring)
                      (setq zerolee-emmet-edit-ring
@@ -176,7 +191,9 @@
                                                 company-files
                                                 company-dabbrev))
                 (setq-local zerolee-emmet-edit-ring nil)
-                (setq-local zerolee-emmet-first-backtab nil))))
+                (setq-local zerolee-emmet-first-backtab nil)))
+  (when (file-exists-p "~/.emacs.d/abbrev/mhtml-mode/abbrev_defs")
+    (read-abbrev-file "~/.emacs.d/abbrev/mhtml-mode/abbrev_defs")))
 
 (use-package js-comint
   :ensure nil
