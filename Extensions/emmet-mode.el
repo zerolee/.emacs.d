@@ -885,7 +885,7 @@ See `emmet-preview-online'."
                                                              (puthash "bfv" "backface-visibility:|;" tbl)
                                                              (puthash "bfv:h" "backface-visibility:hidden;" tbl)
                                                              (puthash "bfv:v" "backface-visibility:visible;" tbl)
-                                                             (puthash "bg" "background:#${1:000};" tbl)
+                                                             (puthash "bg" "background:${1:#000};" tbl)
                                                              (puthash "bg+" "background:${1:#fff} url(${2}) ${3:0} ${4:0} ${5:no-repeat};" tbl)
                                                              (puthash "bg:ie" "filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1:x}.png',sizingMethod='${2:crop}');" tbl)
                                                              (puthash "bg:n" "background:none;" tbl)

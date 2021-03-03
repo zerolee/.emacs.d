@@ -25,12 +25,26 @@
 
 ;;; goto-last-change
 (global-set-key (kbd "C-.")
-                #'(lambda () (interactive)
+                #'(lambda ()
+                    "跳到最后一个 edit 处，若是再次调用则跳转到倒数第二个 edit 处."
+                    (interactive)
+                    (require 'xref)
                     (when (and buffer-undo-list
                                (listp buffer-undo-list))
                       (xref-push-marker-stack)
-                      (goto-char (or (last (cadr buffer-undo-list) 0)
-                                     (point))))))
+                      (if (equal last-command 'goto-last-change)
+                          (goto-char
+                           (catch 'done
+                             (dolist (entry (cddr buffer-undo-list))
+                               (when (and
+                                      entry
+                                      (listp entry)
+                                      (not (eq (car entry) 't))
+                                      (not (markerp (car entry))))
+                                 (throw 'done (abs (cdr entry)))))))
+                        (goto-char (or (last (cadr buffer-undo-list) 0)
+                                       (point)))
+                        (setq this-command 'goto-last-change)))))
 
 ;; electric-newline-and-maybe-indent
 (global-set-key (kbd "C-j") 'newline-and-indent)
