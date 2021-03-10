@@ -292,7 +292,6 @@ NUM 为 4 强制当前目录打开 eshell."
   (require 'xref)
   (when (and buffer-undo-list
              (listp buffer-undo-list))
-    (xref-push-marker-stack)
     (unless (equal last-command 'zerolee-goto-last-edit)
       (setq zerolee-edit-list buffer-undo-list)
       (setq this-command 'zerolee-goto-last-edit))
@@ -302,15 +301,17 @@ NUM 为 4 强制当前目录打开 eshell."
              (let ((entry (car zerolee-edit-list)))
                (setq zerolee-edit-list (cdr zerolee-edit-list))
                (when (and
-                      entry
-                      (listp entry)
+                      (consp entry)
                       (car entry)
                       (not (eq (car entry) 't))
                       (not (markerp (car entry)))
-                      (not (eq (car entry) 'apply)))
+                      (not (eq (car entry) 'apply))
+                      (/= (point) (abs (cdr entry)))
+                      (<= (abs (cdr entry)) (point-max)))
+                 (xref-push-marker-stack)
                  (throw 'done (abs (cdr entry)))))))
          (progn
-           (message "Arrived last edit")
+           (message "Arrived last edit.")
            (point))))))
 
 (provide 'init-tools)
