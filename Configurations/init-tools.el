@@ -283,5 +283,35 @@ NUM 为 4 强制当前目录打开 eshell."
     (unless side
       (ace-delete-window))))
 
+;;; goto-last-edit
+(defvar-local zerolee-edit-list nil "保存 buffer-undo-list 的一个 buffer 变量.")
+;;;###autoload
+(defun zerolee-goto-last-edit ()
+  "跳到最后一个 edit 处，再次调用则跳转到倒数第二个处，以此类推."
+  (interactive)
+  (require 'xref)
+  (when (and buffer-undo-list
+             (listp buffer-undo-list))
+    (xref-push-marker-stack)
+    (unless (equal last-command 'zerolee-goto-last-edit)
+      (setq zerolee-edit-list buffer-undo-list)
+      (setq this-command 'zerolee-goto-last-edit))
+    (goto-char
+     (or (catch 'done
+           (while zerolee-edit-list
+             (let ((entry (car zerolee-edit-list)))
+               (setq zerolee-edit-list (cdr zerolee-edit-list))
+               (when (and
+                      entry
+                      (listp entry)
+                      (car entry)
+                      (not (eq (car entry) 't))
+                      (not (markerp (car entry)))
+                      (not (eq (car entry) 'apply)))
+                 (throw 'done (abs (cdr entry)))))))
+         (progn
+           (message "Arrived last edit")
+           (point))))))
+
 (provide 'init-tools)
 ;;; init-tools.el ends here
