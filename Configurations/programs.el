@@ -102,8 +102,6 @@
   :bind (:map emmet-mode-keymap
               ("C-c e p" . emmet-prev-edit-point)
               ("C-c e n" . emmet-next-edit-point)
-              ("M-p" . emmet-expand-line)
-              ("M-n" . company-abbrev)
               ("C-j" . nil))
   :custom
   (emmet-move-cursor-between-quotes t)
@@ -122,14 +120,21 @@
                (and (looking-back "</a>" (- (point) 4))
                     (looking-at "[ \t\n]*</li>")))
       (sgml-skip-tag-forward 1))
-    (newline-and-indent 1))
-  (defsubst zerolee--emmet-maybe-expand ()
+    (unless (region-active-p)
+      (newline-and-indent 1)))
+  (defun zerolee--emmet-maybe-expand ()
     "1. 在合适的位置调用 emmet 进行展开.
 2. 在需要 indent 的地方进行 indent.
 3. 在需要将光标移动到下一个编辑点时移动到下一个编辑点.
 4. 在需要新起一行的时候新起一行."
     (interactive)
-    (cond ((and (or (memq (char-after) '(?\C-j nil ? ))
+    (cond ((eq major-mode 'js-mode)
+           (let ((p (point)))
+             (call-interactively #'indent-for-tab-command)
+             (when (and (= p (point))
+                        (memq (char-after) '(?\C-j nil ? )))
+               (call-interactively #'company-yasnippet))))
+          ((and (or (memq (char-after) '(?\C-j nil ? ))
                     (and (eq (char-after) ?<)
                          (looking-back " [a-z]+" (- (point) 5))))
                 (not (memq (char-before) '(?\C-j ?> ?\" ? )))
@@ -171,18 +176,39 @@
                      (call-interactively #'emmet-next-edit-point)
                    (error
                     (zerolee--emmet-newline-and-indent))))))))
-  (defsubst zerolee--emmet-backtab () (interactive)
-    (unless zerolee-emmet-first-backtab
-      (setq zerolee-emmet-first-backtab (point-marker)))
-    (while (and zerolee-emmet-edit-ring
-                (> (car zerolee-emmet-edit-ring)
-                   (point)))
-      (pop zerolee-emmet-edit-ring))
-    (if zerolee-emmet-edit-ring
-        (goto-char (pop zerolee-emmet-edit-ring))
-      (call-interactively #'emmet-prev-edit-point)))
+  (defun zerolee--emmet-backtab () (interactive)
+         (unless zerolee-emmet-first-backtab
+           (setq zerolee-emmet-first-backtab (point-marker)))
+         (while (and zerolee-emmet-edit-ring
+                     (> (car zerolee-emmet-edit-ring)
+                        (point)))
+           (pop zerolee-emmet-edit-ring))
+         (if zerolee-emmet-edit-ring
+             (goto-char (pop zerolee-emmet-edit-ring))
+           (call-interactively #'emmet-prev-edit-point)))
+  (defun zerolee--emmet-company-abbrev ()
+    "调用 company-abbrev."
+    (interactive)
+    (if vesie-mode
+        (save-excursion
+          (end-of-line)
+          (newline-and-indent)
+          (yank))
+      (call-interactively #'company-abbrev)))
+  (defun zerolee--emmet-expand-line ()
+    "调用 emmet-expand-line."
+    (interactive)
+    (if vesie-mode
+        (save-excursion
+          (beginning-of-line)
+          (open-line 1)
+          (mytab)
+          (yank))
+      (call-interactively #'emmet-expand-line)))
   (define-key emmet-mode-keymap (kbd "<tab>") #'zerolee--emmet-maybe-expand)
   (define-key emmet-mode-keymap (kbd "<backtab>") #'zerolee--emmet-backtab)
+  (define-key emmet-mode-keymap (kbd "M-p") #'zerolee--emmet-expand-line)
+  (define-key emmet-mode-keymap (kbd "M-n") #'zerolee--emmet-company-abbrev)
   (add-hook 'sgml-mode-hook
             #'(lambda ()
                 (setq-local company-backends
@@ -192,6 +218,18 @@
                                                 company-dabbrev))
                 (setq-local zerolee-emmet-edit-ring nil)
                 (setq-local zerolee-emmet-first-backtab nil)))
+  (add-hook 'mhtml-mode-hook
+            #'(lambda ()
+                (require 'yasnippet)
+                (yas-activate-extra-mode 'js-mode)
+                (yas-activate-extra-mode 'css-mode)
+                (yas-deactivate-extra-mode 'js-mode)
+                (yas-deactivate-extra-mode 'css-mode)
+                (setq-local electric-pair-inhibit-predicate
+                            #'(lambda (char)
+                                (or (and (eq major-mode 'js-mode)
+                                         (= char ?<))
+                                    (electric-pair-default-inhibit char))))))
   (when (file-exists-p "~/.emacs.d/abbrev/mhtml-mode/abbrev_defs")
     (read-abbrev-file "~/.emacs.d/abbrev/mhtml-mode/abbrev_defs")))
 

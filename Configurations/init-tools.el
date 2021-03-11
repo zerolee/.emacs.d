@@ -284,7 +284,11 @@ NUM 为 4 强制当前目录打开 eshell."
       (ace-delete-window))))
 
 ;;; goto-last-edit
-(defvar-local zerolee-edit-list nil "保存 buffer-undo-list 的一个 buffer 变量.")
+(defvar-local zerolee-goto-edit-list nil "保存 buffer-undo-list 的一个 buffer 变量.")
+(defvar-local zerolee-goto-insert-count nil
+  "保存插入的数据的个数，格式为((car . cdr)).
+car: 插入的最后一个值的 point, cdr：插入的值的数量.")
+(defvar-local zerolee-goto-prev nil)
 ;;;###autoload
 (defun zerolee-goto-last-edit ()
   "跳到最后一个 edit 处，再次调用则跳转到倒数第二个处，以此类推."
@@ -293,23 +297,54 @@ NUM 为 4 强制当前目录打开 eshell."
   (when (and buffer-undo-list
              (listp buffer-undo-list))
     (unless (equal last-command 'zerolee-goto-last-edit)
-      (setq zerolee-edit-list buffer-undo-list)
+      (setq zerolee-goto-edit-list buffer-undo-list)
+      (setq zerolee-goto-insert-count nil)
+      (setq zerolee-goto-prev nil)
       (setq this-command 'zerolee-goto-last-edit))
     (goto-char
      (or (catch 'done
-           (while zerolee-edit-list
-             (let ((entry (car zerolee-edit-list)))
-               (setq zerolee-edit-list (cdr zerolee-edit-list))
+           (while zerolee-goto-edit-list
+             (let ((entry (car zerolee-goto-edit-list))
+                   (p 0))
+               (setq zerolee-goto-edit-list (cdr zerolee-goto-edit-list))
                (when (and
                       (consp entry)
                       (car entry)
                       (not (eq (car entry) 't))
-                      (not (markerp (car entry)))
                       (not (eq (car entry) 'apply))
-                      (/= (point) (abs (cdr entry)))
-                      (<= (abs (cdr entry)) (point-max)))
+                      (not (stringp (car entry)))
+                      (if (markerp (car entry))
+                          (and (/= (or (marker-position (car entry))
+                                       (point))
+                                   (point))
+                               (<= (or (marker-position (car entry))
+                                       (point))
+                                   (point-max)))
+                        (and (/= (point) (abs (cdr entry)))
+                             (<= (abs (cdr entry)) (point-max)))))
                  (xref-push-marker-stack)
-                 (throw 'done (abs (cdr entry)))))))
+                 (when (markerp (car entry))
+                   (throw 'done (marker-position (car entry))))
+                 (dolist (var zerolee-goto-insert-count)
+                   (when (or
+                          (eq (car var) 'true)
+                          (< (car var) (abs (cdr entry))))
+                     (setq p (+ p (abs (cdr var))))))
+                 (if (and zerolee-goto-prev
+                          (> zerolee-goto-prev (abs (cdr entry))))
+                     (setcdr (car zerolee-goto-insert-count)
+                             (+ (cdar zerolee-goto-insert-count)
+                                (- (abs (cdr entry)) (abs (car entry)))))
+                   (and
+                    (consp zerolee-goto-insert-count)
+                    (setcar (car zerolee-goto-insert-count) 'true))
+                   (push (cons (abs (car entry))
+                               (- (abs (cdr entry)) (abs (car entry))))
+                         zerolee-goto-insert-count))
+                 (setq zerolee-goto-prev (abs (cdr entry)))
+                 (when (and (/= (point) (+ p (abs (cdr entry))))
+                            (<= (+ p (abs (cdr entry))) (point-max)))
+                   (throw 'done (+ p (abs (cdr entry)))))))))
          (progn
            (message "Arrived last edit.")
            (point))))))
