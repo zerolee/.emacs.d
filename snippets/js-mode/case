@@ -3,5 +3,5 @@
 # condition: (looking-at "[\n]\\(case\\|default\\)")
 # --
 case $1:
-     $2;
-     break;$3
+     $2
+     break;$0

@@ -113,7 +113,9 @@
                  (eq (char-after) ?\C-j))
       (if (nth 4 (syntax-ppss))
           (search-forward "-->")
-        (sgml-skip-tag-forward 1)))
+        (sgml-skip-tag-forward 1)
+        (when (looking-back "</body>" (- (point) 7))
+          (move-end-of-line 0))))
     (while (or (looking-back "li>\\|dd>\\|th>\\|option>\\|td>\\|tr>\\|tbody>"
                              (- (point) 8))
                (looking-at "[ \t\n]*</\\(map\\|nav\\)>")
@@ -131,9 +133,35 @@
     (cond ((eq major-mode 'js-mode)
            (let ((p (point)))
              (call-interactively #'indent-for-tab-command)
-             (when (and (= p (point))
-                        (memq (char-after) '(?\C-j nil ? )))
-               (call-interactively #'company-yasnippet))))
+             (when (= p (point))
+               (if (memq (char-after) '(?\C-j nil ? ))
+                   (if (memq (char-before) '(?  ?\t ?\; ?\}))
+                       (if (and (eq (char-before) ?\;)
+                                (looking-at "[ \t\n]*}"))
+                           (up-list 1)
+                         (sgml-skip-tag-forward 1)
+                         (when (and (looking-back "</script>" (- (point) 9))
+                                    (looking-at "[ \t\n]*</head>"))
+                           (sgml-skip-tag-forward 1)
+                           (when (looking-at "[ \t\n]*<body")
+                             (search-forward ">")))
+                         (newline-and-indent 1))
+                     (let ((cbs (flatten-list company-backends)))
+                       (while cbs
+                         (catch 'done
+                           (let ((backends (car cbs)))
+                             (condition-case nil
+                                 (call-interactively backends)
+                               (error
+                                (setq cbs (cdr cbs))
+                                (throw 'done 0)))
+                             (setq cbs nil))))))
+                 (when (nth 3 (syntax-ppss))
+                   (up-list 2 t))
+                 (when (eq (char-after) ?\))
+                   (call-interactively #'forward-char))
+                 (when (memq (char-after) '(?\; ?\.))
+                   (call-interactively #'forward-char))))))
           ((and (or (memq (char-after) '(?\C-j nil ? ))
                     (and (eq (char-after) ?<)
                          (looking-back " [a-z]+" (- (point) 5))))
@@ -212,10 +240,10 @@
   (add-hook 'sgml-mode-hook
             #'(lambda ()
                 (setq-local company-backends
-                            '(company-yasnippet company-dabbrev-code
-                                                company-keywords
-                                                company-files
-                                                company-dabbrev))
+                            '((company-dabbrev-code company-yasnippet)
+                              company-keywords
+                              company-files
+                              company-dabbrev))
                 (setq-local zerolee-emmet-edit-ring nil)
                 (setq-local zerolee-emmet-first-backtab nil)))
   (add-hook 'mhtml-mode-hook
