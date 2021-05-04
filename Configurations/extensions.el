@@ -124,7 +124,7 @@
                                 (buffer-file-name))))))
            (template (and name (concat name "." name)))
            (place (and template
-                       (or (locate-dominating-file (buffer-file-name) template)
+                       (or (locate-dominating-file default-directory template)
                            (and (member template (directory-files "~/模板"))
                                 "~/模板/")))))
       (when place
@@ -147,7 +147,7 @@
                           "/usr/" "cache" "backup" "TODO" "ChangeLog"
                           "\.pls$" "\.m3u$" "\.lrc$" "\.LRC$" "\.dpl" "\.dat"
                           "bookmarks" "VERSION" "emms-history" "\.jpg" "\.png"
-                          "\.gif" "\.JPG" "\.webp")
+                          "\.gif" "\.JPG" "\.webp" "\.jpeg" "\.JPEG")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   (with-eval-after-load 'ivy
@@ -246,7 +246,7 @@
 
 (use-package init-emms
   :ensure nil
-  :commands (zerolee-emms-default zerolee-emms-favourite))
+  :commands (zerolee-emms-default))
 
 (use-package init-tools
   :ensure nil

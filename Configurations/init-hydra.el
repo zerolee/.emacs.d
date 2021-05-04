@@ -17,15 +17,14 @@
                            :hint nil)
   "
    _l_: locate  _SPC_: shell          _o_: open-with
-   _a_: ag      _r_: rg               _k_: delete-window
-   _z_: zff     _i_: imenu            _M_: emms-favourite
-   _v_: magit   _s_: swap-window      _j_: jump-window
+   _r_: rg      _k_: delete-window    _v_: magit
+   _z_: zff     _i_: imenu            _j_: jump-window
+   _s_: swap-window
   "
   ("b" ivy-switch-buffer)
   ("B" zerolee-goto-ibuffer)
   ("f" counsel-find-file)
   ("l" counsel-locate)
-  ("a" counsel-ag)
   ("z" zerolee-find-file)
   ("o" zerolee-open-with)
   ("i" counsel-imenu)
@@ -33,7 +32,6 @@
   ("r" zerolee-rg)
   ("d" (dired default-directory))
   ("m" zerolee-emms-default)
-  ("M" zerolee-emms-favourite)
   ("s" ace-swap-window)
   ("j" ace-select-window)
   ("k" zerolee-delete-window)

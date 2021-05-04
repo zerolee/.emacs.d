@@ -66,10 +66,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;C programming language
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; cquery
-;; xref-find-definitions ( M-. )
-;; xref-find-references  ( M-? )
-;; xref-find-apropos     ( C-M-. )
 (use-package ccls
   :defer t
   :hook ((c-mode c++-mode objc-mode) . (lambda ()
@@ -230,7 +226,7 @@
         (save-excursion
           (beginning-of-line)
           (open-line 1)
-          (mytab)
+          (call-interactively #'indent-for-tab-command)
           (yank))
       (call-interactively #'emmet-expand-line)))
   (define-key emmet-mode-keymap (kbd "<tab>") #'zerolee--emmet-maybe-expand)

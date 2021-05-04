@@ -71,7 +71,7 @@
 (setq emms-lyrics-dir "~/.lyrics")
 (emms-lyrics 1)
 (add-hook 'emms-player-started-hook 'emms-show)
-(emms-playing-time 1)
+(emms-playing-time-mode 1)
 (setq emms-lyrics-display-on-minibuffer t)
 (setq emms-lyrics-display-on-modeline nil)
 (setq emms-source-file-directory-tree-function
@@ -277,15 +277,19 @@
     (setq emms-playlist-buffer-name (buffer-name))))
 
 ;;;###autoload
-(defun zerolee-emms-default ()
-  (interactive)
-  (unless (get-buffer emms-playlist-buffer-name)
-    (emms-play-directory-tree emms-source-file-default-directory))
-  (zerolee--emms-toggle-popup))
+(defun zerolee-emms-default (&optional num)
+  "num = 1 打开所有音乐， num = 2 指定文件夹打开， num = 4 打开歌单."
+  (interactive "p")
+  (cond ((= num 1)
+         (unless (get-buffer emms-playlist-buffer-name)
+           (emms-play-directory-tree emms-source-file-default-directory))
+         (zerolee--emms-toggle-popup))
+        ((= num 2)
+         (call-interactively #'emms-play-directory-tree))
+        ((= num 4)
+         (zerolee-emms-favourite))))
 
-;;;###autoload
 (defun zerolee-emms-favourite ()
-  (interactive)
   (when (file-exists-p zerolee--emms-favourite)
     (let ((love (completing-read "select favourite playlist: "
                                  (cons emms-source-file-default-directory

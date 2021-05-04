@@ -434,7 +434,7 @@ return: (first current last), 每个元素由 (right . left)组成， 不存在�
 (define-key vesie-mode-map (kbd "M") #'(lambda () (interactive)
                                          (save-excursion
                                            (call-interactively #'mark-whole-buffer)
-                                           (mytab)
+                                           (call-interactively #'indent-for-tab-command)
                                            (whitespace-cleanup)
                                            (call-interactively #'untabify))))
 (define-key vesie-mode-map (kbd "n")
@@ -464,7 +464,7 @@ return: (first current last), 每个元素由 (right . left)组成， 不存在�
                                          (call-interactively #'vesie-mode)
                                          (beginning-of-line)
                                          (open-line 1)
-                                         (mytab)))
+                                         (call-interactively #'indent-for-tab-command)))
 (define-key vesie-mode-map (kbd "p")
   #'(lambda () (interactive)
       (if (eq major-mode 'xref--xref-buffer-mode)
@@ -484,7 +484,7 @@ return: (first current last), 每个元素由 (right . left)组成， 不存在�
       (save-excursion
         (beginning-of-line)
         (open-line 1)
-        (mytab)
+        (call-interactively #'indent-for-tab-command)
         (yank))))
 (define-key vesie-mode-map (kbd "q")
   #'(lambda () (interactive)
