@@ -46,7 +46,7 @@
 (global-set-key (kbd "M-<SPC>")
                 #'(lambda ()
                     (interactive)
-                    (call-process "fcitx5-remote" nil nil nil "-c")
+                    (zerolee-ime-disable)
                     (hydra-f1/body)))
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
 

@@ -19,7 +19,7 @@
    _l_: locate  _SPC_: shell          _o_: open-with
    _r_: rg      _k_: delete-window    _v_: magit
    _z_: zff     _i_: imenu            _j_: jump-window
-   _s_: swap-window
+   _u_: ctags   _s_: swap-window
   "
   ("b" ivy-switch-buffer)
   ("B" zerolee-goto-ibuffer)
@@ -36,6 +36,8 @@
   ("j" ace-select-window)
   ("k" zerolee-delete-window)
   ("c" zerolee-compile)
+  ("p" citre-peek)
+  ("u" zerolee-regenerate-ctags)
   ("SPC" zerolee-eshell)
   ("<f1>" nil)
   ("M-<SPC>" nil))

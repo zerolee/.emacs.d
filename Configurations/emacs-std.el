@@ -127,5 +127,12 @@
 (add-to-list 'backup-directory-alist
              '("\\.*$" . "~/tmp/emacs_backup_file"))
 
+;;; 开关输入法
+(defun zerolee-ime-enable ()
+  "启用输入法."
+  (call-process "fcitx5-remote" nil nil nil "-o"))
+(defun zerolee-ime-disable ()
+  "关闭输入法."
+  (call-process "fcitx5-remote" nil nil nil "-c"))
 (provide 'emacs-std)
 ;;; emacs-std.el ends here

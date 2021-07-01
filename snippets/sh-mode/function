@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: function name()
+# key: function
+# --
+function ${1:name}() {
+         $0
+}

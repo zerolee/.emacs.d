@@ -147,7 +147,7 @@
                           "/usr/" "cache" "backup" "TODO" "ChangeLog"
                           "\.pls$" "\.m3u$" "\.lrc$" "\.LRC$" "\.dpl" "\.dat"
                           "bookmarks" "VERSION" "emms-history" "\.jpg" "\.png"
-                          "\.gif" "\.JPG" "\.webp" "\.jpeg" "\.JPEG")
+                          "\.gif" "\.JPG" "\.webp" "\.jpeg" "\.JPEG" "snippets/")
         counsel-grep-base-command
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   (with-eval-after-load 'ivy
@@ -156,7 +156,7 @@
     (require 'dumb-jump))
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . (lambda () (interactive)
-                        (call-process "fcitx5-remote" nil nil nil "-c")
+                        (zerolee-ime-disable)
                         (counsel-M-x)))
          ("M-y"     . counsel-yank-pop)
          ("C-h f"   . counsel-describe-function)
@@ -252,7 +252,8 @@
   :ensure nil
   :commands (zerolee-eshell zerolee-find-file zerolee-compile
                             zerolee-rg zerolee-go zerolee-open-with
-                            zerolee-delete-window zerolee-goto-last-edit))
+                            zerolee-delete-window zerolee-goto-last-edit
+                            zerolee-regenerate-ctags))
 
 (use-package magit :defer t)
 

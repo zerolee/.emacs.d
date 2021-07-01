@@ -375,7 +375,7 @@ return: (first current last), 每个元素由 (right . left)组成， 不存在�
   :keymap (make-sparse-keymap)
   (if (not vesie-mode) (setq cursor-type 'bar)
     (setq cursor-type 'box)
-    (call-process "fcitx5-remote" nil nil nil "-c"))
+    (zerolee-ime-disable))
   (overwrite-mode 0))
 
 (define-key vesie-mode-map (kbd "a") #'beginning-of-line)

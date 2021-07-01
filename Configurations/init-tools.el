@@ -62,6 +62,39 @@
 当文件名与 REGEXP 匹配 或者 `major-mode' 与 MAJOR-MODE 匹配时，
 执行 STRING 中内容 %f 被文件名替换， %n 被无后缀文件名替换.")
 
+(defconst zerolee--ctags-alist
+  '((emacs-lisp-mode    . "EmacsLisp")
+    (sh-mode            . "Sh")
+    ("\\.html?\\'"      . "HTML,JavaScript,CSS")
+    ("\\.c\\'"          . "C")
+    ("\\.[Cc]+[Pp]*\\'" . "C++")
+    ("\\.[Ss]\\'"       . "Asm")
+    ("\\.cs\\'"         . "C#")
+    ("\\.css\\'"        . "HTML,JavaScript,CSS")
+    ("\\.cuf\\'"        . "Fortran")
+    ("\\.clj\\'"        . "Clojure")
+    ("CMakeLists\\.txt\\'". "CMake")
+    ("\\.[Ff]\\'"       . "Fortran")
+    ("\\.[Ff]90\\'"     . "Fortran")
+    ("\\.go\\'"         . "Go")
+    ("\\.java\\'"       . "Java")
+    ("\\.js\\'"         . "HTML,JavaScript,CSS")
+    ("\\.lua\\'"        . "Lua")
+    ("\\.lisp\\'"       . "Lisp")
+    ("\\.m\\'"          . "M4")
+    ("\\.php\\'"        . "PHP")
+    ("\\.pl\\'"         . "Perl")
+    ("\\.p[l]?6\\'"     . "Perl6")
+    ("\\.py\\'"         . "Python")
+    ("\\.raku\\'"       . "Perl6")
+    ("\\.rb\\'"         . "Ruby")
+    ("\\.rs\\'"         . "Rust")
+    ("\\.scm\\'"        . "Scheme")
+    ("\\.scss\\'"       . "SCSS")
+    ("[Mm]akefile\\'"   . "Make")
+    ("\\.tex\\'"        . "Tex"))
+  "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.")
+
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
 (defsubst zerolee--get-java-package-name ()
@@ -83,8 +116,9 @@
 (defun zerolee--get-project-root ()
   "获取关联项目的 root."
   (require 'projectile)
-  (or (projectile-project-root)
-      (string-trim-right default-directory (zerolee--get-code-info 1))))
+  (expand-file-name
+   (or (projectile-project-root)
+       (string-trim-right default-directory (zerolee--get-code-info 1)))))
 
 (defsubst zerolee--get-run-app ()
   "获取需要运行的程序，如果所需要运行的程序不存在返回 nil."
@@ -212,6 +246,29 @@ NUM 为 4 强制当前目录打开 eshell."
               (not (listp compiler)))
       (call-interactively 'compile))))
 
+(defvar-local zerolee-ctags-command nil "生成相应的 tags 文件的命令.")
+;;;###autoload
+(defun zerolee-regenerate-ctags (&optional arg)
+  "生成相应的 tags 文件，参数为 4 时强制重设 tags 命令."
+  (interactive "p")
+  (let ((default-directory (zerolee--get-project-root))
+        (name (buffer-file-name))
+        (languages nil))
+    (when (or (null zerolee-ctags-command)
+              (= arg 4))
+      (catch 'done
+        (dolist (alist zerolee--ctags-alist)
+          (when (or (and (symbolp (car alist))
+                         (eq (car alist) major-mode))
+                    (and (stringp (car alist))
+                         (string-match (car alist) name)))
+            (setq languages (cdr alist))
+            (throw 'done languages))))
+      (setq-local zerolee-ctags-command
+                  (read-from-minibuffer "command: "
+                                        (format "ctags --languages=%s --kinds-all='*' --fields='*' --extras='*' -R &" (or languages "what?")))))
+    (call-process-shell-command zerolee-ctags-command nil nil nil)))
+
 ;;;###autoload
 (defun zerolee-find-file (&optional N)
   "查找文件：N=1 且存在 .gitignore 时调用 `counsel-git' 否则调用 `counsel-fzf'."
@@ -243,7 +300,7 @@ NUM 为 4 强制当前目录打开 eshell."
         (if (ffap-file-at-point)
             (find-file (ffap-file-at-point))
           (call-interactively #'ffap))
-      (zerolee-rg (concat "\\b" (thing-at-point 'filename t) "\\b"))))
+      (zerolee-rg (concat "\\b" (thing-at-point 'symbol t) "\\b"))))
   (vesie-mode 1))
 
 

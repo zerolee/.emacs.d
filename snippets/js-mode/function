@@ -2,6 +2,6 @@
 # name: function FUNC(arg)
 # key: function
 # --
-function ${1: }($2) {
+function ${1:name}($2) {
 	 $0
 }

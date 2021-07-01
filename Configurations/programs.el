@@ -7,12 +7,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package geiser
-  :defer t
-  :config
-  (setq scheme-program-name "guile"
-        geiser-active-implementations '(guile)))
-
+(use-package geiser-guile
+  :defer t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Common Lisp sly
@@ -317,7 +313,6 @@
 ;;; dumb-jump
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package dumb-jump
-  :defer t
   :init
   (setq dumb-jump-prefer-searcher 'rg
         dumb-jump-selector 'ivy)
@@ -330,10 +325,58 @@
               #'(lambda (func identifier)
                   (condition-case nil
                       (funcall func identifier)
-                    (error (zerolee-go)))))
-  (set-default 'xref-backend-functions
-               (push #'dumb-jump-xref-activate
-                     (default-value 'xref-backend-functions))))
+                    (error (zerolee-go))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; citre
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package citre
+  :init
+  (with-eval-after-load 'cc-mode (require 'citre-lang-c))
+  (with-eval-after-load 'dired (require 'citre-lang-fileref))
+  :config
+  (require 'init-tools)
+  (setq citre-project-root-function #'zerolee--get-project-root)
+  (defun citre-core--get-dir-os (ptag-cwd tagsfile)
+    (let* ((dir (or ptag-cwd
+                    (gethash tagsfile citre-core--tags-file-cwd-guess-table)
+                    (if citre-core--dont-prompt-for-cwd
+                        (file-name-directory tagsfile)
+                      (zerolee--get-project-root))))
+           (dir (expand-file-name dir))
+           (dir-local (file-local-name dir)))
+      (unless (eq (aref dir-local 0) ?/)
+        (setf (aref dir-local 0) (upcase (aref dir-local 0))))
+      (cons
+       (if-let ((remote-id (file-remote-p tagsfile)))
+           (concat remote-id dir-local)
+         dir-local)
+       (pcase (aref dir-local 0)
+         (?/ 'unix)
+         (_ 'nt))))))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; 使用正则或者 tags 进行跳转补全
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defun zerolee-jump-config ()
+  "用来配置代码变量、函数的跳转."
+  (add-hook 'xref-backend-functions #'dumb-jump-xref-activate nil t)
+  (require 'citre-util)
+  (when (citre-tags-file-path)
+    (add-hook 'xref-backend-functions #'citre-xref-backend nil t)
+    (add-hook 'completion-at-point-functions
+              #'citre-completion-at-point -100 t)
+    (setq-local imenu-create-index-function
+                #'citre-imenu-create-index-function))
+  (when (eq major-mode 'js-mode)
+    (define-key js-mode-map (kbd "M-.") #'xref-find-definitions)))
+
+(add-hook 'prog-mode-hook
+          #'(lambda ()
+              (when (not (derived-mode-p 'lisp-data-mode))
+                (zerolee-jump-config))))
+
+(add-hook 'sgml-mode-hook #'zerolee-jump-config)
 
 (provide 'programs)
 ;;; programs.el ends here
