@@ -249,24 +249,24 @@ NUM 为 4 强制当前目录打开 eshell."
 (defvar-local zerolee-ctags-command nil "生成相应的 tags 文件的命令.")
 ;;;###autoload
 (defun zerolee-regenerate-ctags (&optional arg)
-  "生成相应的 tags 文件，参数为 4 时强制重设 tags 命令."
-  (interactive "p")
+  "生成相应的 tags 文件，传入参数时强制重设 tags 命令."
+  (interactive "P")
   (let ((default-directory (zerolee--get-project-root))
-        (name (buffer-file-name))
         (languages nil))
-    (when (or (null zerolee-ctags-command)
-              (= arg 4))
+    (unless zerolee-ctags-command
       (catch 'done
         (dolist (alist zerolee--ctags-alist)
           (when (or (and (symbolp (car alist))
                          (eq (car alist) major-mode))
                     (and (stringp (car alist))
-                         (string-match (car alist) name)))
+                         (string-match (car alist) (buffer-file-name))))
             (setq languages (cdr alist))
             (throw 'done languages))))
       (setq-local zerolee-ctags-command
-                  (read-from-minibuffer "command: "
-                                        (format "ctags --languages=%s --kinds-all='*' --fields='*' --extras='*' -R &" (or languages "what?")))))
+                  (format "ctags --languages=%s --kinds-all='*' --fields='*' --extras='*' -R &" (or languages "languages"))))
+    (when arg
+      (setq-local zerolee-ctags-command
+                  (read-from-minibuffer "command: " zerolee-ctags-command)))
     (call-process-shell-command zerolee-ctags-command nil nil nil)))
 
 ;;;###autoload

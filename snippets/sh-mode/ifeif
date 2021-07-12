@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: ifeif
+# key: ifeif
+# --
+if [ $1 ]; then
+   $2
+elif [ $3 ]; then
+   $4
+fi
+$0

@@ -4,6 +4,7 @@
 ;;; Code:
 (require 'use-package)
 (require 'diminish)
+(require 'init-tools)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -335,7 +336,6 @@
   (with-eval-after-load 'cc-mode (require 'citre-lang-c))
   (with-eval-after-load 'dired (require 'citre-lang-fileref))
   :config
-  (require 'init-tools)
   (setq citre-project-root-function #'zerolee--get-project-root)
   (defun citre-core--get-dir-os (ptag-cwd tagsfile)
     (let* ((dir (or ptag-cwd
@@ -358,6 +358,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用正则或者 tags 进行跳转补全
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defvar-local zerolee-timestamp (current-time) "保存上次更新 tags 的时间戳.")
+(defun zerolee--update-ctags ()
+  "更新 ctags 文件."
+  (when (> (time-convert (time-since zerolee-timestamp) 'integer) 180)
+    (zerolee-regenerate-ctags)
+    (setq-local zerolee-timestamp (current-time))))
 (defun zerolee-jump-config ()
   "用来配置代码变量、函数的跳转."
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate nil t)
@@ -366,6 +372,7 @@
     (add-hook 'xref-backend-functions #'citre-xref-backend nil t)
     (add-hook 'completion-at-point-functions
               #'citre-completion-at-point -100 t)
+    (add-hook 'after-save-hook #'zerolee--update-ctags nil t)
     (setq-local imenu-create-index-function
                 #'citre-imenu-create-index-function))
   (when (eq major-mode 'js-mode)
