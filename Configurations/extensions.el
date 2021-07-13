@@ -252,8 +252,7 @@
   :ensure nil
   :commands (zerolee-eshell zerolee-find-file zerolee-compile
                             zerolee-rg zerolee-go zerolee-open-with
-                            zerolee-delete-window zerolee-goto-last-edit
-                            zerolee-regenerate-ctags))
+                            zerolee-delete-window zerolee-goto-last-edit))
 
 (use-package magit :defer t)
 

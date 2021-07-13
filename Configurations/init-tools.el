@@ -62,39 +62,6 @@
 当文件名与 REGEXP 匹配 或者 `major-mode' 与 MAJOR-MODE 匹配时，
 执行 STRING 中内容 %f 被文件名替换， %n 被无后缀文件名替换.")
 
-(defconst zerolee--ctags-alist
-  '((emacs-lisp-mode    . "EmacsLisp")
-    (sh-mode            . "Sh")
-    ("\\.html?\\'"      . "HTML,JavaScript,CSS")
-    ("\\.c\\'"          . "C")
-    ("\\.[Cc]+[Pp]*\\'" . "C++")
-    ("\\.[Ss]\\'"       . "Asm")
-    ("\\.cs\\'"         . "C#")
-    ("\\.css\\'"        . "HTML,JavaScript,CSS")
-    ("\\.cuf\\'"        . "Fortran")
-    ("\\.clj\\'"        . "Clojure")
-    ("CMakeLists\\.txt\\'". "CMake")
-    ("\\.[Ff]\\'"       . "Fortran")
-    ("\\.[Ff]90\\'"     . "Fortran")
-    ("\\.go\\'"         . "Go")
-    ("\\.java\\'"       . "Java")
-    ("\\.js\\'"         . "HTML,JavaScript,CSS")
-    ("\\.lua\\'"        . "Lua")
-    ("\\.lisp\\'"       . "Lisp")
-    ("\\.m\\'"          . "M4")
-    ("\\.php\\'"        . "PHP")
-    ("\\.pl\\'"         . "Perl")
-    ("\\.p[l]?6\\'"     . "Perl6")
-    ("\\.py\\'"         . "Python")
-    ("\\.raku\\'"       . "Perl6")
-    ("\\.rb\\'"         . "Ruby")
-    ("\\.rs\\'"         . "Rust")
-    ("\\.scm\\'"        . "Scheme")
-    ("\\.scss\\'"       . "SCSS")
-    ("[Mm]akefile\\'"   . "Make")
-    ("\\.tex\\'"        . "Tex"))
-  "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.")
-
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
 (defsubst zerolee--get-java-package-name ()
@@ -245,29 +212,6 @@ NUM 为 4 强制当前目录打开 eshell."
     (when (or (null compiler)
               (not (listp compiler)))
       (call-interactively 'compile))))
-
-(defvar-local zerolee-ctags-command nil "生成相应的 tags 文件的命令.")
-;;;###autoload
-(defun zerolee-regenerate-ctags (&optional arg)
-  "生成相应的 tags 文件，传入参数时强制重设 tags 命令."
-  (interactive "P")
-  (let ((default-directory (zerolee--get-project-root))
-        (languages nil))
-    (unless zerolee-ctags-command
-      (catch 'done
-        (dolist (alist zerolee--ctags-alist)
-          (when (or (and (symbolp (car alist))
-                         (eq (car alist) major-mode))
-                    (and (stringp (car alist))
-                         (string-match (car alist) (buffer-file-name))))
-            (setq languages (cdr alist))
-            (throw 'done languages))))
-      (setq-local zerolee-ctags-command
-                  (format "ctags --languages=%s --kinds-all='*' --fields='*' --extras='*' -R &" (or languages "languages"))))
-    (when arg
-      (setq-local zerolee-ctags-command
-                  (read-from-minibuffer "command: " zerolee-ctags-command)))
-    (call-process-shell-command zerolee-ctags-command nil nil nil)))
 
 ;;;###autoload
 (defun zerolee-find-file (&optional N)

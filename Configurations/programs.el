@@ -320,7 +320,7 @@
   :config
   (advice-add 'dumb-jump-get-project-root :around
               #'(lambda (func filepath)
-                  (let ((dumb-jump-default-project default-directory))
+                  (let ((dumb-jump-default-project (zerolee--get-project-root)))
                     (funcall func filepath))))
   (advice-add 'xref-find-definitions :around
               #'(lambda (func identifier)
@@ -358,17 +358,90 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; 使用正则或者 tags 进行跳转补全
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defconst zerolee--ctags-alist
+  '((emacs-lisp-mode    . "EmacsLisp")
+    (sh-mode            . "Sh")
+    ("\\.html?\\'"      . "HTML,JavaScript,CSS")
+    ("\\.c\\'"          . "C")
+    ("\\.[Cc]+[Pp]*\\'" . "C++")
+    ("\\.[Ss]\\'"       . "Asm")
+    ("\\.cs\\'"         . "C#")
+    ("\\.css\\'"        . "HTML,JavaScript,CSS")
+    ("\\.cuf\\'"        . "Fortran")
+    ("\\.clj\\'"        . "Clojure")
+    ("CMakeLists\\.txt\\'". "CMake")
+    ("\\.[Ff]\\'"       . "Fortran")
+    ("\\.[Ff]90\\'"     . "Fortran")
+    ("\\.go\\'"         . "Go")
+    ("\\.java\\'"       . "Java")
+    ("\\.js\\'"         . "HTML,JavaScript,CSS")
+    ("\\.lua\\'"        . "Lua")
+    ("\\.lisp\\'"       . "Lisp")
+    ("\\.m\\'"          . "M4")
+    ("\\.php\\'"        . "PHP")
+    ("\\.pl\\'"         . "Perl")
+    ("\\.p[l]?6\\'"     . "Perl6")
+    ("\\.py\\'"         . "Python")
+    ("\\.raku\\'"       . "Perl6")
+    ("\\.rb\\'"         . "Ruby")
+    ("\\.rs\\'"         . "Rust")
+    ("\\.scm\\'"        . "Scheme")
+    ("\\.scss\\'"       . "SCSS")
+    ("[Mm]akefile\\'"   . "Make")
+    ("\\.tex\\'"        . "Tex"))
+  "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.")
+
 (defvar-local zerolee-timestamp (current-time) "保存上次更新 tags 的时间戳.")
+(defvar-local zerolee-ctags-command nil "生成相应的 tags 文件的命令.")
+(defvar-local zerolee-ctags-directory nil "生成相应的 tags 文件所在目录.")
+(defun zerolee-regenerate-ctags (&optional arg)
+  "生成相应的 tags 文件，传入参数时设置生成 tags 文件的目录."
+  (interactive "P")
+  (require 'citre-util)
+  ;; 计算出当前 buffer 所使用的语言，然后将其跟命令合并.
+  (unless zerolee-ctags-command
+    (setq-local zerolee-ctags-command
+                (format "ctags --languages=%s --kinds-all='*' --fields='*' --extras='*' -R &"
+                        (or
+                         (catch 'done
+                           (dolist (alist zerolee--ctags-alist)
+                             (when (or (and (symbolp (car alist))
+                                            (eq (car alist) major-mode))
+                                       (and (stringp (car alist))
+                                            (string-match (car alist) (buffer-file-name))))
+                               (throw 'done (cdr alist)))))
+                         "languages"))))
+  ;; 如果检测不到 tags 文件那么手动生成.
+  (unless (citre-tags-file-path)
+    (setq-local zerolee-ctags-command
+                (read-from-minibuffer "command: " zerolee-ctags-command))
+    (zerolee--tags-config t))
+  ;; 如果传入了参数，则设定一个路径后在执行命令
+  (let ((default-directory
+          (or
+           (if arg
+               (setq-local zerolee-ctags-directory
+                           (read-directory-name
+                            "Select directory: " default-directory))
+             (and
+              (citre-tags-file-path)
+              (string-match (file-name-directory (citre-tags-file-path)) default-directory)
+              (setq-local zerolee-ctags-directory (file-name-directory
+                                                   (citre-tags-file-path)))))
+           (zerolee--get-project-root))))
+    (call-process-shell-command zerolee-ctags-command nil nil nil)))
+
 (defun zerolee--update-ctags ()
   "更新 ctags 文件."
   (when (> (time-convert (time-since zerolee-timestamp) 'integer) 180)
     (zerolee-regenerate-ctags)
     (setq-local zerolee-timestamp (current-time))))
-(defun zerolee-jump-config ()
+
+(defun zerolee--tags-config (&optional create)
   "用来配置代码变量、函数的跳转."
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate nil t)
   (require 'citre-util)
-  (when (citre-tags-file-path)
+  (when (or (citre-tags-file-path) create)
     (add-hook 'xref-backend-functions #'citre-xref-backend nil t)
     (add-hook 'completion-at-point-functions
               #'citre-completion-at-point -100 t)
@@ -381,9 +454,9 @@
 (add-hook 'prog-mode-hook
           #'(lambda ()
               (when (not (derived-mode-p 'lisp-data-mode))
-                (zerolee-jump-config))))
+                (zerolee--tags-config))))
 
-(add-hook 'sgml-mode-hook #'zerolee-jump-config)
+(add-hook 'sgml-mode-hook #'zerolee--tags-config)
 
 (provide 'programs)
 ;;; programs.el ends here
