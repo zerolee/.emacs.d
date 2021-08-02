@@ -80,7 +80,7 @@
                          ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
 ;;; 配置字体
-(add-to-list 'default-frame-alist '(font . "Sarasa Fixed SC"))
+(push '(font . "Sarasa Fixed SC") default-frame-alist)
 (set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend)
 
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
@@ -102,13 +102,13 @@
                   "^\\*Messages\\*$"
                   "^\\*ansi-term\\*"
                   "^\\*Javascript REPL"))
-  (add-to-list 'display-buffer-alist
-               `(,buffer
-                 (display-buffer-reuse-window
-                  display-buffer-in-side-window)
-                 (reusable-frames . visible)
-                 (side            . bottom)
-                 (window-height   . 0.33))))
+  (push `(,buffer
+          (display-buffer-reuse-window
+           display-buffer-in-side-window)
+          (reusable-frames . visible)
+          (side            . bottom)
+          (window-height   . 0.33))
+        display-buffer-alist))
 
 ;;; 配置窗口永远在右方，占据 45% 大小
 (dolist (buffer '("^\\*lsp-help\\*$"
@@ -116,16 +116,15 @@
                   "^\\*vc-"
                   ".el.gz$"
                   "^*eldoc"))
-  (add-to-list 'display-buffer-alist
-               `(,buffer
-                 (display-buffer-reuse-window
-                  display-buffer-in-side-window)
-                 (reusable-frames . visible)
-                 (side            . right)
-                 (window-width   . 0.45))))
+  (push `(,buffer
+          (display-buffer-reuse-window
+           display-buffer-in-side-window)
+          (reusable-frames . visible)
+          (side            . right)
+          (window-width   . 0.45))
+        display-buffer-alist))
 ;;; 备份文件
-(add-to-list 'backup-directory-alist
-             '("\\.*$" . "~/tmp/emacs_backup_file"))
+(setq backup-directory-alist '(("\\.*$" . "~/tmp/emacs_backup_file")))
 
 ;;; 开关输入法
 (defun zerolee-ime-enable ()

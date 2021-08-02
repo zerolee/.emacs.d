@@ -47,7 +47,7 @@
 
 ;; setup
 (setq emms-playlist-default-major-mode 'emms-playlist-mode)
-(add-to-list 'emms-track-initialize-functions 'emms-info-initialize-track)
+(setq emms-track-initialize-functions (cons 'emms-info-initialize-track nil))
 (when (fboundp 'emms-cache)           ; work around compiler warning
   (emms-cache 1))
 (setq emms-player-list '(emms-player-mpv))

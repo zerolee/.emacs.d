@@ -188,8 +188,9 @@
   (company-minimum-prefix-length 2)
   (company-idle-delay 0)
   (company-backends
-   '((company-capf :with company-yasnippet)
-     (company-dabbrev-code company-keywords company-files)
+   '((company-capf company-yasnippet
+                   company-dabbrev-code)
+     company-files company-keywords
      company-dabbrev))
   :bind (:map company-active-map
               ("M-/" . company-other-backend))

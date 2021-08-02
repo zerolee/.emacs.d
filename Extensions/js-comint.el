@@ -1,4 +1,4 @@
-;;; js-comint.el --- JavaScript interpreter in window.
+;;; js-comint.el --- JavaScript interpreter in window.-*- lexical-binding: t; -*-
 
 ;;; Copyright (C) 2008 Paul Huff
 ;;; Copyright (C) 2015 Stefano Mazzucco
@@ -212,7 +212,7 @@ Return a string representing the node version."
   (let* ((dir (read-directory-name "Module path:"
                                    (js-comint--suggest-module-path))))
     (when dir
-      (add-to-list 'js-comint-module-paths (file-truename dir))
+      (cl-pushnew (file-truename dir) js-comint-module-paths)
       (message "\"%s\" added to `js-comint-module-paths'" dir))))
 
 ;;;###autoload

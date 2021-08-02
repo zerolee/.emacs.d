@@ -30,9 +30,10 @@
     (eldoc-mode -1))
   (lsp)
   (setq-local company-backends
-              '((company-yasnippet company-capf)
-                company-dabbrev-code company-dabbrev
-                company-files company-keywords))
+              '((company-capf company-yasnippet
+                              company-dabbrev-code)
+                company-files company-keywords
+                company-dabbrev))
   (setq-local read-process-output-max (* 1024 1024))
   (setq lsp-enable-on-type-formatting nil
         lsp-auto-execute-action nil
@@ -233,8 +234,9 @@
   (add-hook 'sgml-mode-hook
             #'(lambda ()
                 (setq-local company-backends
-                            '((company-dabbrev-code company-yasnippet)
-                              company-keywords
+                            '((company-dabbrev-code
+                               company-yasnippet
+                               company-keywords)
                               company-files
                               company-dabbrev))
                 (setq-local zerolee-emmet-edit-ring nil)
@@ -286,15 +288,13 @@
           (lambda ()
             (when (eglot-managed-p)
               (setq-local company-backends
-                          '((company-yasnippet company-capf)
-                            company-dabbrev-code company-dabbrev
-                            company-files company-keywords))
-              (setq-local completion-styles
-                          '(basic partial-completion emacs22)))))
-         (eglot-server-initialized
-          .
-          (lambda (_server)
-            (add-hook 'xref-backend-functions 'dumb-jump-xref-activate nil t)))))
+                          '((company-capf company-yasnippet
+                                          company-dabbrev-code)
+                            company-files company-keywords
+                            company-dabbrev))
+              (setq completion-category-defaults
+                    (remove '(eglot (styles flex basic))
+                            completion-category-defaults)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; markdown-mode
@@ -362,7 +362,9 @@
   '((emacs-lisp-mode    . "EmacsLisp")
     (sh-mode            . "Sh")
     ("\\.html?\\'"      . "HTML,JavaScript,CSS")
+    ("\\.h\\'"          . "C")
     ("\\.c\\'"          . "C")
+    ("\\.hh\\'"         . "C++")
     ("\\.[Cc]+[Pp]*\\'" . "C++")
     ("\\.[Ss]\\'"       . "Asm")
     ("\\.cs\\'"         . "C#")
