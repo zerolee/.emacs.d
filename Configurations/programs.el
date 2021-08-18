@@ -30,8 +30,8 @@
     (eldoc-mode -1))
   (lsp)
   (setq-local company-backends
-              '((company-capf company-yasnippet
-                              company-dabbrev-code)
+              '((company-yasnippet company-capf
+                                   company-dabbrev-code)
                 company-files company-keywords
                 company-dabbrev))
   (setq-local read-process-output-max (* 1024 1024))
@@ -234,8 +234,8 @@
   (add-hook 'sgml-mode-hook
             #'(lambda ()
                 (setq-local company-backends
-                            '((company-dabbrev-code
-                               company-yasnippet
+                            '((company-yasnippet
+                               company-dabbrev-code
                                company-keywords)
                               company-files
                               company-dabbrev))
@@ -288,8 +288,8 @@
           (lambda ()
             (when (eglot-managed-p)
               (setq-local company-backends
-                          '((company-capf company-yasnippet
-                                          company-dabbrev-code)
+                          '((company-yasnippet company-capf
+                                               company-dabbrev-code)
                             company-files company-keywords
                             company-dabbrev))
               (setq completion-category-defaults

@@ -188,8 +188,8 @@
   (company-minimum-prefix-length 2)
   (company-idle-delay 0)
   (company-backends
-   '((company-capf company-yasnippet
-                   company-dabbrev-code)
+   '((company-yasnippet company-capf
+                        company-dabbrev-code)
      company-files company-keywords
      company-dabbrev))
   :bind (:map company-active-map
@@ -206,7 +206,9 @@
                       (nth 4 ppss))
             prefix))
       (funcall fun command arg)))
-  (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline))
+  (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)
+  (advice-add #'company-dabbrev-code :around #'my-company-yasnippet-disable-inline)
+  (setq company-transformers '(delete-dups)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
