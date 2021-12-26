@@ -15,10 +15,10 @@
   (funcall (intern (format "%s-bar-mode" feature)) -1))
 (run-with-idle-timer
  0 nil
- #'(lambda ()
-     (with-temp-message ""
-       (require 'recentf)
-       (recentf-mode 1))))
+ (lambda ()
+   (with-temp-message ""
+     (require 'recentf)
+     (recentf-mode 1))))
 
 (provide 'early-init)
 ;;; early-init.el ends heres

@@ -43,21 +43,21 @@
   (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
   (define-key lsp-mode-map (kbd "M-?") #'xref-find-references)
   (define-key lsp-mode-map (kbd "C-h .")
-    #'(lambda ()
-        (interactive)
-        (if (get-buffer-window "*lsp-help*")
-            (delete-windows-on "*lsp-help*")
-          (lsp-describe-thing-at-point))))
+              (lambda ()
+                (interactive)
+                (if (get-buffer-window "*lsp-help*")
+                    (delete-windows-on "*lsp-help*")
+                  (lsp-describe-thing-at-point))))
   (define-key lsp-mode-map (kbd "s-l") nil)
   (setq abbrev-mode nil)
   (lsp-diagnostics-mode 1)
   (advice-add 'lsp-completion--regex-fuz :around
-              #'(lambda (_orig-func str)
-                  (format "^%s" str)))
+              (lambda (_orig-func str)
+                (format "^%s" str)))
   (advice-add 'lsp-completion--filter-candidates :around
-              #'(lambda (fun &rest arg)
-                  (let ((case-fold-search nil))
-                    (apply fun arg))))
+              (lambda (fun &rest arg)
+                (let ((case-fold-search nil))
+                  (apply fun arg))))
   (add-hook 'lsp-on-idle-hook #'lsp--document-highlight nil t)
   (lsp-enable-imenu))
 
@@ -232,36 +232,36 @@
   (define-key emmet-mode-keymap (kbd "M-p") #'zerolee--emmet-expand-line)
   (define-key emmet-mode-keymap (kbd "M-n") #'zerolee--emmet-company-abbrev)
   (add-hook 'sgml-mode-hook
-            #'(lambda ()
-                (setq-local company-backends
-                            '((company-yasnippet
-                               company-dabbrev-code
-                               company-keywords)
-                              company-files
-                              company-dabbrev))
-                (setq-local zerolee-emmet-edit-ring nil)
-                (setq-local zerolee-emmet-first-backtab nil)))
+            (lambda ()
+              (setq-local company-backends
+                          '((company-yasnippet
+                             company-dabbrev-code
+                             company-keywords)
+                            company-files
+                            company-dabbrev))
+              (setq-local zerolee-emmet-edit-ring nil)
+              (setq-local zerolee-emmet-first-backtab nil)))
   (add-hook 'mhtml-mode-hook
-            #'(lambda ()
-                (require 'yasnippet)
-                (yas-activate-extra-mode 'js-mode)
-                (yas-activate-extra-mode 'css-mode)
-                (yas-deactivate-extra-mode 'js-mode)
-                (yas-deactivate-extra-mode 'css-mode)
-                (setq-local electric-pair-inhibit-predicate
-                            #'(lambda (char)
-                                (or (and (eq major-mode 'js-mode)
-                                         (= char ?<))
-                                    (electric-pair-default-inhibit char))))))
+            (lambda ()
+              (require 'yasnippet)
+              (yas-activate-extra-mode 'js-mode)
+              (yas-activate-extra-mode 'css-mode)
+              (yas-deactivate-extra-mode 'js-mode)
+              (yas-deactivate-extra-mode 'css-mode)
+              (setq-local electric-pair-inhibit-predicate
+                          (lambda (char)
+                            (or (and (eq major-mode 'js-mode)
+                                     (= char ?<))
+                                (electric-pair-default-inhibit char))))))
   (when (file-exists-p "~/.emacs.d/abbrev/mhtml-mode/abbrev_defs")
     (read-abbrev-file "~/.emacs.d/abbrev/mhtml-mode/abbrev_defs")))
 
 (use-package js-comint
   :ensure nil
   :diminish js-comint
-  :hook (js-mode . (lambda ()
-                     (local-set-key (kbd "C-x C-e") #'js-eval-last-sexp)
-                     (local-set-key (kbd "C-M-x") #'js-eval-current-defun)))
+  :config
+  (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
+  (define-key js-mode-map (kbd "C-M-x") 'js-eval-current-defun)
   :commands (js-eval-last-sexp js-eval-current-defun))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -319,14 +319,14 @@
         dumb-jump-selector 'ivy)
   :config
   (advice-add 'dumb-jump-get-project-root :around
-              #'(lambda (func filepath)
-                  (let ((dumb-jump-default-project (zerolee--get-project-root)))
-                    (funcall func filepath))))
+              (lambda (func filepath)
+                (let ((dumb-jump-default-project (zerolee--get-project-root)))
+                  (funcall func filepath))))
   (advice-add 'xref-find-definitions :around
-              #'(lambda (func identifier)
-                  (condition-case nil
-                      (funcall func identifier)
-                    (error (zerolee-go))))))
+              (lambda (func identifier)
+                (condition-case nil
+                    (funcall func identifier)
+                  (error (zerolee-go))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; citre
@@ -420,17 +420,17 @@
     (zerolee--tags-config t))
   ;; 如果传入了参数，则设定一个路径后在执行命令
   (let ((default-directory
-          (or
-           (if arg
-               (setq-local zerolee-ctags-directory
-                           (read-directory-name
-                            "Select directory: " default-directory))
-             (and
-              (citre-tags-file-path)
-              (string-match (file-name-directory (citre-tags-file-path)) default-directory)
-              (setq-local zerolee-ctags-directory (file-name-directory
-                                                   (citre-tags-file-path)))))
-           (zerolee--get-project-root))))
+         (or
+          (if arg
+              (setq-local zerolee-ctags-directory
+                          (read-directory-name
+                           "Select directory: " default-directory))
+            (and
+             (citre-tags-file-path)
+             (string-match (file-name-directory (citre-tags-file-path)) default-directory)
+             (setq-local zerolee-ctags-directory (file-name-directory
+                                                  (citre-tags-file-path)))))
+          (zerolee--get-project-root))))
     (call-process-shell-command zerolee-ctags-command nil nil nil)))
 
 (defun zerolee--update-ctags ()
@@ -454,9 +454,9 @@
     (define-key js-mode-map (kbd "M-.") #'xref-find-definitions)))
 
 (add-hook 'prog-mode-hook
-          #'(lambda ()
-              (when (not (derived-mode-p 'lisp-data-mode))
-                (zerolee--tags-config))))
+          (lambda ()
+            (when (not (derived-mode-p 'lisp-data-mode))
+              (zerolee--tags-config))))
 
 (add-hook 'sgml-mode-hook #'zerolee--tags-config)
 

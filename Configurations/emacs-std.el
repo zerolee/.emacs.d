@@ -69,7 +69,7 @@
 (setq org-html-htmlize-output-type nil)
 
 (add-hook 'org-mode-hook
-          #'(lambda () (setq truncate-lines nil)))
+          (lambda () (setq truncate-lines nil)))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")

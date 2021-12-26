@@ -36,7 +36,7 @@
     ("\\.cs\\'"         . "mcs %f")
     ("\\.cron\\(tab\\)?\\'" . "crontab %f")
     ("\\.cu\\'"         . "nvcc %f -o %n")
-    ("\\.cuf\\'"        . "pgfortran %f -o %n")
+    ("\\.cuf\\'"        . "nvfortran -Mcuda -O2 %f -o %n")
     ("\\.[Ff]\\'"       . "gfortran %f -o %n")
     ("\\.[Ff]90\\'"     . "gfortran %f -o %n")
     ("\\.go\\'"         . "go run %f")
@@ -47,20 +47,27 @@
     ("\\.lua\\'"        . "lua %f")
     ("\\.m\\'"          . "gcc -O2 %f -lobjc -lpthread -o %n")
     ("\\.mp\\'"         . "mptopdf %f")
-    ("\\.php\\'"        . "php -l %f")
+    ("\\.php\\'"        . "php %f")
     ("\\.pl\\'"         . "perl %f");;"perl -cw %f" ; syntax check
     ("\\.p[l]?6\\'"     . "perl6 %f")
     ("\\.py\\'"         . "python3 %f")
     ("\\.raku\\'"       . "perl6 %f")
     ("\\.rb\\'"         . "ruby %f")   ;; "ruby -cw %f" ; syntax check
     ("\\.rs\\'"         . "rustc %f -o %n")
-    ("Rakefile\\'"      . "rake")
-    ("Gemfile\\'"       . "bundle install")
+    ("\\.swift\\'"      . "swiftc %f -o %n")
     ("\\.tex\\'"        . (tex-file))
     ("\\.texi\\'"       . "makeinfo %f"))
   "每个元素由 (REGEXP . STRING) or (MAJOR-MODE . STRING) 构成.
 当文件名与 REGEXP 匹配 或者 `major-mode' 与 MAJOR-MODE 匹配时，
 执行 STRING 中内容 %f 被文件名替换， %n 被无后缀文件名替换.")
+
+(defconst zerolee--build-system-alist
+  '(("Makefile"    . "make ")
+    ("makefile"    . "make ")
+    ("Gemfile"     . "bundle install")
+    ("Rakefile"    . "rake ")
+    ("Cargo.toml"  . "cargo build ")
+    ("pants"       . "./pants %f")))
 
 (puthash "max" 0 zerolee--eshell-path-hashtable)
 
@@ -117,11 +124,11 @@
   (term-send-input)
   (set-process-sentinel
    (get-process (buffer-name))
-   #'(lambda (proc _)
-       (when (eq 'exit (process-status proc))
-         (kill-buffer (process-buffer proc))
-         (setcdr et nil)
-         (puthash default-directory et zerolee--eshell-path-hashtable)))))
+   (lambda (proc _)
+     (when (eq 'exit (process-status proc))
+       (kill-buffer (process-buffer proc))
+       (setcdr et nil)
+       (puthash default-directory et zerolee--eshell-path-hashtable)))))
 
 (defsubst zerolee--open-js-comint (&optional arg)
   "开启一个 js-repl, 参数为 4， 则重启该实例"
@@ -152,9 +159,9 @@ NUM 为 4 强制当前目录打开 eshell."
           (derived-mode-p 'comint-mode))
       (delete-window)
     (let* ((default-directory
-             (if (= 4 num)
-                 default-directory
-               (zerolee--get-project-root)))
+            (if (= 4 num)
+                default-directory
+              (zerolee--get-project-root)))
            (et (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
            (app (when (buffer-file-name) (zerolee--get-run-app))))
@@ -182,6 +189,7 @@ NUM 为 4 强制当前目录打开 eshell."
                       (file-name-nondirectory buffer-file-name))))
     (string-replace "%n" base (string-replace "%f" name compiler))))
 
+;;; 代码来源：https://github.com/zenitani/elisp/blob/master/smart-compile.el
 ;;;###autoload
 (defun zerolee-compile ()
   "对 `compile' 的一个轻微的包装."
@@ -190,9 +198,12 @@ NUM 为 4 强制当前目录打开 eshell."
         (name (buffer-file-name))
         (compiler nil))
     (cond ((and (local-variable-p 'compile-command) compile-command))
-          ((or (file-readable-p "Makefile")
-               (file-readable-p "makefile"))
-           (set (make-local-variable 'compile-command) "make "))
+          ((catch 'build
+             (dolist (alist zerolee--build-system-alist)
+               (when (file-readable-p (car alist))
+                 (set (make-local-variable 'compile-command)
+                      (zerolee--format-compile (cdr alist)))
+                 (throw 'build t)))))
           (name
            (if (catch 'done
                  (dolist (alist zerolee--compile-alist)
@@ -267,7 +278,7 @@ NUM 为 4 强制当前目录打开 eshell."
                (t (or (thing-at-point 'url) buffer-file-name))))
         (program (if arg
                      (read-shell-command "Open current file with: ")
-                   "xdg-open")))
+                   "open")))
     (call-process program nil 0 nil current-file-name)))
 
 

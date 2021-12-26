@@ -57,10 +57,9 @@
   (projectile-mode +1)
   (setq projectile-completion-system 'ivy)
   (advice-add 'projectile-find-file-dwim :before
-              #'(lambda (&rest _)
-                  (xref-push-marker-stack)
-                  (vesie-mode 1))))
-
+              (lambda (&rest _)
+                (xref-push-marker-stack)
+                (vesie-mode 1))))
 
 (use-package mc-mark-more
   :ensure multiple-cursors
@@ -231,19 +230,19 @@
   (define-key paredit-mode-map (kbd "M-<up>") nil)
   (global-set-key (kbd "M-<up>") #'paredit-splice-sexp)
   (define-key paredit-mode-map (kbd "M-<down>")
-    '(lambda ()
-       (interactive)
-       (search-forward ")" (point-at-eol) t 1)
-       (paredit-newline)
-       (vesie-mode 0)))
+              '(lambda ()
+                 (interactive)
+                 (search-forward ")" (point-at-eol) t 1)
+                 (paredit-newline)
+                 (vesie-mode 0)))
   (define-key paredit-mode-map (kbd "(") nil)
   (define-key paredit-mode-map (kbd ")") nil)
   (define-key paredit-mode-map (kbd "[") nil)
   (define-key paredit-mode-map (kbd "]") nil)
   (define-key paredit-mode-map (kbd ";") nil)
   (advice-add 'paredit-comment-dwim :after
-              #'(lambda (&optional _) (unless mark-active
-                                        (vesie-mode 0)))))
+              (lambda (&optional _) (unless mark-active
+                                      (vesie-mode 0)))))
 
 (use-package emms :defer t)
 

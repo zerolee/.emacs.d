@@ -44,10 +44,10 @@
 (with-eval-after-load 'info
   (define-key Info-mode-map (kbd "?") #'hydra-info/body))
 (global-set-key (kbd "M-<SPC>")
-                #'(lambda ()
-                    (interactive)
-                    (zerolee-ime-disable)
-                    (hydra-f1/body)))
+                (lambda ()
+                  (interactive)
+                  (zerolee-ime-disable)
+                  (hydra-f1/body)))
 (global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
 
 ;;;
@@ -74,58 +74,58 @@
 ;;; dired
 (with-eval-after-load 'dired
   (define-key dired-mode-map (kbd "/")
-    #'(lambda ()
-        (interactive)
-        (call-interactively #'dired-mark-files-regexp)
-        (command-execute "tk"))))
+              (lambda ()
+                (interactive)
+                (call-interactively #'dired-mark-files-regexp)
+                (command-execute "tk"))))
 
 ;;; flymake
 (with-eval-after-load 'flymake
   (define-key flymake-mode-map (kbd "M-g p") #'flymake-goto-prev-error)
   (define-key flymake-mode-map (kbd "M-g n") #'flymake-goto-next-error)
   (define-key flymake-mode-map (kbd "M-g l")
-    #'(lambda ()
-        (interactive)
-        (let ((buffer
-               (format "*Flymake diagnostics for %s*" (current-buffer))))
-          (if (get-buffer-window buffer)
-              (delete-windows-on buffer)
-            (flymake-show-diagnostics-buffer))))))
+              (lambda ()
+                (interactive)
+                (let ((buffer
+                       (format "*Flymake diagnostics for %s*" (current-buffer))))
+                  (if (get-buffer-window buffer)
+                      (delete-windows-on buffer)
+                    (flymake-show-diagnostics-buffer))))))
 
 ;;; eshell
 (add-hook 'eshell-mode-hook
-          #'(lambda ()
-              (define-key eshell-mode-map (kbd "C-d")
-                #'(lambda (arg)
-                    "Delete a character or quit eshell if there's nothing to delete."
-                    (interactive "p")
-                    (if (and (eolp) (looking-back eshell-prompt-regexp nil))
-                        (eshell-life-is-too-much)
-                      (delete-char arg))))
-              (define-key eshell-mode-map (kbd "C-r")
-                #'(lambda ()
-                    (interactive)
-                    (counsel-esh-history)))))
+          (lambda ()
+            (define-key eshell-mode-map (kbd "C-d")
+                        (lambda (arg)
+                          "Delete a character or quit eshell if there's nothing to delete."
+                          (interactive "p")
+                          (if (and (eolp) (looking-back eshell-prompt-regexp nil))
+                              (eshell-life-is-too-much)
+                            (delete-char arg))))
+            (define-key eshell-mode-map (kbd "C-r")
+                        (lambda ()
+                          (interactive)
+                          (counsel-esh-history)))))
 
 ;;; emacs-lisp
 (define-key lisp-interaction-mode-map
-  (kbd "C-c <return>") #'emacs-lisp-macroexpand)
+            (kbd "C-c <return>") #'emacs-lisp-macroexpand)
 (define-key emacs-lisp-mode-map (kbd "C-c <return>") #'emacs-lisp-macroexpand)
 
 ;;; key-chord "df"
-(global-set-key [key-chord ?d ?f] #'(lambda () (interactive) (vesie-mode 1)))
+(global-set-key [key-chord ?d ?f] (lambda () (interactive) (vesie-mode 1)))
 (setq input-method-function
-      #'(lambda (first-char)
-          (if (and (memq first-char '(?d ?f))
-                   (not (sit-for 0.05 'no-redisplay)))
-              (let* ((input-method-function nil)
-                     (next-char (read-event)))
-                (if (and (memq next-char '(?d ?f))
-                         (not (eq first-char next-char)))
-                    (list 'key-chord ?d ?f)
-                  (push next-char unread-command-events)
-                  (list first-char)))
-            (list first-char))))
+      (lambda (first-char)
+        (if (memq first-char '(?d ?f))
+            (let ((input-method-function nil)
+                  (next-char (read-event nil nil 0.05)))
+              (if (and (memq next-char '(?d ?f))
+                       (not (eq first-char next-char)))
+                  (list 'key-chord ?d ?f)
+                (when (memq next-char '(?d ?f))
+                  (push next-char unread-command-events))
+                (list first-char)))
+          (list first-char))))
 
 (provide 'bindings)
 ;;; bindings.el ends here
