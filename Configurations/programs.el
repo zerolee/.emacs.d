@@ -73,11 +73,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(defconst zerolee-jdt-home "~/backups/src/jdt-language-server-latest/")
 (use-package lsp-java
   :defer t
   :init
-  (setq lsp-java-server-install-dir
-        "~/backups/src/jdt-language-server-latest/")
+  (setq lsp-java-server-install-dir zerolee-jdt-home)
   :hook (java-mode . (lambda ()
                        (require 'lsp-java)
                        (lsp--common-set))))
@@ -283,6 +283,18 @@
                            (if (get-buffer-window eldoc--doc-buffer)
                                (delete-windows-on eldoc--doc-buffer)
                              (eldoc-doc-buffer)))))
+  :init
+  (defvar zerolee-jdt-classpath
+    (let ((jdt (concat zerolee-jdt-home "plugins/")))
+      (expand-file-name
+       (concat jdt
+               (car (cl-member "org.eclipse.equinox.launcher_"
+                               (directory-files jdt)
+                               :test #'string-match))))))
+  (setenv "CLASSPATH"
+          (concat
+           (getenv "CLASSPATH") ":"
+           zerolee-jdt-classpath))
   :hook ((eglot-managed-mode
           .
           (lambda ()

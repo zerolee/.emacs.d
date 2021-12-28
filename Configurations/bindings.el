@@ -122,8 +122,7 @@
               (if (and (memq next-char '(?d ?f))
                        (not (eq first-char next-char)))
                   (list 'key-chord ?d ?f)
-                (when (memq next-char '(?d ?f))
-                  (push next-char unread-command-events))
+                (and next-char (push next-char unread-command-events))
                 (list first-char)))
           (list first-char))))
 
