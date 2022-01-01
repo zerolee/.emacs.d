@@ -83,6 +83,9 @@
 (push '(font . "Sarasa Fixed SC") default-frame-alist)
 (set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend)
 
+;;; 配置 xref-search-program
+(setq xref-search-program 'ripgrep)
+
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
@@ -101,7 +104,8 @@
                   "^\\*e?shell\\*"
                   "^\\*Messages\\*$"
                   "^\\*ansi-term\\*"
-                  "^\\*Javascript REPL"))
+                  "^\\*Javascript REPL"
+                  "^\\*sly-mrepl"))
   (push `(,buffer
           (display-buffer-reuse-window
            display-buffer-in-side-window)
@@ -113,6 +117,7 @@
 ;;; 配置窗口永远在右方，占据 45% 大小
 (dolist (buffer '("^\\*lsp-help\\*$"
                   "^\\*eglot-help"
+                  "^\\*sly-description\\*$"
                   "^\\*vc-"
                   ".el.gz$"
                   "^*eldoc"))

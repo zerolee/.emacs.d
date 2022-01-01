@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: format
+# key: format
+# --
+
+(format ${1:t} "${2:then-do-this}"$3)

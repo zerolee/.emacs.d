@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: do
+# key: do
+# --
+(do ((${1:var1} ${2:init-form} ${3:step-form})${4:
+     (${5:var2} ${6:init-form} ${7:step-form})})
+    (${8:condition}${9: return-value})
+    $10)

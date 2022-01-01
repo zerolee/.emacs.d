@@ -130,17 +130,19 @@
        (setcdr et nil)
        (puthash default-directory et zerolee--eshell-path-hashtable)))))
 
-(defsubst zerolee--open-js-comint (&optional arg)
-  "开启一个 js-repl, 参数为 4， 则重启该实例"
-  (interactive "P")
-  (require 'js-comint)
-  (let ((window (selected-window))
-        (buffer (get-buffer "*Javascript REPL*")))
-    (if (= arg 4)
-        (call-interactively #'js-comint-reset-repl)
+(defsubst zerolee--open-repl (repl-buffer repl num repl-other)
+  "开启一个 repl，
+repl-buffer: 打开的 repl 的 buffer 名.
+repl： 打开 repl 的函数.
+num, repl-other: 可选的其他参数以及函数"
+  (let* ((window (selected-window))
+         (blist (mapcar #'buffer-name (mapcar #'window-buffer (window-list))))
+         (buffer (car (cl-member repl-buffer blist :test #'string-match))))
+    (if (= num 4)
+        (call-interactively repl-other)
       (if (and buffer (get-buffer-window buffer))
           (delete-windows-on buffer)
-        (call-interactively #'run-js)))
+        (call-interactively repl)))
     (select-window window)))
 
 ;;;###autoload
@@ -165,7 +167,15 @@ NUM 为 4 强制当前目录打开 eshell."
            (et (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
            (app (when (buffer-file-name) (zerolee--get-run-app))))
-      (cond ((eq major-mode 'js-mode) (zerolee--open-js-comint num))
+      (cond ((eq major-mode 'js-mode)
+             (progn
+               (require 'js-comint)
+               (zerolee--open-repl "*Javascript REPL" #'run-js num
+                                   #'js-comint-reset-repl)))
+            ((eq major-mode 'lisp-mode)
+             (progn
+               (require 'sly)
+               (zerolee--open-repl "*sly-mrepl for sbcl" #'sly num #'sly)))
             ((and app (= num 1)) (zerolee--ansi-term app et))
             ((= num 2) (call-process-shell-command "EMACS_START=nil gnome-terminal"))
             ((car et)
@@ -270,7 +280,7 @@ NUM 为 4 强制当前目录打开 eshell."
   (interactive "P")
   (let ((current-file-name
          (cond ((eq major-mode 'dired-mode) (dired-get-file-for-visit))
-               ((help-at-pt-string)
+               ((and (eq major-mode 'org-mode) (help-at-pt-string))
                 (pcase (cdr (split-string (help-at-pt-string) ":" t " "))
                   ((or `(,path) `(,(pred (string= "file")) ,path) `(,_ ,path ,_))
                    (expand-file-name path))
@@ -279,7 +289,7 @@ NUM 为 4 强制当前目录打开 eshell."
         (program (if arg
                      (read-shell-command "Open current file with: ")
                    "open")))
-    (call-process program nil 0 nil current-file-name)))
+    (call-process program nil 0 nil (or current-file-name buffer-file-name))))
 
 
 ;;;###autoload

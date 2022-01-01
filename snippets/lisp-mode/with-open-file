@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Xah Lee (XahLee.org)
+# name: with-open-file
+# key: with-open-file
+# --
+(with-open-file (${1:stream-var} ${2:path})
+  $3)

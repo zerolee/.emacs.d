@@ -16,6 +16,12 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package sly
   :defer t
+  :bind (:map sly-mode-map
+              ("C-h ." . (lambda ()
+                           (interactive)
+                           (if (get-buffer-window "*sly-description*")
+                               (delete-windows-on "*sly-description*")
+                             (call-interactively #'sly-documentation)))))
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl"
         sly-complete-symbol-function 'sly-simple-completions))
