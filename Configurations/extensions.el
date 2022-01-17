@@ -186,6 +186,7 @@
   :custom
   (company-minimum-prefix-length 2)
   (company-idle-delay 0)
+  (company-show-quick-access t)
   (company-backends
    '((company-yasnippet company-capf
                         company-dabbrev-code)
@@ -229,7 +230,7 @@
   (define-key paredit-mode-map (kbd "M-?") nil)
   (define-key paredit-mode-map (kbd "M-<up>") nil)
   (global-set-key (kbd "M-<up>") #'paredit-splice-sexp)
-  (define-key paredit-mode-map (kbd "M-<down>")
+  (define-key paredit-mode-map (kbd "C-M-j")
               (lambda ()
                 (interactive)
                 (search-forward ")" (point-at-eol) t 1)

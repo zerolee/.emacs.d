@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: if-let
+# key: if-let
+# --
+
+(if-let (${1:condition})
+         ${2:then}
+         $3)

@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: defmacro
+# key: defmacro
+# --
+(defmacro ${1:macro} (${2:args})
+  $3)$0

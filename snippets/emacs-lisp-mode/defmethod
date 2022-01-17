@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: defmethod
+# key: defmethod
+# --
+(cl-defmethod ${1:method} (${2:args})
+  $3)$0

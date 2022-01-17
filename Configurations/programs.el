@@ -5,6 +5,18 @@
 (require 'use-package)
 (require 'diminish)
 (require 'init-tools)
+
+(defvar-local last-symbol nil)
+(defun zerolee-help-doc (buffer document)
+  "文档的启动与关闭."
+  (let ((current-symbol (thing-at-point 'symbol t)))
+    (if (or (string= current-symbol last-symbol)
+            (null current-symbol))
+        (if (get-buffer-window buffer)
+            (delete-windows-on buffer)
+          (call-interactively document))
+      (call-interactively document))
+    (setq-local last-symbol current-symbol)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Scheme  geiser
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -17,11 +29,11 @@
 (use-package sly
   :defer t
   :bind (:map sly-mode-map
-              ("C-h ." . (lambda ()
-                           (interactive)
-                           (if (get-buffer-window "*sly-description*")
-                               (delete-windows-on "*sly-description*")
-                             (call-interactively #'sly-documentation)))))
+              ("C-h ."
+               .
+               (lambda ()
+                 (interactive)
+                 (zerolee-help-doc "*sly-description*" #'sly-documentation))))
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl"
         sly-complete-symbol-function 'sly-simple-completions))
@@ -51,9 +63,7 @@
   (define-key lsp-mode-map (kbd "C-h .")
               (lambda ()
                 (interactive)
-                (if (get-buffer-window "*lsp-help*")
-                    (delete-windows-on "*lsp-help*")
-                  (lsp-describe-thing-at-point))))
+                (zerolee-help-doc "*lsp-help*" #'lsp-describe-thing-at-point)))
   (define-key lsp-mode-map (kbd "s-l") nil)
   (setq abbrev-mode nil)
   (lsp-diagnostics-mode 1)
@@ -284,11 +294,11 @@
               ("S-<f2>" . eglot-rename)
               ("M-." . xref-find-definitions)
               ("M-?" . xref-find-references)
-              ("C-h ." . (lambda ()
-                           (interactive)
-                           (if (get-buffer-window eldoc--doc-buffer)
-                               (delete-windows-on eldoc--doc-buffer)
-                             (eldoc-doc-buffer)))))
+              ("C-h ."
+               .
+               (lambda ()
+                 (interactive)
+                 (zerolee-help-doc eldoc--doc-buffer #'eldoc-doc-buffer))))
   :init
   (defvar zerolee-jdt-classpath
     (let ((jdt (concat zerolee-jdt-home "plugins/")))

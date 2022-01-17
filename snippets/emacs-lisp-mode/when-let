@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: when-let
+# key: when-let
+# --
+
+(when-let (${1:condition})
+  $2)

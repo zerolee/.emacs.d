@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: defsubst
+# key: defsubst
+# --
+(defsubst ${1:fun} (${2:args})
+  $3)$0
