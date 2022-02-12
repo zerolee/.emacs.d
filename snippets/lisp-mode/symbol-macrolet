@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Zero Lee
+# name: symbol-macrolet
+# key: symbol-macrolet
+# --
+(symbol-macrolet ((${1:bind}))
+  $2)

@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: define-key
+# key: define-key
+# --
+(define-key ${1:minor-mode-map} (kbd "${2:}")$3)

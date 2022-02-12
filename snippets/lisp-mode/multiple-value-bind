@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Zero Lee
+# name: multiple-value-bind
+# key: multiple-value-bind
+# --
+(multiple-value-bind (${1:variable*}) ${2:values-form}
+   $3)

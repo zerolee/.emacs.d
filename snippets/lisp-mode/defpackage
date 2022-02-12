@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: defpackage
+# key: defpackage
+# --
+(defpackage ${1:name}
+   (:nicknames ${2:nick})
+   (:use :common-lisp ${3:package})
+   (:import-from ${4:package} $5)
+   (:shadow ${6:symbol})
+   (:shadowing-import-from ${7:package} ${8:symbol})
+   (:export $0))

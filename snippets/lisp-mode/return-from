@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# contributor: Zero Lee
+# name: return-from
+# key: return-from
+# --
+(return-from ${1:name}${2: value})

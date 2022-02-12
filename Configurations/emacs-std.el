@@ -120,7 +120,8 @@
                   "^\\*sly-description\\*$"
                   "^\\*vc-"
                   ".el.gz$"
-                  "^*eldoc"))
+                  "^*eldoc"
+		  "^\\*sly-inspector for"))
   (push `(,buffer
           (display-buffer-reuse-window
            display-buffer-in-side-window)

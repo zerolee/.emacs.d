@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Zero Lee
+# name: handler-bind
+# key: handler-bind
+# --
+(handler-bind (${1:express})
+  $2)

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Zero Lee
+# name: handler-case
+# key: handler-case
+# --
+(handler-case (${1:express})
+  $2)

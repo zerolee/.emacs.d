@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# contributor: Zero Lee
+# name: restart-case
+# key: restart-case
+# --
+(restart-case (${1:express})
+  $2)
