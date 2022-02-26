@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: case
+# key: case
+# --
+
+(case $1
+    (${2:key} ${3:do-this})
+    (${4:key} ${5:do-this})$6)

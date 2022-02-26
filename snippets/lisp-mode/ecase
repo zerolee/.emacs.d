@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: ecase
+# key: ecase
+# --
+
+(ecase $1
+    (${2:key1} ${3:do-this})
+    (${4:key2} ${5:do-this})$6)
