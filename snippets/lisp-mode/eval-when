@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: eval-when
+# key: eval-when
+# --
+
+(eval-when ($1)
+    $2)

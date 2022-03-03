@@ -112,6 +112,8 @@
 (use-package yasnippet-snippets
   :diminish yas-minor-mode
   :hook (after-init . yas-global-mode)
+  :bind (:map yas-minor-mode-map
+	      ("C-<tab>" . yas-next-field))
   :config
   (defun zerolee--autoinsert()
     "打开文件时从当前目录开始往上查找模板文件，查找到则插入模板.
@@ -212,7 +214,9 @@
   (advice-add #'company-dabbrev-code :around #'my-company-yasnippet-disable-inline)
   (setq company-transformers '(delete-dups)))
 
-
+(use-package flee
+  :ensure nil
+  :commands (flee-dwim))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; paredit
 ;; 在 a-string 两边加上 " 或者 (), 只要将光标放置于 a-string 开头按下 M-( 或者 M-" 即可
@@ -250,34 +254,7 @@
 		  (call-interactively #'indent-for-tab-command)
 		  (when (= point (point))
 		    (paredit/my-next-parameter)))))
-  (define-key paredit-mode-map (kbd "C-M-j")
-              (lambda ()
-                (interactive)
-		(let* ((defun-point (save-excursion (beginning-of-defun) (point)))
-		       (syntax (parse-partial-sexp defun-point (point)))
-		       (count 0))
-		  (if (and (eql (cl-first syntax) 1)
-			   (cl-fourth syntax))
-		      (search-forward "\"" (point-at-eol) t 1)
-		    (save-excursion
-		      (while (and (> (point) defun-point)
-				  (/= (char-after) (char-before))
-				  (/= (char-after (1+ (point))) ?\())
-			(paredit-backward-up)
-			(cl-incf count))
-		      (if (or (= (char-after) (char-before) ?\()
-			      (= (char-after (1+ (point))) ?\())
-			  (progn (when (= (char-after (1+ (point))) ?\()
-				   (cl-decf count))
-				 (backward-word)
-				 (unless (member (thing-at-point 'symbol t)
-						 '("let" "let*" "symbol-macrolet"
-						   "cl-symbol-macrolet"))
-				   (setq count 1)))
-			(setq count 1)))
-		    (search-forward ")" (point-at-eol) t count))
-		  (paredit-newline)
-		  (vesie-mode 0))))
+  (define-key paredit-mode-map (kbd "C-M-j") #'flee-dwim)
   (define-key paredit-mode-map (kbd "M-i")
 	      (lambda ()
 		(interactive)
