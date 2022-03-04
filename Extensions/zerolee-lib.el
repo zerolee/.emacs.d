@@ -52,11 +52,11 @@
 (defun cl-read-helper (sexp-content new-pos buf eof-error-p eof)
   (with-current-buffer buf
     (if (and (> current-position 0)
-	     (<= current-position (point-max)))
-	(prog2
-	    (goto-char current-position)
-	    (eval sexp-content)
-	  (setq-local current-position (eval new-pos)))
+             (<= current-position (point-max)))
+        (prog2
+            (goto-char current-position)
+            (eval sexp-content)
+          (setq-local current-position (eval new-pos)))
       (if eof-error-p
           (error "end of file...")
         eof))))
@@ -66,7 +66,8 @@
                   '(1+ (point-at-eol)) buf eof-error-p eof))
 
 (cl-defun cl-read-char (&optional (buf (current-buffer)) (eof-error-p t) eof)
-  (cl-read-helper '(char-after) '(1+ (point)) buf eof-error-p eof))
+  (or (cl-read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)
+      (cl-read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)))
 
 (cl-defun cl-write-line (string &optional (buf (current-buffer)))
   (with-current-buffer buf
@@ -99,17 +100,17 @@
 (defun cl-parse-format (control-string)
   (dolist (cs cl-format-alist control-string)
     (setq control-string
-	  (string-replace (car cs) (cdr cs) control-string))))
+          (string-replace (car cs) (cdr cs) control-string))))
 
 (defun cl-format (destination control-string &rest format-arguments)
   "一个模拟 Common Lisp format 的函数."
   (cond ((eq destination t)
-	 (apply #'message (cl-parse-format control-string) format-arguments))
-	((eq destination nil)
-	 (apply #'format (cl-parse-format control-string) format-arguments))
-	(t (with-current-buffer destination
-	     (insert (apply #'format (cl-parse-format control-string)
-			    format-arguments))))))
+         (apply #'message (cl-parse-format control-string) format-arguments))
+        ((eq destination nil)
+         (apply #'format (cl-parse-format control-string) format-arguments))
+        (t (with-current-buffer destination
+             (insert (apply #'format (cl-parse-format control-string)
+                            format-arguments))))))
 
 (cl-defun cl-file-position (buf &optional (position 0 position-p))
   "只有一个参数 buf 时返回文件中的当前位置,
@@ -117,40 +118,40 @@
 position 的值为 :start :end 或者一个非负整数."
   (with-current-buffer buf
     (if (not position-p)
-	(1- current-position)
+        (1- current-position)
       (setq-local current-position
-		  (cond ((eq position :start) (point-min))
-			((eq position :end) (point-max))
-			(t (1+ position))))
+                  (cond ((eq position :start) (point-min))
+                        ((eq position :end) (point-max))
+                        (t (1+ position))))
       t)))
 
 (cl-defmacro with-open-file ((str filename &key (direction :input)
-				  (element-type 'base-char)
-				  (if-exists :supersede))
+                                  (element-type 'base-char)
+                                  (if-exists :supersede))
                              &body body)
   "模拟 Common Lisp 版 with-open-file 的一个宏，str 中保存的是操作的 buffer."
   (if (eq direction :output)
       `(with-temp-file ,filename
          (unwind-protect
-	     (let ((,str (current-buffer)))
-	       (if (eq ',element-type 'base-char)
-		   (set-buffer-multibyte t)
-		 (set-buffer-multibyte nil))
-	       (when (eq ,if-exists :append)
-		 (insert-file-contents ,filename))
-	       (setq-local current-position (point-max))
+             (let ((,str (current-buffer)))
+               (if (eq ',element-type 'base-char)
+                   (set-buffer-multibyte t)
+                 (set-buffer-multibyte nil))
+               (when (eq ,if-exists :append)
+                 (insert-file-contents ,filename))
+               (setq-local current-position (point-max))
                ,@body)
-	   (setq-local current-position -1)))
+           (setq-local current-position -1)))
     `(with-temp-buffer
        (unwind-protect
-	   (let ((,str (current-buffer)))
-	     (if (eq ',element-type 'base-char)
-		   (set-buffer-multibyte t)
-		 (set-buffer-multibyte nil))
+           (let ((,str (current-buffer)))
+             (if (eq ',element-type 'base-char)
+                 (set-buffer-multibyte t)
+               (set-buffer-multibyte nil))
              (setq-local current-position (point-min))
              (insert-file-contents ,filename)
              ,@body)
-	 (setq-local current-position -1)))))
+         (setq-local current-position -1)))))
 
 
 ;; (with-open-file (in "/tmp/hello.world"
@@ -169,6 +170,12 @@ position 的值为 :start :end 或者一个非负整数."
 ;;              (cl-write-line "hello, world")
 ;;              (cl-write-line "look, good")
 ;;              (print "(+ 1 2)" output))
+
+(defun cl-complement (fun)
+  "以一个 fun 作为参数，它返回一个函数，这个函数的返回值总是和
+fun 得到的返回值相反."
+  (lambda (&rest x)
+    (not (apply fun x))))
 
 (provide 'zerolee-lib)
 ;;; zerolee-lib.el ends here

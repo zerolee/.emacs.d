@@ -20,6 +20,7 @@
 ;;; Code:
 
 (require 'tree-sitter)
+(eval-when-compile (require 'subr-x))
 (require 'vesie)
 (require 'paredit)
 
@@ -28,14 +29,14 @@
     "cl-symbol-macrolet*" "if-let" "if-let*" "when-let" "when-let*")
   "保存类似 let 那样的结构，重心在 binds 的列表.")
 
-(defconst flee-clause-list '("case" "ecase" "cl-ecase" "cl-case" "cond"
-			     "eval-when" "cl-eval-when")
+(defconst flee-clause-list
+  '("case" "ecase" "cl-ecase" "cl-case" "cond" "eval-when" "cl-eval-when")
   "保存类似 cond 那样的结构，重心在 clause 的列表.")
 
 (defconst flee-def-list '("defun" "cl-defun" "defmacro" "cl-defmacro")
   "保存类似定义宏，定义函数那样的结构.")
 
-(defconst flee-target-list  (append flee-bind-list flee-clause-list flee-def-list)
+(defconst flee-target-list (append flee-bind-list flee-clause-list flee-def-list)
   "保存想要查找的目标的列表.")
 
 (defun flee-get-target ()
@@ -44,7 +45,7 @@
    (tree-sitter-node-at (point))
    (lambda (parent)
      (member (tree-sitter-node-text (tree-sitter-node-child parent 1) t)
-	     flee-target-list))))
+             flee-target-list))))
 
 (defun flee-child-end (parent)
   "去 `parent' 在 (point) 处的子节点的末尾."
@@ -53,30 +54,30 @@
     (tree-sitter-node-first-child-for-pos parent (point)))))
 
 ;;;###autoload
-(defun flee-dwim ()
+(defun flee-dwim (&optional update)
   "退出 case, ecase… 的单个 (KEYLIST BODY...) 部分，
 let, let*, symbol-macrolet… 的单个 bind 部分."
-  (interactive)
-  (setq-local tree-sitter-parser-list nil)
+  (interactive "P")
+  (when update
+    (setq-local tree-sitter-parser-list nil))
   (tree-sitter-get-parser-create 'tree-sitter-elisp)
   (if-let ((target (flee-get-target))
-	   (sibling1 (tree-sitter-node-text
-		      (tree-sitter-node-child target 1) t)))
+           (sibling1 (tree-sitter-node-text
+                      (tree-sitter-node-child target 1) t)))
       (if (and (member sibling1 flee-bind-list)
-	       (< (point) (tree-sitter-node-end
-			   (tree-sitter-node-child target 2))))
-	  (flee-child-end (tree-sitter-node-child target 2))
-	(if (or (member sibling1 flee-clause-list)
-		(and (member sibling1 flee-def-list)
-		     (tree-sitter-node-eq (tree-sitter-node-parent
-					   (tree-sitter-node-at (point)))
-					  target)))
-	    (flee-child-end target)
-	  (search-forward ")" (point-at-eol) t 1)))
+               (< (point) (tree-sitter-node-end
+                           (tree-sitter-node-child target 2))))
+          (flee-child-end (tree-sitter-node-child target 2))
+        (if (or (member sibling1 flee-clause-list)
+                (and (member sibling1 flee-def-list)
+                     (tree-sitter-node-eq (tree-sitter-node-parent
+                                           (tree-sitter-node-at (point)))
+                                          target)))
+            (flee-child-end target)
+          (search-forward ")" (point-at-eol) t 1)))
     (search-forward ")" (point-at-eol) t 1))
   (paredit-newline)
   (vesie-mode 0))
-
 
 (provide 'flee)
 ;;; flee.el ends here

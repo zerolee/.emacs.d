@@ -285,6 +285,9 @@ NUM 为 4 强制当前目录打开 eshell."
                   ((or `(,path) `(,(pred (string= "file")) ,path) `(,_ ,path ,_))
                    (expand-file-name path))
                   (`(,proto ,path) (concat proto ":" path))))
+	       ((and (nth 3 (syntax-ppss))
+		     (file-exists-p (thing-at-point 'filename t)))
+		(thing-at-point 'filename t))
                (t (or (thing-at-point 'url) buffer-file-name))))
         (program (if arg
                      (read-shell-command "Open current file with: ")

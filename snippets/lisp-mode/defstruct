@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: defstruct
+# key: defstruct
+# --
+(defstruct ${1:name}
+  $2)$0
