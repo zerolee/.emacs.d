@@ -3,5 +3,6 @@
 # name: labels
 # key: labels
 # --
-(labels ((${1:name} (${2:args})$3)$4)
+(labels ((${1:name} (${2:args})
+           $3)$4)
   $5)

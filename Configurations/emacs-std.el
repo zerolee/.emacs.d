@@ -2,16 +2,15 @@
 ;;; Commentary:
 
 ;;; Code:
-(setq display-time-default-load-average nil)
-(setq display-time-mail-string "")
+;;; mode-line 设置
+(setq display-time-default-load-average nil
+      display-time-mail-string ""
+      eldoc-minor-mode-string ""
+      auto-revert-mode-text "")
+
 (display-time)
 ;; 关掉开机信息
 (setq inhibit-startup-message t)
-
-;;; mode-line 上取消 eldoc 显示
-(setq eldoc-minor-mode-string "")
-
-(setq auto-revert-mode-text "")
 
 (setq column-number-mode t)
 
@@ -33,22 +32,6 @@
 ;; 在重名buffer前面加上其父目录的名字
 (require 'uniquify)
 (setq uniquify-buffer-name-style 'forward)
-
-;;;Also highlight parens,
-(show-paren-mode t)
-;;showing matching parentheses
-;;(setq show-paren-delay 0)
-(setq show-paren-style 'parenthesis)
-;; showing region between parentheses
-;;(setq show-paren-style 'expression)
-
-
-;;;edit Compressed File
-(require 'jka-compr)
-
-
-;;;display and open image
-(auto-image-file-mode)
 
 ;;; C-x C-l downcase-region: 文本块全部改为小写，该命令默认是 disabled
 ;;; C-x C-u upcase-region: 文本块全部改为大写， 该命令默认是 disabled
@@ -76,15 +59,36 @@
 (setenv "FZF_DEFAULT_COMMAND" "fd --type file")
 
 ;; Using MELPA
-(setq package-archives '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-                         ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+(setq package-archives
+      '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+        ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
 ;;; 配置字体
 (push '(font . "Sarasa Fixed SC") default-frame-alist)
-(set-fontset-font t 'symbol (font-spec :family "Noto Color Emoji") nil 'prepend)
 
 ;;; 配置 xref-search-program
-(setq xref-search-program 'ripgrep)
+(defconst project-discover-files
+  '(".project" "Makefile" "CMakeLists.txt" "go.mod"  "tox.ini" "manage.py"
+    "build.gradle" "WORKSPACE" "composer.json" "rebar.config" "Cargo.toml"
+    "Gruntfile.js" "gulpfile.js" "package.json" "angular.json" "SConstruct"
+    "requirements.txt" ".angular-cli.json" "application.properties" "pom.xml"
+     "gradlew" ".bloop" "build.sc" "setup.py" "meson.build" "dune-project"
+    "build.sbt" "project.clj" "poetry.lock" "Gemfile" "shard.yml" "mix.exs"
+    ".midje.clj" "build.boot" "deps.edn" "DESCRIPTION" "stack.yaml" "Cask"
+    "info.rkt" "pubspec.yaml" "Pipfile")
+  "有以上这些文件的话就是根目录.")
+
+(defun my/project-try-local (dir)
+  "返回一个 cons, car 为项目类型，cdr为根目录."
+  (cl-loop for f in project-discover-files
+	   when (locate-dominating-file dir f)
+	   return (cons 'local it)))
+(setq project-find-functions '(project-try-vc my/project-try-local))
+(cl-defmethod project-root ((project (head local)))
+  (cdr project))
+(setq xref-search-program 'rigrep)
+
+
 
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
 (setq frame-title-format
@@ -105,6 +109,7 @@
                   "^\\*Messages\\*$"
                   "^\\*ansi-term\\*"
                   "^\\*Javascript REPL"
+		  "^\\*lua*"
                   "^\\*sly-mrepl"))
   (push `(,buffer
           (display-buffer-reuse-window

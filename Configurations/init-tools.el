@@ -39,6 +39,7 @@
     ("\\.cuf\\'"        . "nvfortran -Mcuda -O2 %f -o %n")
     ("\\.[Ff]\\'"       . "gfortran %f -o %n")
     ("\\.[Ff]90\\'"     . "gfortran %f -o %n")
+    ("\\.g4?\\'"         . "antlr4 %f")
     ("\\.go\\'"         . "go run %f")
     ("\\.hs\\'"         . "ghc %f -o %n")
     ("\\.java\\'"       . "javac -Xlint:deprecation -Xlint:fallthrough %f")
@@ -89,9 +90,9 @@
 
 (defun zerolee--get-project-root ()
   "获取关联项目的 root."
-  (require 'projectile)
+  (require 'project)
   (expand-file-name
-   (or (projectile-project-root)
+   (or (cdr (project-current))
        (string-trim-right default-directory (zerolee--get-code-info 1)))))
 
 (defsubst zerolee--get-run-app ()
@@ -252,20 +253,14 @@ NUM 为 4 强制当前目录打开 eshell."
 
 ;;;###autoload
 (defun zerolee-go ()
-  "综合了 `projectile-find-file-dwim' `zerolee-rg' 等的跳转函数."
+  "综合了 `zerolee-rg' 等的跳转函数."
   (interactive)
-  (require 'projectile)
   (require 'ffap)
-  (if (save-excursion
-        (search-backward "#include" (line-beginning-position) t))
-      (condition-case nil
-          (call-interactively #'projectile-find-file-dwim)
-        (error (call-interactively #'ffap)))
-    (if (nth 3 (syntax-ppss))
-        (if (ffap-file-at-point)
-            (find-file (ffap-file-at-point))
-          (call-interactively #'ffap))
-      (zerolee-rg (concat "\\b" (thing-at-point 'symbol t) "\\b"))))
+  (if (nth 3 (syntax-ppss))
+      (if (ffap-file-at-point)
+          (find-file (ffap-file-at-point))
+        (call-interactively #'ffap))
+    (zerolee-rg (concat "\\b" (thing-at-point 'symbol t) "\\b")))
   (vesie-mode 1))
 
 

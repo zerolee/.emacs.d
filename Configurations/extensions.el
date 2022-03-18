@@ -3,12 +3,6 @@
 
 ;;; Code:
 (require 'zerolee-lib)
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
-(require 'use-package)
-(setq use-package-always-ensure t)
-
 (use-package save-position
   :ensure nil
   :bind (("s-." . sp-push-position-to-ring)
@@ -45,21 +39,7 @@
   :ensure nil
   :commands hugomd-preview)
 
-(use-package diminish)
 (use-package hydra)
-
-(use-package projectile
-  :defer t
-  :diminish projectile-mode
-  :bind-keymap
-  ("C-c p" . projectile-command-map)
-  :config
-  (projectile-mode +1)
-  (setq projectile-completion-system 'ivy)
-  (advice-add 'projectile-find-file-dwim :before
-              (lambda (&rest _)
-                (xref-push-marker-stack)
-                (vesie-mode 1))))
 
 (use-package mc-mark-more
   :ensure multiple-cursors
@@ -190,14 +170,15 @@
   :custom
   (company-minimum-prefix-length 2)
   (company-idle-delay 0)
-  (company-show-quick-access t)
+  (company-show-quick-access 'left)
   (company-backends
    '((company-yasnippet company-capf
                         company-dabbrev-code)
      company-files company-keywords
      company-dabbrev))
   :bind (:map company-active-map
-              ("M-/" . company-other-backend))
+              ("M-/" . company-other-backend)
+	      ("C-s" . company-filter-candidates))
   :config
   (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
     "Enable yasnippet but disable it inline."
@@ -238,14 +219,9 @@
   (global-set-key (kbd "M-<up>") #'paredit-splice-sexp)
   (defun paredit/my-next-parameter ()
     (interactive)
-    (if (or (and (eq (char-after) ?\)) (eq (char-before) ?\)))
-	    (and (= (car (syntax-ppss)) 1) (eq (char-after) ?\))))
-	(end-of-line)
-      (when (and (/= (car (syntax-ppss)) 0)
-		 (memql (char-after) '(?\) ?\")))
-	(call-interactively #'up-list)
-	(insert " ")
-	(vesie-mode 0))))
+    (call-interactively #'up-list)
+    (insert " ")
+    (vesie-mode 0))
   (define-key paredit-mode-map (kbd "C-M-n") #'paredit/my-next-parameter)
   (define-key paredit-mode-map (kbd "<tab>")
 	      (lambda ()
@@ -253,7 +229,12 @@
 		(let ((point (point)))
 		  (call-interactively #'indent-for-tab-command)
 		  (when (= point (point))
-		    (paredit/my-next-parameter)))))
+		    (if (or (and (eq (char-after) ?\)) (eq (char-before) ?\)))
+			    (and (= (car (syntax-ppss)) 1) (eq (char-after) ?\))))
+			(end-of-line)
+		      (when (and (/= (car (syntax-ppss)) 0)
+				 (memql (char-after) '(?\) ?\")))
+			(paredit/my-next-parameter)))))))
   (define-key paredit-mode-map (kbd "C-M-j") #'flee-dwim)
   (define-key paredit-mode-map (kbd "M-i")
 	      (lambda ()

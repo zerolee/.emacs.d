@@ -6,6 +6,7 @@
 (require 'diminish)
 (require 'init-tools)
 
+
 (defvar-local last-symbol nil)
 (defun zerolee-help-doc (buffer document)
   "文档的启动与关闭."
@@ -38,6 +39,7 @@
   (setq inferior-lisp-program "/usr/bin/sbcl"
         sly-complete-symbol-function 'sly-simple-completions))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp 相关的通用配置
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -77,21 +79,13 @@
   (add-hook 'lsp-on-idle-hook #'lsp--document-highlight nil t)
   (lsp-enable-imenu))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;C programming language
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package ccls
-  :defer t
-  :hook ((c-mode c++-mode objc-mode) . (lambda ()
-                                         (require 'ccls)
-                                         (lsp--common-set))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; lsp-java
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defconst zerolee-jdt-home "~/backups/src/jdt-language-server-latest/")
 (use-package lsp-java
   :defer t
+  :disabled
   :init
   (setq lsp-java-server-install-dir zerolee-jdt-home)
   :hook (java-mode . (lambda ()
@@ -105,6 +99,7 @@
   :commands lsp
   :hook ((js-mode css-mode) . lsp--common-set))
 
+
 (use-package emmet-mode
   :ensure nil
   :diminish emmet-mode
@@ -285,6 +280,13 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (autoload 'antlr-v4-mode "antlr-mode" nil t)
 (push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
+(add-hook 'antlr-mode-hook
+	  (lambda ()
+	    (let ((added (expand-file-name
+			  "~/bin/config/antlr-4.9.3-complete.jar:"))
+		  (env (getenv "CLASSPATH")))
+	      (unless (and env (string-match added env))
+		(setenv "CLASSPATH" (concat ".:" added env))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; eglot
@@ -299,18 +301,6 @@
                (lambda ()
                  (interactive)
                  (zerolee-help-doc eldoc--doc-buffer #'eldoc-doc-buffer))))
-  :init
-  (defvar zerolee-jdt-classpath
-    (let ((jdt (concat zerolee-jdt-home "plugins/")))
-      (expand-file-name
-       (concat jdt
-               (car (cl-member "org.eclipse.equinox.launcher_"
-                               (directory-files jdt)
-                               :test #'string-match))))))
-  (setenv "CLASSPATH"
-          (concat
-           (getenv "CLASSPATH") ":"
-           zerolee-jdt-classpath))
   :hook ((eglot-managed-mode
           .
           (lambda ()
@@ -356,6 +346,7 @@
                     (funcall func identifier)
                   (error (zerolee-go))))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; citre
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -487,6 +478,22 @@
               (zerolee--tags-config))))
 
 (add-hook 'sgml-mode-hook #'zerolee--tags-config)
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; lua-mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package lua-mode
+  :bind (:map lua-mode-map
+	      ("C-M-x" . lua-send-defun)
+	      ("C-x C-e" . lua-send-dwim))
+  :config
+  (defun lua-send-dwim ()
+    (interactive)
+    (if (region-active-p)
+	(call-interactively #'lua-send-region)
+      (call-interactively #'lua-send-current-line))))
 
 (provide 'programs)
 ;;; programs.el ends here

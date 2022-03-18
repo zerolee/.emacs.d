@@ -3,5 +3,6 @@
 # name: labels
 # key: labels
 # --
-(cl-labels ((${1:name} (${2:args})$3)$4)
+(cl-labels ((${1:name} (${2:args})
+       $3)$4)
     $5)

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: forin
+# key: for
+# --
+for ${1:varlist} in ${2:explist} do
+    $0
+end
