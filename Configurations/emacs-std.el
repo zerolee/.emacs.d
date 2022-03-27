@@ -48,8 +48,9 @@
 
 ;;; org
 (setq org-agenda-files
-      '("~/note/plan"  "~/note/emacs"))
-(setq org-html-htmlize-output-type nil)
+      '("~/note/plan"  "~/note/emacs")
+      org-html-htmlize-output-type nil
+      org-adapt-indentation t)		;org 回车换行
 
 (add-hook 'org-mode-hook
           (lambda () (setq truncate-lines nil)))
@@ -66,7 +67,7 @@
 ;;; 配置字体
 (push '(font . "Sarasa Fixed SC") default-frame-alist)
 
-;;; 配置 xref-search-program
+;;; 配置 project, xref-search-program
 (defconst project-discover-files
   '(".project" "Makefile" "CMakeLists.txt" "go.mod"  "tox.ini" "manage.py"
     "build.gradle" "WORKSPACE" "composer.json" "rebar.config" "Cargo.toml"
@@ -86,9 +87,7 @@
 (setq project-find-functions '(project-try-vc my/project-try-local))
 (cl-defmethod project-root ((project (head local)))
   (cdr project))
-(setq xref-search-program 'rigrep)
-
-
+(setq xref-search-program 'ripgrep)
 
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
 (setq frame-title-format
@@ -144,5 +143,14 @@
 (defun zerolee-ime-disable ()
   "关闭输入法."
   (call-process "fcitx5-remote" nil nil nil "-c"))
+
+
+;;; remember
+(use-package remember
+  :ensure nil
+  :custom
+  (remember-data-file "~/.emacs.d/notes.org")
+  :bind ("<C-f5>" . remember))
+
 (provide 'emacs-std)
 ;;; emacs-std.el ends here

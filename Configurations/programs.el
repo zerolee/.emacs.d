@@ -2,7 +2,6 @@
 ;;; Commentary:
 
 ;;; Code:
-(require 'use-package)
 (require 'diminish)
 (require 'init-tools)
 
@@ -78,19 +77,6 @@
                   (apply fun arg))))
   (add-hook 'lsp-on-idle-hook #'lsp--document-highlight nil t)
   (lsp-enable-imenu))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lsp-java
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconst zerolee-jdt-home "~/backups/src/jdt-language-server-latest/")
-(use-package lsp-java
-  :defer t
-  :disabled
-  :init
-  (setq lsp-java-server-install-dir zerolee-jdt-home)
-  :hook (java-mode . (lambda ()
-                       (require 'lsp-java)
-                       (lsp--common-set))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; html javascript css
@@ -487,13 +473,31 @@
 (use-package lua-mode
   :bind (:map lua-mode-map
 	      ("C-M-x" . lua-send-defun)
-	      ("C-x C-e" . lua-send-dwim))
+	      ("C-x C-e" . lua-send-dwim)
+	      ("C-c I" . lua-inspect))
   :config
   (defun lua-send-dwim ()
     (interactive)
     (if (region-active-p)
 	(call-interactively #'lua-send-region)
-      (call-interactively #'lua-send-current-line))))
+      (call-interactively #'lua-send-current-line)))
+  (defun lua-inspect-helper (value)
+    (with-current-buffer lua-process-buffer
+      (save-excursion
+	(search-backward ">" nil nil 2)
+	(let ((symbol (buffer-substring-no-properties
+		       (+ (point) 2) (- (point-max) 3))))
+	  (delete-region (+ (point) 2) (point-max))
+	  (if (string= symbol "table")
+	      (lua-send-string
+	       (format "print('');for k,v in pairs(%s) do print(k, v)end"
+		       value))
+	    (lua-send-string (format "print('');print(%s)" value)))))))
+  (defun lua-inspect ()
+    (interactive)
+    (let ((value (thing-at-point 'symbol t)))
+      (lua-send-string (format "=type(%s)" value))
+      (run-at-time 0.005 nil #'lua-inspect-helper value))))
 
 (provide 'programs)
 ;;; programs.el ends here

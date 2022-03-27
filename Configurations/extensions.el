@@ -93,7 +93,7 @@
   :diminish yas-minor-mode
   :hook (after-init . yas-global-mode)
   :bind (:map yas-minor-mode-map
-	      ("C-<tab>" . yas-next-field))
+              ("C-<tab>" . yas-next-field))
   :config
   (defun zerolee--autoinsert()
     "打开文件时从当前目录开始往上查找模板文件，查找到则插入模板.
@@ -148,8 +148,8 @@
          ("C-x b"   . ivy-switch-buffer)
          :map counsel-find-file-map
          ("C-l" . counsel-up-directory)
-	 :map ivy-minibuffer-map
-	 ("C-l" . counsel-up-directory)
+         :map ivy-minibuffer-map
+         ("C-l" . counsel-up-directory)
          :map minibuffer-local-map
          ("C-r" . counsel-minibuffer-history))
   :config
@@ -178,7 +178,7 @@
      company-dabbrev))
   :bind (:map company-active-map
               ("M-/" . company-other-backend)
-	      ("C-s" . company-filter-candidates))
+              ("C-s" . company-filter-candidates))
   :config
   (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
     "Enable yasnippet but disable it inline."
@@ -193,7 +193,14 @@
       (funcall fun command arg)))
   (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)
   (advice-add #'company-dabbrev-code :around #'my-company-yasnippet-disable-inline)
-  (setq company-transformers '(delete-dups)))
+  (setq company-transformers '(delete-dups))
+  (add-hook 'company-completion-started-hook
+            (lambda (_)
+              (setq eldoc-echo-area-use-multiline-p 1)))
+
+  (add-hook 'company-after-completion-hook
+            (lambda (_)
+              (setq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit))))
 
 (use-package flee
   :ensure nil
@@ -224,24 +231,24 @@
     (vesie-mode 0))
   (define-key paredit-mode-map (kbd "C-M-n") #'paredit/my-next-parameter)
   (define-key paredit-mode-map (kbd "<tab>")
-	      (lambda ()
-		(interactive)
-		(let ((point (point)))
-		  (call-interactively #'indent-for-tab-command)
-		  (when (= point (point))
-		    (if (or (and (eq (char-after) ?\)) (eq (char-before) ?\)))
-			    (and (= (car (syntax-ppss)) 1) (eq (char-after) ?\))))
-			(end-of-line)
-		      (when (and (/= (car (syntax-ppss)) 0)
-				 (memql (char-after) '(?\) ?\")))
-			(paredit/my-next-parameter)))))))
+              (lambda ()
+                (interactive)
+                (let ((point (point)))
+                  (call-interactively #'indent-for-tab-command)
+                  (when (= point (point))
+                    (if (or (and (eq (char-after) ?\)) (eq (char-before) ?\)))
+                            (and (= (car (syntax-ppss)) 1) (eq (char-after) ?\))))
+                        (end-of-line)
+                      (when (and (/= (car (syntax-ppss)) 0)
+                                 (memql (char-after) '(?\) ?\")))
+                        (paredit/my-next-parameter)))))))
   (define-key paredit-mode-map (kbd "C-M-j") #'flee-dwim)
   (define-key paredit-mode-map (kbd "M-i")
-	      (lambda ()
-		(interactive)
-		(paredit-backward-up
-		 (if (nth 3 (syntax-ppss)) 2 1))
-		(forward-char 1)))
+              (lambda ()
+                (interactive)
+                (paredit-backward-up
+                 (if (nth 3 (syntax-ppss)) 2 1))
+                (forward-char 1)))
   (define-key paredit-mode-map (kbd "(") nil)
   (define-key paredit-mode-map (kbd ")") nil)
   (define-key paredit-mode-map (kbd "[") nil)
@@ -264,12 +271,6 @@
                             zerolee-delete-window zerolee-goto-last-edit))
 
 (use-package magit :defer t)
-
-(use-package remember
-  :ensure nil
-  :custom
-  (remember-data-file "~/.emacs.d/notes.org")
-  :bind ("<C-f5>" . remember))
 
 (provide 'extensions)
 ;;; extensions.el ends here
