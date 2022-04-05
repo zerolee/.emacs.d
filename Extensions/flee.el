@@ -26,7 +26,8 @@
 
 (defconst flee-bind-list
   '("let" "let*" "symbol-macrolet" "symbol-macrolet*" "cl-symbol-macrolet"
-    "cl-symbol-macrolet*" "if-let" "if-let*" "when-let" "when-let*")
+    "cl-symbol-macrolet*" "if-let" "if-let*" "when-let" "when-let*"
+    "do" "do*" "cl-do" "cl-do*")
   "保存类似 let 那样的结构，重心在 binds 的列表.")
 
 (defconst flee-clause-list

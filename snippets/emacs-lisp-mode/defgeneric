@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: defgeneric
+# key: defgeneric
+# --
+(cl-defgeneric ${1:name} (${2:args})
+  $3)$0

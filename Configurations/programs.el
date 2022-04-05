@@ -267,12 +267,12 @@
 (autoload 'antlr-v4-mode "antlr-mode" nil t)
 (push '("\\.g4\\'" . antlr-v4-mode) auto-mode-alist)
 (add-hook 'antlr-mode-hook
-	  (lambda ()
-	    (let ((added (expand-file-name
-			  "~/bin/config/antlr-4.9.3-complete.jar:"))
-		  (env (getenv "CLASSPATH")))
-	      (unless (and env (string-match added env))
-		(setenv "CLASSPATH" (concat ".:" added env))))))
+          (lambda ()
+            (let ((added (expand-file-name
+                          "~/bin/config/antlr-4.9.3-complete.jar:"))
+                  (env (getenv "CLASSPATH")))
+              (unless (and env (string-match added env))
+                (setenv "CLASSPATH" (concat ".:" added env))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; eglot
@@ -472,32 +472,34 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package lua-mode
   :bind (:map lua-mode-map
-	      ("C-M-x" . lua-send-defun)
-	      ("C-x C-e" . lua-send-dwim)
-	      ("C-c I" . lua-inspect))
+              ("C-M-x" . lua-send-defun)
+              ("C-x C-e" . lua-send-dwim)
+              ("C-c I" . lua-inspect))
   :config
   (defun lua-send-dwim ()
     (interactive)
     (if (region-active-p)
-	(call-interactively #'lua-send-region)
+        (call-interactively #'lua-send-region)
       (call-interactively #'lua-send-current-line)))
   (defun lua-inspect-helper (value)
     (with-current-buffer lua-process-buffer
       (save-excursion
-	(search-backward ">" nil nil 2)
-	(let ((symbol (buffer-substring-no-properties
-		       (+ (point) 2) (- (point-max) 3))))
-	  (delete-region (+ (point) 2) (point-max))
-	  (if (string= symbol "table")
-	      (lua-send-string
-	       (format "print('');for k,v in pairs(%s) do print(k, v)end"
-		       value))
-	    (lua-send-string (format "print('');print(%s)" value)))))))
+        (search-backward ">" nil nil 2)
+        (let ((symbol (buffer-substring-no-properties
+                       (+ (point) 2) (- (point-max) 3))))
+          (delete-region (+ (point) 2) (point-max))
+          (if (string= symbol "table")
+              (lua-send-string
+               (format "print('');for k,v in pairs(%s) do print(k, v)end"
+                       value))
+            (lua-send-string (format "print('');print(%s)" value)))))))
   (defun lua-inspect ()
     (interactive)
     (let ((value (thing-at-point 'symbol t)))
       (lua-send-string (format "=type(%s)" value))
       (run-at-time 0.005 nil #'lua-inspect-helper value))))
+
+(use-package go-mode)
 
 (provide 'programs)
 ;;; programs.el ends here

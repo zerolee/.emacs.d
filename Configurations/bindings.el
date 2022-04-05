@@ -3,42 +3,44 @@
 
 ;;; Code:
 
-;; shift the meaning of C-s and C-M-s
-;; shift the meaning of M-% and C-M-%
-(global-set-key (kbd "C-s") 'isearch-forward-regexp)
-(global-set-key (kbd "C-r") 'isearch-backward-regexp)
-(global-set-key (kbd "C-M-r") 'isearch-backward)
-(global-set-key (kbd "M-%") 'query-replace-regexp)
-(global-set-key (kbd "C-M-%") 'query-replace)
-
-(global-set-key (kbd "C-M-]") 'up-list)
-;; just-one-space
-(global-set-key (kbd "<M-backspace>") 'just-one-space)
-
-;; hippie-expand can expands almost anything. This include Lisp function names,
-;; filenames from the hard disk, and text from the buffer.
-(global-set-key (kbd "s-SPC") 'hippie-expand)
-
-;; input-method
-;; 取消掉默认的输入法快捷键
-(global-unset-key (kbd "C-\\"))
-
-;;; goto-last-change
-(global-set-key (kbd "C-.") #'zerolee-goto-last-edit)
-
-;; electric-newline-and-maybe-indent
-(global-set-key (kbd "C-j") 'newline-and-indent)
-
+(require 'zerolee-lib)
 ;; winner-mode
 ;; 主要用来撤销动作的
 (setq winner-dont-bind-my-keys t)
 (winner-mode t)
-(global-set-key (kbd "C-x /") 'winner-undo)
-(global-set-key (kbd "C-x s-r") 'winner-redo)
 
-(global-set-key (kbd "s-r") 'undo-redo)
-
-(global-set-key (kbd "C-c a") 'org-agenda)
+(zerolee-global-set-key
+ ("C-\\" nil) ;; 取消掉默认的输入法快捷键
+ ("C-s" #'isearch-forward-regexp)
+ ("C-r" #'isearch-backward-regexp)
+ ("C-M-r" #'isearch-backward)
+ ("M-%" #'query-replace-regexp)
+ ("C-M-%" #'query-replace)
+ ("C-M-]" #'up-list)
+ ("s-SPC" #'hippie-expand)
+ ("C-." #'zerolee-goto-last-edit)
+ ("C-j" #'newline-and-indent)
+ ("s-r" #'undo-redo)
+ ("C-c a" #'org-agenda)
+ ("<C-M-backspace>" #'backward-kill-sexp)
+ ("C-x /" #'winner-undo)
+ ("C-x s-r" #'winner-redo)
+ ("M-0" #'delete-window)
+ ("M-1" #'delete-other-windows)
+ ("M-2" #'split-window-below)
+ ("M-3" #'split-window-right)
+ ("s-h" #'windmove-left)
+ ("s-l" #'windmove-right)
+ ("s-j" #'windmove-down)
+ ("s-k" #'windmove-up)
+ ("s-H" #'windmove-swap-states-left)
+ ("s-L" #'windmove-swap-states-right)
+ ("s-J" #'windmove-swap-states-down)
+ ("s-K" #'windmove-swap-states-up)
+ ("S-<up>" #'enlarge-window)
+ ("S-<down>" #'shrink-window)
+ ("S-<left>" #'shrink-window-horizontally)
+ ("S-<right>" #'enlarge-window-horizontally))
 
 ;;; hydra
 (with-eval-after-load 'info
@@ -48,64 +50,18 @@
                   (interactive)
                   (zerolee-ime-disable)
                   (hydra-f1/body)))
-(global-set-key (kbd "<C-M-backspace>") #'backward-kill-sexp)
-
-;;;
-(global-set-key (kbd "M-0") 'delete-window)
-(global-set-key (kbd "M-1") 'delete-other-windows)
-(global-set-key (kbd "M-2") 'split-window-below)
-(global-set-key (kbd "M-3") 'split-window-right)
-
-;;;
-(global-set-key (kbd "s-h") 'windmove-left)
-(global-set-key (kbd "s-l") 'windmove-right)
-(global-set-key (kbd "s-j") 'windmove-down)
-(global-set-key (kbd "s-k") 'windmove-up)
-(global-set-key (kbd "s-H") 'windmove-swap-states-left)
-(global-set-key (kbd "s-L") 'windmove-swap-states-right)
-(global-set-key (kbd "s-J") 'windmove-swap-states-down)
-(global-set-key (kbd "s-K") 'windmove-swap-states-up)
-(global-set-key (kbd "S-<up>") 'enlarge-window)
-(global-set-key (kbd "S-<down>") 'shrink-window)
-(global-set-key (kbd "S-<left>") 'shrink-window-horizontally)
-(global-set-key (kbd "S-<right>") 'enlarge-window-horizontally)
-
-
-;;; dired
-(with-eval-after-load 'dired
-  (define-key dired-mode-map (kbd "/")
-              (lambda ()
-                (interactive)
-                (call-interactively #'dired-mark-files-regexp)
-                (command-execute "tk"))))
 
 ;;; flymake
 (with-eval-after-load 'flymake
-  (define-key flymake-mode-map (kbd "M-g p") #'flymake-goto-prev-error)
-  (define-key flymake-mode-map (kbd "M-g n") #'flymake-goto-next-error)
-  (define-key flymake-mode-map (kbd "M-g l")
-              (lambda ()
-                (interactive)
-                (let ((buffer
-                       (format "*Flymake diagnostics for %s*" (current-buffer))))
-                  (if (get-buffer-window buffer)
-                      (delete-windows-on buffer)
-                    (flymake-show-diagnostics-buffer))))))
-
-;;; eshell
-(add-hook 'eshell-mode-hook
-          (lambda ()
-            (define-key eshell-mode-map (kbd "C-d")
-                        (lambda (arg)
-                          "Delete a character or quit eshell if there's nothing to delete."
-                          (interactive "p")
-                          (if (and (eolp) (looking-back eshell-prompt-regexp nil))
-                              (eshell-life-is-too-much)
-                            (delete-char arg))))
-            (define-key eshell-mode-map (kbd "C-r")
-                        (lambda ()
-                          (interactive)
-                          (counsel-esh-history)))))
+  (zerolee-set-key
+   flymake-mode-map
+   ("M-g p" #'flymake-goto-prev-error)
+   ("M-g n" #'flymake-goto-next-error)
+   ("M-g l" (lambda () (interactive)
+              (let ((buffer (flymake--diagnostics-buffer-name)))
+                (if (get-buffer-window buffer)
+                    (delete-windows-on buffer)
+                  (flymake-show-buffer-diagnostics)))))))
 
 ;;; emacs-lisp
 (define-key lisp-interaction-mode-map
