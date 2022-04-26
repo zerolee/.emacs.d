@@ -9,7 +9,7 @@
 (setq winner-dont-bind-my-keys t)
 (winner-mode t)
 
-(zerolee-global-set-key
+(zerolee-set-key
  ("C-\\" nil) ;; 取消掉默认的输入法快捷键
  ("C-s" #'isearch-forward-regexp)
  ("C-r" #'isearch-backward-regexp)
@@ -40,7 +40,10 @@
  ("S-<up>" #'enlarge-window)
  ("S-<down>" #'shrink-window)
  ("S-<left>" #'shrink-window-horizontally)
- ("S-<right>" #'enlarge-window-horizontally))
+ ("S-<right>" #'enlarge-window-horizontally)
+ lisp-interaction-mode-map
+ emacs-lisp-mode-map
+ ("C-c <return>" #'emacs-lisp-macroexpand))
 
 ;;; hydra
 (with-eval-after-load 'info
@@ -62,11 +65,6 @@
                 (if (get-buffer-window buffer)
                     (delete-windows-on buffer)
                   (flymake-show-buffer-diagnostics)))))))
-
-;;; emacs-lisp
-(define-key lisp-interaction-mode-map
-            (kbd "C-c <return>") #'emacs-lisp-macroexpand)
-(define-key emacs-lisp-mode-map (kbd "C-c <return>") #'emacs-lisp-macroexpand)
 
 ;;; key-chord "df"
 (global-set-key [key-chord ?d ?f] (lambda () (interactive) (vesie-mode 1)))

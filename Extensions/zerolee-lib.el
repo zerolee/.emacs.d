@@ -46,31 +46,38 @@
 
 
 ;;; 便捷的快捷键绑定
-(defun slots->set-key (keymap slot)
-  "(slots->set-key 'flymake-mode-keymap '(\"C-\\\" nil))
-→(define-key flymake-mode-keymap (kbd \"C-\\\") nil);
-(slots->set-key 'flymake-mode-keymap '([key-chord ?d ?f] nil))
+(defun zerolee-slots->set-key (keymaps slot)
+  "(zerolee-slots->set-key '(flymake-mode-keymap) '(\"C-\\\\\" nil))
+→(define-key flymake-mode-keymap (kbd \"C-\\\\\") nil);
+(zerolee-slots->set-key '(flymake-mode-keymap) '([key-chord ?d ?f] nil))
 →(define-key flymake-mode-keymap [key-chord 100 102] nil)"
-  (if (stringp (car slot))
-      `(define-key ,keymap (kbd ,(car slot)) ,(cadr slot))
-    `(define-key ,keymap ,(car slot) ,(cadr slot))))
+  (cl-loop for keymap in keymaps
+           append
+           (cl-loop with command = (car (last slot))
+                    for key in (butlast slot)
+                    if (stringp key)
+                    collect `(define-key ,keymap (kbd ,key) ,command)
+                    else
+                    collect `(define-key ,keymap ,key ,command))))
 
-(defmacro zerolee-set-key (keymap &rest slots)
+(defmacro zerolee-set-key (&rest slots)
   "绑定快捷键的便捷宏，示例：
 (zerolee-set-key (current-global-map)
  (\"C-s\" #'isearch-forward-regexp)
  (\"C-r\" #'isearch-backward-regexp))"
   `(progn
-     ,@(cl-loop for slot in slots
-                collect (slots->set-key keymap slot))))
-
-(defmacro zerolee-global-set-key (&rest slots)
-  "绑定全局快捷键的便捷宏，示例：
-(zerolee-global-set-key
- (\"C-s\" #'isearch-forward-regexp)
- (\"C-r\" #'isearch-backward-regexp))"
-  `(zerolee-set-key (current-global-map) ,@slots))
-
+     ,@(cl-loop with keymaps = '((current-global-map))
+                with last-is-keymap = nil
+                for slot in slots
+                if (or (atom slot) (and (consp slot) (= (length slot) 1)))
+                do (if last-is-keymap
+                       (push slot keymaps)
+                     (setq keymaps (list slot)
+                           last-is-keymap t))
+                else
+                append (progn
+                         (setq last-is-keymap nil)
+                         (zerolee-slots->set-key keymaps slot)))))
 
 
 ;;; 模拟 Common Lisp 的 with-open-file

@@ -226,8 +226,7 @@
   (setq paredit-lighter nil)
   (zerolee-set-key
    paredit-mode-map
-   ("M-s" nil) ("M-r" nil) ("M-?" nil) ("M-<up>" nil) ("(" nil) (")" nil)
-   ("[" nil) ("]" nil) (";" nil)
+   ("M-s" "M-r" "M-?" "M-<up>" "(" ")" "[" "]" ";" nil)
    ("C-M-n" #'paredit/my-next-parameter)
    ("C-M-j" #'flee-dwim)
    ("<tab>"
