@@ -224,10 +224,12 @@
           (call-interactively #'indent-for-tab-command)
           (yank))
       (call-interactively #'emmet-expand-line)))
-  (define-key emmet-mode-keymap (kbd "<tab>") #'zerolee--emmet-maybe-expand)
-  (define-key emmet-mode-keymap (kbd "<backtab>") #'zerolee--emmet-backtab)
-  (define-key emmet-mode-keymap (kbd "M-p") #'zerolee--emmet-expand-line)
-  (define-key emmet-mode-keymap (kbd "M-n") #'zerolee--emmet-company-abbrev)
+  (zerolee-set-key
+   emmet-mode-keymap
+   ("<tab>" #'zerolee--emmet-maybe-expand)
+   ("<backtab>" #'zerolee--emmet-backtab)
+   ("M-p" #'zerolee--emmet-expand-line)
+   ("M-n" #'zerolee--emmet-company-abbrev))
   (add-hook 'sgml-mode-hook
             (lambda ()
               (setq-local company-backends
