@@ -65,6 +65,7 @@
 (zerolee-set-key (current-global-map)
  (\"C-s\" #'isearch-forward-regexp)
  (\"C-r\" #'isearch-backward-regexp))"
+  (declare (indent defun))
   `(progn
      ,@(cl-loop with keymaps = '((current-global-map))
                 with last-is-keymap = nil

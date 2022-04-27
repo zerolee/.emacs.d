@@ -58,14 +58,14 @@
         lsp-auto-execute-action nil
         lsp-auto-configure nil)
   (add-hook 'completion-at-point-functions #'lsp-completion-at-point nil t)
-  (define-key lsp-mode-map (kbd "S-<f2>") #'lsp-rename)
-  (define-key lsp-mode-map (kbd "M-.") #'xref-find-definitions)
-  (define-key lsp-mode-map (kbd "M-?") #'xref-find-references)
-  (define-key lsp-mode-map (kbd "C-h .")
-              (lambda ()
-                (interactive)
-                (zerolee-help-doc "*lsp-help*" #'lsp-describe-thing-at-point)))
-  (define-key lsp-mode-map (kbd "s-l") nil)
+  (zerolee-set-key lsp-mode-map
+    ("s-l" nil)
+    ("S-<f2>" #'lsp-rename)
+    ("M-." #'xref-find-definitions)
+    ("M-?" #'xref-find-references)
+    ("C-h ."(lambda ()
+              (interactive)
+              (zerolee-help-doc "*lsp-help*" #'lsp-describe-thing-at-point))))
   (setq abbrev-mode nil)
   (lsp-diagnostics-mode 1)
   (advice-add 'lsp-completion--regex-fuz :around
@@ -224,12 +224,11 @@
           (call-interactively #'indent-for-tab-command)
           (yank))
       (call-interactively #'emmet-expand-line)))
-  (zerolee-set-key
-   emmet-mode-keymap
-   ("<tab>" #'zerolee--emmet-maybe-expand)
-   ("<backtab>" #'zerolee--emmet-backtab)
-   ("M-p" #'zerolee--emmet-expand-line)
-   ("M-n" #'zerolee--emmet-company-abbrev))
+  (zerolee-set-key emmet-mode-keymap
+    ("<tab>" #'zerolee--emmet-maybe-expand)
+    ("<backtab>" #'zerolee--emmet-backtab)
+    ("M-p" #'zerolee--emmet-expand-line)
+    ("M-n" #'zerolee--emmet-company-abbrev))
   (add-hook 'sgml-mode-hook
             (lambda ()
               (setq-local company-backends
@@ -259,8 +258,10 @@
   :ensure nil
   :diminish js-comint
   :config
-  (define-key js-mode-map [remap eval-last-sexp] #'js-comint-send-last-sexp)
-  (define-key js-mode-map (kbd "C-M-x") 'js-eval-current-defun)
+  (zerolee-set-key js-mode-map
+    ([remap eval-last-sexp] #'js-comint-send-last-sexp)
+    ("C-M-x" 'js-eval-current-defun))
+
   :commands (js-eval-last-sexp js-eval-current-defun))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

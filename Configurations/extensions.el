@@ -225,29 +225,29 @@
     (vesie-mode 0))
   (setq paredit-lighter nil)
   (zerolee-set-key
-   paredit-mode-map
-   ("M-s" "M-r" "M-?" "M-<up>" "(" ")" "[" "]" ";" nil)
-   ("C-M-n" #'paredit/my-next-parameter)
-   ("C-M-j" #'flee-dwim)
-   ("<tab>"
-    (lambda ()
-      (interactive)
-      (let ((point (point)))
-        (call-interactively #'indent-for-tab-command)
-        (when (= point (point))
-          (if (or (and (eq (char-after) ?\)) (eq (char-before) ?\)))
-                  (and (= (car (syntax-ppss)) 1) (eq (char-after) ?\))))
-              (end-of-line)
-            (when (and (/= (car (syntax-ppss)) 0)
-                       (memql (char-after) '(?\) ?\")))
-              (paredit/my-next-parameter)))))))
-   ("M-i"
-    (lambda ()
-      (interactive)
-      (paredit-backward-up
-       (if (nth 3 (syntax-ppss)) 2 1))
-      (forward-char 1))))
-  (global-set-key (kbd "M-<up>") #'paredit-splice-sexp)
+    ("M-<up>" #'paredit-splice-sexp)
+    paredit-mode-map
+    ("M-s" "M-r" "M-?" "M-<up>" "(" ")" "[" "]" ";" nil)
+    ("C-M-n" #'paredit/my-next-parameter)
+    ("C-M-j" #'flee-dwim)
+    ("<tab>"
+     (lambda ()
+       (interactive)
+       (let ((point (point)))
+         (call-interactively #'indent-for-tab-command)
+         (when (= point (point))
+           (if (or (and (eq (char-after) ?\)) (eq (char-before) ?\)))
+                   (and (= (car (syntax-ppss)) 1) (eq (char-after) ?\))))
+               (end-of-line)
+             (when (and (/= (car (syntax-ppss)) 0)
+                        (memql (char-after) '(?\) ?\")))
+               (paredit/my-next-parameter)))))))
+    ("M-i"
+     (lambda ()
+       (interactive)
+       (paredit-backward-up
+        (if (nth 3 (syntax-ppss)) 2 1))
+       (forward-char 1))))
   (advice-add 'paredit-comment-dwim :after
               (lambda (&optional _) (unless mark-active
                                       (vesie-mode 0)))))

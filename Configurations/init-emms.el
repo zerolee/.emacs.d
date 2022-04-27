@@ -78,162 +78,161 @@
       'emms-source-file-directory-tree-find)
 (setq emms-repeat-playlist t)
 
-(zerolee-set-key
- emms-playlist-mode-map
- ("." #'emms-toggle-repeat-track)
- ("SPC" #'emms-pause)
- ("v" #'scroll-up)
- ("<right>" #'emms-seek-forward)
- ("<left>" #'emms-seek-backward)
- ("=" #'emms-volume-raise)
- ("b" #'scroll-down-line)
- ("f" #'scroll-up-line)
- ("j" #'next-line)
- ("k" #'previous-line)
- ("m" #'emms-show)
- ("S" #'emms-sort)
- ("L" (lambda ()
-        "选择当前播放列表"
-        (interactive)
-        (message "%s 为当前播放列表"
-                 (emms-playlist-set-playlist-buffer
-                  (completing-read "选择一个列表为当前列表："
-                                   (mapcar #'buffer-name emms-playlist-buffers))))))
- ("B" (lambda ()
-        "选择已经打开播放列表"
-        (interactive)
-        (setq emms-playlist-buffer-name
-              (completing-read "选择一个已经打开播放列表："
-                               (mapcar #'buffer-name emms-playlist-buffers)))
-        (switch-to-buffer emms-playlist-buffer-name)
-        (emms-playlist-mode-play-current-track)))
- ("l" (lambda ()
-        (interactive)
-        (emms-playlist-set-playlist-buffer (current-buffer))
-        (message "%s 为当前播放列表" (buffer-name))))
- ("," (lambda (times)
-        "跳转到指定时间，格式 min:seconds，min 可省略."
-        (interactive "s[min:]seconds: ")
-        (emms-ensure-player-playing-p)
-        (emms-player-seek-to (zerolee-time-to-seconds times))))
- ("M-p" (lambda ()
-          (interactive)
-          (emms-playlist-mode-previous 1)
-          (setq emms-playlist-buffer-name (buffer-name))))
- ("M-n" (lambda ()
-          (interactive)
-          (emms-playlist-mode-next 1)
-          (setq emms-playlist-buffer-name (buffer-name))))
- ("i" (lambda ()
-        "去往正在播放的列表"
-        (interactive)
-        (if (eq emms-playlist-buffer (current-buffer))
-            (when zerolee--emms-switched-buffer
-              (switch-to-buffer zerolee--emms-switched-buffer))
-          (setq zerolee--emms-switched-buffer (current-buffer))
-          (switch-to-buffer emms-playlist-buffer))
-        (setq emms-playlist-buffer-name (buffer-name))))
- ("I" (lambda ()
-        "去往正在播放的列表"
-        (interactive)
-        (switch-to-buffer emms-playlist-buffer)
-        (setq emms-playlist-buffer-name (buffer-name))))
- ("o" (lambda ()
-        "Set/clear A-B loop points.
+(zerolee-set-key emms-playlist-mode-map
+  ("." #'emms-toggle-repeat-track)
+  ("SPC" #'emms-pause)
+  ("v" #'scroll-up)
+  ("<right>" #'emms-seek-forward)
+  ("<left>" #'emms-seek-backward)
+  ("=" #'emms-volume-raise)
+  ("b" #'scroll-down-line)
+  ("f" #'scroll-up-line)
+  ("j" #'next-line)
+  ("k" #'previous-line)
+  ("m" #'emms-show)
+  ("S" #'emms-sort)
+  ("L" (lambda ()
+         "选择当前播放列表"
+         (interactive)
+         (message "%s 为当前播放列表"
+                  (emms-playlist-set-playlist-buffer
+                   (completing-read "选择一个列表为当前列表："
+                                    (mapcar #'buffer-name emms-playlist-buffers))))))
+  ("B" (lambda ()
+         "选择已经打开播放列表"
+         (interactive)
+         (setq emms-playlist-buffer-name
+               (completing-read "选择一个已经打开播放列表："
+                                (mapcar #'buffer-name emms-playlist-buffers)))
+         (switch-to-buffer emms-playlist-buffer-name)
+         (emms-playlist-mode-play-current-track)))
+  ("l" (lambda ()
+         (interactive)
+         (emms-playlist-set-playlist-buffer (current-buffer))
+         (message "%s 为当前播放列表" (buffer-name))))
+  ("," (lambda (times)
+         "跳转到指定时间，格式 min:seconds，min 可省略."
+         (interactive "s[min:]seconds: ")
+         (emms-ensure-player-playing-p)
+         (emms-player-seek-to (zerolee-time-to-seconds times))))
+  ("M-p" (lambda ()
+           (interactive)
+           (emms-playlist-mode-previous 1)
+           (setq emms-playlist-buffer-name (buffer-name))))
+  ("M-n" (lambda ()
+           (interactive)
+           (emms-playlist-mode-next 1)
+           (setq emms-playlist-buffer-name (buffer-name))))
+  ("i" (lambda ()
+         "去往正在播放的列表"
+         (interactive)
+         (if (eq emms-playlist-buffer (current-buffer))
+             (when zerolee--emms-switched-buffer
+               (switch-to-buffer zerolee--emms-switched-buffer))
+           (setq zerolee--emms-switched-buffer (current-buffer))
+           (switch-to-buffer emms-playlist-buffer))
+         (setq emms-playlist-buffer-name (buffer-name))))
+  ("I" (lambda ()
+         "去往正在播放的列表"
+         (interactive)
+         (switch-to-buffer emms-playlist-buffer)
+         (setq emms-playlist-buffer-name (buffer-name))))
+  ("o" (lambda ()
+         "Set/clear A-B loop points.
 
          执行第一次时设置变量 `zerolee--emms-loop-point-A'
          执行第二次时重复设置一个定时器，以便 track 可以在 A-B 之间循环
          执行第三次时取消定时器，清空变量"
-        (interactive)
-        (if zerolee--emms-loop-point-A
-            (if zerolee--emms-loop-point-A-B-timer
-                (progn
-                  (cancel-timer zerolee--emms-loop-point-A-B-timer)
-                  (setq zerolee--emms-loop-point-A nil)
-                  (setq zerolee--emms-loop-point-B nil)
-                  (setq zerolee--emms-loop-point-A-B-timer nil))
-              (setq zerolee--emms-loop-point-B emms-playing-time)
-              (setq zerolee--emms-loop-point-A-B-timer
-                    (run-with-timer 0
-                                    (- emms-playing-time zerolee--emms-loop-point-A)
-                                    #'emms-seek-to zerolee--emms-loop-point-A)))
-          (setq zerolee--emms-loop-point-A emms-playing-time))))
- ("O" (lambda ()
-        "剪切 A-B 之间的 track
+         (interactive)
+         (if zerolee--emms-loop-point-A
+             (if zerolee--emms-loop-point-A-B-timer
+                 (progn
+                   (cancel-timer zerolee--emms-loop-point-A-B-timer)
+                   (setq zerolee--emms-loop-point-A nil)
+                   (setq zerolee--emms-loop-point-B nil)
+                   (setq zerolee--emms-loop-point-A-B-timer nil))
+               (setq zerolee--emms-loop-point-B emms-playing-time)
+               (setq zerolee--emms-loop-point-A-B-timer
+                     (run-with-timer 0
+                                     (- emms-playing-time zerolee--emms-loop-point-A)
+                                     #'emms-seek-to zerolee--emms-loop-point-A)))
+           (setq zerolee--emms-loop-point-A emms-playing-time))))
+  ("O" (lambda ()
+         "剪切 A-B 之间的 track
 
          设置了 A-B loop points 后会调用 ffmpeg 剪切 A-B 之间的 track
          若是在只设定了 A 的情况下剪切 track 会清空 `zerolee--emms-loop-point-A'"
-        (interactive)
-        (when zerolee--emms-loop-point-A
-          ;; 获取当前节点时间然后，然后调用剪辑，清除 `zerolee--emms-loop-point-A'
-          ;; 和 `zerolee--emms-loop-point-B'
-          ;; 剪辑成功后暂停当前正在运行的程序，然后打开相应的 track
-          (unless zerolee--emms-loop-point-B
-            (setq zerolee--emms-loop-point-B emms-playing-time))
-          (let* ((track-name (emms-track-get (emms-playlist-track-at) 'name))
-                 (track-name-ext (file-name-extension track-name))
-                 command)
-            (if (member track-name-ext '("mp3" "MP3" "wma" "flac" "ape" "aac"))
-                (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
-                                    "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
-                                    "-i" track-name "-acodec" "copy"
-                                    (concat "/tmp/" (number-to-string zerolee--emms-loop-point-A)
-                                            "." track-name-ext)))
-              (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
-                                  "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
-                                  "-i" track-name "-c:v" "libx264" "-c:a" "aac"
-                                  "-strict" "experimental" "-b:a" "98k"
-                                  (concat "/tmp/" (number-to-string zerolee--emms-loop-point-A)
-                                          "." track-name-ext))))
-            (make-process
-             :name "ffmpeg"
-             :buffer "*ffmpeg*"
-             :command command
-             :noquery t
-             :sentinel (lambda (proc _)
-                         (when (eq 'exit (process-status proc))
-                           (shell-command (concat "mpv /tmp/" (number-to-string zerolee--emms-loop-point-A)
-                                                  "." track-name-ext))))))
-          (unless zerolee--emms-loop-point-A-B-timer
-            (setq zerolee--emms-loop-point-B nil)))))
- ("R" (lambda ()
-        "重新载入播放列表"
-        (interactive)
-        (emms-playlist-clear)
-        (let ((emms-playlist-buffer (current-buffer)))
-          (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
-            (when (string-match (substring (buffer-name) 2 -1) favourite)
-              (emms-add-playlist (concat zerolee--emms-favourite favourite))))
-          (when (string-match (substring (buffer-name) 2 -1)
-                              emms-source-file-default-directory)
-            (emms-add-directory-tree emms-source-file-default-directory)))))
- ("C-x C-s" (lambda ()
-              (interactive)
-              (let ((emms-source-file-default-directory
-                     zerolee--emms-favourite))
-                (call-interactively #'emms-playlist-save))))
- ("d" (lambda ()
-        "Visit the track at point in a `dired' buffer."
-        (interactive)
-        (let ((track (emms-playlist-track-at)))
-          (if track
-              (let ((name (emms-track-get track 'name))
-                    (type (emms-track-get track 'type)))
-                (cond ((eq type 'file)
-                       (dired (file-name-directory name))
-                       (goto-char (point-min))
-                       (search-forward (file-name-base name) nil t 1)
-                       (dired-move-to-filename))
-                      ((eq type 'url)
-                       (let ((sbf (substring (buffer-name) 2 -1)))
-                         (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
-                           (when (string-match sbf favourite)
-                             (find-file (concat zerolee--emms-favourite favourite))
-                             (vesie-mode 1)
-                             (search-forward name nil t 1)
-                             (beginning-of-line)))))
-                      (t (error "Can't visit this track type in Dired"))))
-            (error "No track at point"))))))
+         (interactive)
+         (when zerolee--emms-loop-point-A
+           ;; 获取当前节点时间然后，然后调用剪辑，清除 `zerolee--emms-loop-point-A'
+           ;; 和 `zerolee--emms-loop-point-B'
+           ;; 剪辑成功后暂停当前正在运行的程序，然后打开相应的 track
+           (unless zerolee--emms-loop-point-B
+             (setq zerolee--emms-loop-point-B emms-playing-time))
+           (let* ((track-name (emms-track-get (emms-playlist-track-at) 'name))
+                  (track-name-ext (file-name-extension track-name))
+                  command)
+             (if (member track-name-ext '("mp3" "MP3" "wma" "flac" "ape" "aac"))
+                 (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
+                                     "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
+                                     "-i" track-name "-acodec" "copy"
+                                     (concat "/tmp/" (number-to-string zerolee--emms-loop-point-A)
+                                             "." track-name-ext)))
+               (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
+                                   "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
+                                   "-i" track-name "-c:v" "libx264" "-c:a" "aac"
+                                   "-strict" "experimental" "-b:a" "98k"
+                                   (concat "/tmp/" (number-to-string zerolee--emms-loop-point-A)
+                                           "." track-name-ext))))
+             (make-process
+              :name "ffmpeg"
+              :buffer "*ffmpeg*"
+              :command command
+              :noquery t
+              :sentinel (lambda (proc _)
+                          (when (eq 'exit (process-status proc))
+                            (shell-command (concat "mpv /tmp/" (number-to-string zerolee--emms-loop-point-A)
+                                                   "." track-name-ext))))))
+           (unless zerolee--emms-loop-point-A-B-timer
+             (setq zerolee--emms-loop-point-B nil)))))
+  ("R" (lambda ()
+         "重新载入播放列表"
+         (interactive)
+         (emms-playlist-clear)
+         (let ((emms-playlist-buffer (current-buffer)))
+           (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
+             (when (string-match (substring (buffer-name) 2 -1) favourite)
+               (emms-add-playlist (concat zerolee--emms-favourite favourite))))
+           (when (string-match (substring (buffer-name) 2 -1)
+                               emms-source-file-default-directory)
+             (emms-add-directory-tree emms-source-file-default-directory)))))
+  ("C-x C-s" (lambda ()
+               (interactive)
+               (let ((emms-source-file-default-directory
+                      zerolee--emms-favourite))
+                 (call-interactively #'emms-playlist-save))))
+  ("d" (lambda ()
+         "Visit the track at point in a `dired' buffer."
+         (interactive)
+         (let ((track (emms-playlist-track-at)))
+           (if track
+               (let ((name (emms-track-get track 'name))
+                     (type (emms-track-get track 'type)))
+                 (cond ((eq type 'file)
+                        (dired (file-name-directory name))
+                        (goto-char (point-min))
+                        (search-forward (file-name-base name) nil t 1)
+                        (dired-move-to-filename))
+                       ((eq type 'url)
+                        (let ((sbf (substring (buffer-name) 2 -1)))
+                          (dolist (favourite (cddr (directory-files zerolee--emms-favourite)))
+                            (when (string-match sbf favourite)
+                              (find-file (concat zerolee--emms-favourite favourite))
+                              (vesie-mode 1)
+                              (search-forward name nil t 1)
+                              (beginning-of-line)))))
+                       (t (error "Can't visit this track type in Dired"))))
+             (error "No track at point"))))))
 
 ;; 如何显示 track
 (setq emms-track-description-function
