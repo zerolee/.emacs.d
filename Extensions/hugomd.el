@@ -24,7 +24,9 @@
 (require 'ox-md)
 
 ;;; 获取文件名
-(defvar hugomd-root "~/tmp/tmp-blog/" "hugo new site my-blog 中的 my-blog")
+(defvar hugomd-root "~/tmp/tmp-blog/" "hugo new site my-blog 中的 my-blog.")
+(defvar hugomd-blog-root "~/backups/website/my-blog/" "blog 存放目录.")
+(defvar hugomd-base-url "https://zerolee.github.io/" "blog 主页地址.")
 (defvar hugomd--filename nil)
 (defvar hugomd--hugo-file nil "post 目录下的文件")
 (defvar hugomd--hugo-dired nil "post 目录下的目录")
@@ -128,6 +130,40 @@
   (browse-url
    (concat "http://localhost:1313/post/"
            (substring hugomd--filename 0 -3))))
+
+(defsubst hugomd--get-filename ()
+  (let ((filenames
+         (mapcar #'(lambda (filename)
+                     (substring filename 0 -3))
+                 (cl-remove-if-not
+                  #'(lambda (filename)
+                      (string-match "\\.md$" filename))
+                  (cddr (directory-files
+                         (concat hugomd-blog-root "content/post/")))))))
+    (completing-read "输入文章名: " filenames)))
+
+(defun hugomd-new-blog ()
+  (interactive)
+  ;; 根据用户的输入去相应的目录下生成相应的文件名
+  (let ((blogname (concat "post/" (hugomd--get-filename) ".md"))
+        (default-directory hugomd-blog-root))
+    (let ((where-blogname (concat "content/" blogname)))
+      (unless (file-exists-p where-blogname)
+        (call-process "hugo" nil nil  nil "new" blogname))
+      (find-file (concat "content/" blogname))
+      (call-interactively #'hugomd-preview)
+      (search-forward "draft: "))))
+
+(defun hugomd-deploy-blog ()
+  (interactive)
+  (let ((default-directory hugomd-blog-root))
+    (call-process "hugo" nil nil nil "--theme=light-hugo"
+                  (concat "--baseUrl=" hugomd-base-url)))
+  ;; push 到 github
+  (let ((default-directory (concat hugomd-blog-root "public")))
+    (call-interactively #'magit))
+  ;; 打开相应的网址查看
+  (browse-url hugomd-base-url))
 
 (provide 'hugomd)
 ;;; hugomd.el ends here
