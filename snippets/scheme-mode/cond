@@ -5,4 +5,4 @@
 
 (cond (${1:case1} ${2:do-this})
       (${3:case2} ${4:do-this})
-      (t $5))
+      (else $5))

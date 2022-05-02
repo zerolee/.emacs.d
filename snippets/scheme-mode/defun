@@ -2,5 +2,5 @@
 # name: defun
 # key: defun
 # --
-(defun ${1:fun} (${2:args})
-  $3)$0
+(define (${1:fun})
+  $2)$0

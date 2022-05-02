@@ -98,8 +98,8 @@
                           (file-name-nondirectory
                            file-name))))
     (setq-local hugomd--hugo-file
-                (concat hugomd-root "content/post/" hugomd--filename))
-    (setq-local hugomd--hugo-dired
+                (concat hugomd-root "content/post/" hugomd--filename)
+                hugomd--hugo-dired
                 (concat (substring hugomd--hugo-file 0 -3) "/"))
     (make-directory hugomd--hugo-dired)
     (push hugomd--hugo-file hugomd--hugo-files)
@@ -132,17 +132,16 @@
            (substring hugomd--filename 0 -3))))
 
 (defsubst hugomd--get-filename ()
-  (let ((filenames
-         (mapcar #'(lambda (filename)
-                     (substring filename 0 -3))
-                 (cl-remove-if-not
-                  #'(lambda (filename)
-                      (string-match "\\.md$" filename))
-                  (cddr (directory-files
-                         (concat hugomd-blog-root "content/post/")))))))
-    (completing-read "输入文章名: " filenames)))
+  (completing-read
+   "输入文章名: "
+   (cl-loop for filename in (directory-files
+                             (concat hugomd-blog-root "content/post/"))
+            when (string-match "\\.md$" filename)
+            collect (substring filename 0 -3))))
 
+;;;###autoload
 (defun hugomd-new-blog ()
+  "打开或者新建一个 blog."
   (interactive)
   ;; 根据用户的输入去相应的目录下生成相应的文件名
   (let ((blogname (concat "post/" (hugomd--get-filename) ".md"))
@@ -154,7 +153,9 @@
       (call-interactively #'hugomd-preview)
       (search-forward "draft: "))))
 
+;;;###autoload
 (defun hugomd-deploy-blog ()
+  "部署一个 blog."
   (interactive)
   (let ((default-directory hugomd-blog-root))
     (call-process "hugo" nil nil nil "--theme=light-hugo"

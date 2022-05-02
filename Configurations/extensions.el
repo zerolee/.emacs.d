@@ -37,7 +37,7 @@
 
 (use-package hugomd
   :ensure nil
-  :commands hugomd-preview)
+  :commands (hugomd-preview hugomd-new-blog hugomd-deploy-blog))
 
 (use-package hydra)
 
