@@ -50,7 +50,7 @@
 (setq org-agenda-files
       '("~/note/plan"  "~/note/emacs")
       org-html-htmlize-output-type nil
-      org-adapt-indentation t)		;org 回车换行
+      org-adapt-indentation t)          ;org 回车换行
 
 (add-hook 'org-mode-hook
           (lambda () (setq truncate-lines nil)))
@@ -73,20 +73,35 @@
     "build.gradle" "WORKSPACE" "composer.json" "rebar.config" "Cargo.toml"
     "Gruntfile.js" "gulpfile.js" "package.json" "angular.json" "SConstruct"
     "requirements.txt" ".angular-cli.json" "application.properties" "pom.xml"
-     "gradlew" ".bloop" "build.sc" "setup.py" "meson.build" "dune-project"
+    "gradlew" ".bloop" "build.sc" "setup.py" "meson.build" "dune-project"
     "build.sbt" "project.clj" "poetry.lock" "Gemfile" "shard.yml" "mix.exs"
     ".midje.clj" "build.boot" "deps.edn" "DESCRIPTION" "stack.yaml" "Cask"
     "info.rkt" "pubspec.yaml" "Pipfile")
   "有以上这些文件的话就是根目录.")
 
 (defun my/project-try-local (dir)
-  "返回一个 cons, car 为项目类型，cdr为根目录."
+  "返回一个 list, 1.项目类型，2.项目定位文件，3.为根目录."
   (cl-loop for f in project-discover-files
-	   when (locate-dominating-file dir f)
-	   return (cons 'local it)))
+           when (locate-dominating-file dir f)
+           return (list 'local f it)))
 (setq project-find-functions '(project-try-vc my/project-try-local))
 (cl-defmethod project-root ((project (head local)))
   (cdr project))
+
+(defun my/project-files-in-directory (dir)
+  "Use `fd' to list files in DIR."
+  (let* ((default-directory dir)
+         (localdir (file-local-name (expand-file-name dir)))
+         (command (format "fd -H -t f -0 . %s" localdir)))
+    (project--remote-file-names
+     (sort (split-string (shell-command-to-string command) "\0" t)
+           #'string<))))
+(cl-defmethod project-files ((project (head local)) &optional dirs)
+  "Override `project-files' to use `fd' in local projects."
+  (mapcan #'my/project-files-in-directory
+          (or dirs (list (project-root project)))))
+
+
 (setq xref-search-program 'ripgrep)
 
 ;;; 配置 frame title 显示一个文件名或者 buffer 名
@@ -108,7 +123,7 @@
                   "^\\*Messages\\*$"
                   "^\\*ansi-term\\*"
                   "^\\*Javascript REPL"
-		  "^\\*lua*"
+                  "^\\*lua*"
                   "^\\*sly-mrepl"))
   (push `(,buffer
           (display-buffer-reuse-window
@@ -125,7 +140,7 @@
                   "^\\*vc-"
                   ".el.gz$"
                   "^*eldoc"
-		  "^\\*sly-inspector for"))
+                  "^\\*sly-inspector for"))
   (push `(,buffer
           (display-buffer-reuse-window
            display-buffer-in-side-window)

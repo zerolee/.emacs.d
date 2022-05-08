@@ -92,7 +92,7 @@
   "获取关联项目的 root."
   (require 'project)
   (expand-file-name
-   (or (cdr (project-current))
+   (or (cl-third (project-current))
        (string-trim-right default-directory (zerolee--get-code-info 1)))))
 
 (defsubst zerolee--get-run-app ()
@@ -257,8 +257,8 @@ NUM 为 4 强制当前目录打开 eshell."
   (interactive)
   (require 'ffap)
   (if (nth 3 (syntax-ppss))
-      (if (ffap-file-at-point)
-          (find-file (ffap-file-at-point))
+      (if-let ((filename (ffap-file-at-point)))
+          (find-file filename)
         (call-interactively #'ffap))
     (zerolee-rg (concat "\\b" (thing-at-point 'symbol t) "\\b")))
   (vesie-mode 1))
@@ -280,9 +280,9 @@ NUM 为 4 强制当前目录打开 eshell."
                   ((or `(,path) `(,(pred (string= "file")) ,path) `(,_ ,path ,_))
                    (expand-file-name path))
                   (`(,proto ,path) (concat proto ":" path))))
-	       ((and (nth 3 (syntax-ppss))
-		     (file-exists-p (thing-at-point 'filename t)))
-		(thing-at-point 'filename t))
+               ((and (nth 3 (syntax-ppss))
+                     (file-exists-p (thing-at-point 'filename t)))
+                (thing-at-point 'filename t))
                (t (or (thing-at-point 'url) buffer-file-name))))
         (program (if arg
                      (read-shell-command "Open current file with: ")

@@ -197,7 +197,6 @@
   (add-hook 'company-completion-started-hook
             (lambda (_)
               (setq eldoc-echo-area-use-multiline-p 1)))
-
   (add-hook 'company-after-completion-hook
             (lambda (_)
               (setq eldoc-echo-area-use-multiline-p 'truncate-sym-name-if-fit))))
