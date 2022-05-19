@@ -81,18 +81,17 @@
                          (zerolee-slots->set-key keymaps slot)))))
 
 
-;;; 模拟 Common Lisp 的 with-open-file
+;;; 模拟 Common Lisp 的 with-open-file，相关函数请局限在 with-open-file 中使用.
 
-(defvar-local current-position -1 "当前位置")
+(defvar-local cl-current-position (point-min) "当前位置.")
 
 (defun cl-read-helper (sexp-content new-pos buf eof-error-p eof)
   (with-current-buffer buf
-    (if (and (> current-position 0)
-             (<= current-position (point-max)))
+    (if (<= cl-current-position (point-max))
         (prog2
-            (goto-char current-position)
+            (goto-char cl-current-position)
             (eval sexp-content)
-          (setq-local current-position (eval new-pos)))
+          (setq-local cl-current-position (eval new-pos)))
       (if eof-error-p
           (error "end of file...")
         eof))))
@@ -107,15 +106,15 @@
 
 (cl-defun cl-write-line (string &optional (buf (current-buffer)))
   (with-current-buffer buf
-    (goto-char current-position)
+    (goto-char cl-current-position)
     (insert (format "%s\n" string))
-    (setq-local current-position (point-max))))
+    (setq-local cl-current-position (point-max))))
 
 (cl-defun cl-write-string (string &optional (buf (current-buffer)))
   (with-current-buffer buf
-    (goto-char current-position)
+    (goto-char cl-current-position)
     (insert string)
-    (setq-local current-position (point-max))))
+    (setq-local cl-current-position (point-max))))
 
 
 (defconst cl-format-alist
@@ -154,8 +153,8 @@
 position 的值为 :start :end 或者一个非负整数."
   (with-current-buffer buf
     (if (not position-p)
-        (1- current-position)
-      (setq-local current-position
+        (1- cl-current-position)
+      (setq-local cl-current-position
                   (cond ((eq position :start) (point-min))
                         ((eq position :end) (point-max))
                         (t (1+ position))))
@@ -170,45 +169,40 @@ position 的值为 :start :end 或者一个非负整数."
   (declare (indent defun))
   (if (eq direction :output)
       `(with-temp-file ,filename
-         (unwind-protect
-             (let ((,str (current-buffer)))
-               ,@(unless (eq element-type 'base-char)
-                   `((set-buffer-multibyte nil)))
-               ,@(when (and (eq if-does-not-exist :create)
-                            (not (file-exists-p filename)))
-                   `((make-empty-file ,filename)))
-               ,@(when (eq if-exists :append)
-                   `((insert-file-contents ,filename)))
-               (setq-local current-position (point-max))
-               ,@body)
-           (setq-local current-position -1)))
+         (let ((,str (current-buffer)))
+           ,@(unless (eq element-type 'base-char)
+               `((set-buffer-multibyte nil)))
+           ,@(when (eq if-does-not-exist :create)
+               `((unless (file-exists-p ,filename)
+                   (make-empty-file ,filename))))
+           ,@(when (eq if-exists :append)
+               `((insert-file-contents ,filename)
+                 (setq-local cl-current-position (point-max))))
+           ,@body))
     `(with-temp-buffer
-       (unwind-protect
-           (let ((,str (current-buffer)))
-             ,@(unless (eq element-type 'base-char)
-                 `((set-buffer-multibyte nil)))
-             (setq-local current-position (point-min))
-             (insert-file-contents ,filename)
-             ,@body)
-         (setq-local current-position -1)))))
+       (let ((,str (current-buffer)))
+         ,@(unless (eq element-type 'base-char)
+             `((set-buffer-multibyte nil)))
+         (insert-file-contents ,filename)
+         ,@body))))
 
 
 ;; (with-open-file (in "/tmp/hello.world"
-;;                  :direction :input)
-;;              (message "%s" (cl-read-line in t :eof))
-;;              (message "%s" (cl-read-line))
-;;              (message "%s" (cl-read-line in nil :eof))
-;;              (message "%s" (cl-read-line in nil :eof))
-;;              (message "%s" (cl-read-line in nil :eof))
-;;              (message "%s" (cl-read-line in nil))
-;;              (message "%s" (cl-read-line in nil :eof))
-;;              (message "%s" in))
+;;                     :direction :input)
+;;   (message "%s" (cl-read-line in t :eof))
+;;   (message "%s" (cl-read-line))
+;;   (message "%s" (cl-read-line in nil :eof))
+;;   (message "%s" (cl-read-line in nil :eof))
+;;   (message "%s" (cl-read-line in nil :eof))
+;;   (message "%s" (cl-read-line in nil))
+;;   (message "%s" (cl-read-line in nil :eof))
+;;   (message "%s" in))
 
 ;; (with-open-file (output "/tmp/hello.world"
-;;                      :direction :output)
-;;              (cl-write-line "hello, world")
-;;              (cl-write-line "look, good")
-;;              (print "(+ 1 2)" output))
+;;                         :direction :output)
+;;   (cl-write-line "hello, world")
+;;   (cl-write-line "look, good")
+;;   (print "(+ 1 2)" output))
 
 (defun cl-complement (fun)
   "以一个 fun 作为参数，它返回一个函数，这个函数的返回值总是和
