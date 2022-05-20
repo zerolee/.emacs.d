@@ -14,11 +14,13 @@
 (setq use-package-always-ensure t)
 (use-package diminish)
 
+(require 'zerolee-lib)
 (require 'emacs-std)
 (require 'extensions)
 (require 'programs)
 (require 'init-macros)
 (require 'init-hydra)
+(require 'init-transient)
 (require 'bindings)
 (load custom-file)
 

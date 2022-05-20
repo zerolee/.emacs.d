@@ -18,6 +18,8 @@
    保存一些键盘宏
 ** init-hydra.el
    hydra 配置相关
+** init-transient
+   transient 配置相关
 ** init-emms.el
    emms 相关的配置
 ** init-tools.el
@@ -42,5 +44,8 @@
    用来预览 Markdown、Org 文件
 ** zerolee-lib.el
    一些个人使用的函数
+** flee.el
+   在书写 Lisp 的时候，总有一些想要跳出的地方，比如 docing, 比如
+   let 的 bind 的部分，比如 cond 的某一个子表达式……
 * snippets
   yasnippet 使用的模板文件

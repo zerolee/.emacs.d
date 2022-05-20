@@ -15,7 +15,7 @@
 
 ;;; Commentary:
 
-;;; 一些自己使用的函数
+;;; 一些自己使用的函数、宏……
 ;;; Code:
 
 (require 'cl-lib)
@@ -47,9 +47,11 @@
 
 ;;; 便捷的快捷键绑定
 (defun zerolee-slots->set-key (keymaps slot)
-  "(zerolee-slots->set-key '(flymake-mode-keymap) '(\"C-\\\\\" nil))
+  "KEYMAPS 是一个包含 list(返回 keymap 的函数) 或者 symbol(keymap) 的 list.
+SLOT 应该是一个包含两个元素的(快捷键 绑定到的值) list.
+\(zerolee-slots->set-key '(flymake-mode-keymap) '(\"C-\\\\\" nil))
 →(define-key flymake-mode-keymap (kbd \"C-\\\\\") nil);
-(zerolee-slots->set-key '(flymake-mode-keymap) '([key-chord ?d ?f] nil))
+\(zerolee-slots->set-key '(flymake-mode-keymap) '([key-chord ?d ?f] nil))
 →(define-key flymake-mode-keymap [key-chord 100 102] nil)"
   (cl-loop for keymap in keymaps
            append
@@ -61,10 +63,11 @@
                     collect `(define-key ,keymap ,key ,command))))
 
 (defmacro zerolee-set-key (&rest slots)
-  "绑定快捷键的便捷宏，示例：
-(zerolee-set-key (current-global-map)
- (\"C-s\" #'isearch-forward-regexp)
- (\"C-r\" #'isearch-backward-regexp))"
+  "SLOTS 为 keymap 或者按键绑定.
+绑定快捷键的便捷宏，示例：
+\(zerolee-set-key (current-global-map)
+ (\"\\[isearch-forward-regexp]\" #'isearch-forward-regexp)
+ (\"\\[isearch-backward-regexp]\" #'isearch-backward-regexp))"
   (declare (indent defun))
   `(progn
      ,@(cl-loop with keymaps = '((current-global-map))
@@ -85,7 +88,10 @@
 
 (defvar-local cl-current-position (point-min) "当前位置.")
 
-(defun cl-read-helper (sexp-content new-pos buf eof-error-p eof)
+(defun cl--read-helper (sexp-content new-pos buf eof-error-p eof)
+  "一个 cl-read 相关的辅助函数，SEXP-CONTENT 获取的内容所用的 sexp.
+NEW-POS 每一次读取完数据后新的位置。BUF 为 cl-read 函数的执行环境.
+EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
   (with-current-buffer buf
     (if (<= cl-current-position (point-max))
         (prog2
@@ -93,29 +99,42 @@
             (eval sexp-content)
           (setq-local cl-current-position (eval new-pos)))
       (if eof-error-p
-          (error "end of file...")
+          (error "End of file!")
         eof))))
 
 (cl-defun cl-read-line (&optional (buf (current-buffer)) (eof-error-p t) eof)
-  (cl-read-helper '(buffer-substring-no-properties (point-at-bol) (point-at-eol))
-                  '(1+ (point-at-eol)) buf eof-error-p eof))
+  "读取一行.
+BUF 为读取所在的 buffer， EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
+  (cl--read-helper '(buffer-substring-no-properties (point-at-bol) (point-at-eol))
+                   '(1+ (point-at-eol)) buf eof-error-p eof))
 
 (cl-defun cl-read-char (&optional (buf (current-buffer)) (eof-error-p t) eof)
-  (or (cl-read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)
-      (cl-read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)))
+  "读取一个字符.
+BUF 为读取所在的 buffer， EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
+  (or (cl--read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)
+      (cl--read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)))
 
 (cl-defun cl-write-line (string &optional (buf (current-buffer)))
+  "写入一行并换行.
+STRING 为写入的字符串，BUF 为读取所在的 buffer，
+EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
   (with-current-buffer buf
     (goto-char cl-current-position)
     (insert (format "%s\n" string))
     (setq-local cl-current-position (point-max))))
 
 (cl-defun cl-write-string (string &optional (buf (current-buffer)))
+  "写入一个字符串.
+STRING 为写入的字符串，BUF 为读取所在的 buffer，
+EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
   (with-current-buffer buf
     (goto-char cl-current-position)
     (insert string)
     (setq-local cl-current-position (point-max))))
 
+(defalias 'cl-write-char 'cl-write-string "写入一个字符.")
+(defalias 'cl-write-byte 'cl-write-string "写入一个字节.")
+(defalias 'cl-read-byte 'cl-read-char "读取一个字节.")
 
 (defconst cl-format-alist
   '(("~a" . "%s")
@@ -129,16 +148,19 @@
     ("~f" . "%f")
     ("~x" . "%x")
     ("~o" . "%o"))
-  "每个元素由 (cl . el) 组成，他们分别代表 Common Lisp 的控制字符和 Emacs Lisp
+  "每个元素由 (cl . el) 组成，他们分别代表 Common Lisp 的控制字符和 Emacs Lisp.
 的控制字符，暂不支持循环以及条件选择等复杂功能.")
 
 (defun cl-parse-format (control-string)
+  "格式化字符串，CONTROL-STRING 为需要分析的字符串."
   (dolist (cs cl-format-alist control-string)
     (setq control-string
           (string-replace (car cs) (cdr cs) control-string))))
 
 (defun cl-format (destination control-string &rest format-arguments)
-  "一个模拟 Common Lisp format 的函数."
+  "一个模拟 Common Lisp format 的函数.
+DESTINATION 格式化字符串写入的地方，CONTROL-STRING 为需要分析的字符串.
+FORMAT-ARGUMENTS 为格式化参数."
   (cond ((eq destination t)
          (apply #'message (cl-parse-format control-string) format-arguments))
         ((eq destination nil)
@@ -148,9 +170,9 @@
                             format-arguments))))))
 
 (cl-defun cl-file-position (buf &optional (position 0 position-p))
-  "只有一个参数 buf 时返回文件中的当前位置,
-(已被读取或者写入流的元素数量，否则将流的位置设置到该描述的位置上).
-position 的值为 :start :end 或者一个非负整数."
+  "只有一个参数 BUF 时返回文件中的当前位置.
+\(已被读取或者写入流的元素数量，否则将流的位置设置到该描述的位置上).
+POSITION 的值为 :start :end 或者一个非负整数."
   (with-current-buffer buf
     (if (not position-p)
         (1- cl-current-position)
@@ -165,7 +187,14 @@ position 的值为 :start :end 或者一个非负整数."
                                   (if-exists :supersede)
                                   if-does-not-exist)
                              &body body)
-  "模拟 Common Lisp 版 with-open-file 的一个宏，str 中保存的是操作的 buffer."
+  "模拟 Common Lisp 版 `with-open-file' 的一个宏.
+STR 中保存的是操作的 buffer.
+FILENAME：打开的文件(写入或者读取)
+DIRECTION: 写入文件还是读取文件(默认值：:input 读取)，:output 为写入，
+ELEMENT-TYPE：默认值 'base-char 以字符形式读写文件，其他值则为单字节.
+IF-EXISTS： 默认值 :supersede 文件存在则覆盖，设置为 :append，文件存在则追加.
+IF-DOES-NOT-EXIST：文件不存在报错，设置为 :create，则文件不存在时自动创建文件.
+BODY：用户代码书写区域."
   (declare (indent defun))
   (if (eq direction :output)
       `(with-temp-file ,filename
@@ -205,8 +234,7 @@ position 的值为 :start :end 或者一个非负整数."
 ;;   (print "(+ 1 2)" output))
 
 (defun cl-complement (fun)
-  "以一个 fun 作为参数，它返回一个函数，这个函数的返回值总是和
-fun 得到的返回值相反."
+  "返回一个返回值和 FUN 的返回值相反的函数."
   (lambda (&rest x)
     (not (apply fun x))))
 

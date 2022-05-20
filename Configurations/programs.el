@@ -37,54 +37,6 @@
   :config
   (setq inferior-lisp-program "/usr/bin/sbcl"
         sly-complete-symbol-function 'sly-simple-completions))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; lsp 相关的通用配置
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defun lsp--common-set ()
-  "Lsp 的一些通用配置."
-  (when (eq major-mode 'css-mode)
-    (setq-local lsp-diagnostics-provider :none)
-    (eldoc-mode -1))
-  (lsp)
-  (setq-local company-backends
-              '((company-yasnippet company-capf
-                                   company-dabbrev-code)
-                company-files company-keywords
-                company-dabbrev))
-  (setq-local read-process-output-max (* 1024 1024))
-  (setq lsp-enable-on-type-formatting nil
-        lsp-auto-execute-action nil
-        lsp-auto-configure nil)
-  (add-hook 'completion-at-point-functions #'lsp-completion-at-point nil t)
-  (zerolee-set-key lsp-mode-map
-    ("s-l" nil)
-    ("S-<f2>" #'lsp-rename)
-    ("M-." #'xref-find-definitions)
-    ("M-?" #'xref-find-references)
-    ("C-h ."(lambda ()
-              (interactive)
-              (zerolee-help-doc "*lsp-help*" #'lsp-describe-thing-at-point))))
-  (setq abbrev-mode nil)
-  (lsp-diagnostics-mode 1)
-  (advice-add 'lsp-completion--regex-fuz :around
-              (lambda (_orig-func str)
-                (format "^%s" str)))
-  (advice-add 'lsp-completion--filter-candidates :around
-              (lambda (fun &rest arg)
-                (let ((case-fold-search nil))
-                  (apply fun arg))))
-  (add-hook 'lsp-on-idle-hook #'lsp--document-highlight nil t)
-  (lsp-enable-imenu))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; html javascript css
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package lsp-mode
-  :commands lsp
-  :hook ((js-mode css-mode) . lsp--common-set))
-
 
 (use-package emmet-mode
   :ensure nil
@@ -290,6 +242,8 @@
                (lambda ()
                  (interactive)
                  (zerolee-help-doc eldoc--doc-buffer #'eldoc-doc-buffer))))
+  :custom
+  (eglot-events-buffer-size 0)
   :hook ((eglot-managed-mode
           .
           (lambda ()

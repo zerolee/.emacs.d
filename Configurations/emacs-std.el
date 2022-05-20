@@ -86,7 +86,7 @@
            return (list 'local f it)))
 (setq project-find-functions '(project-try-vc my/project-try-local))
 (cl-defmethod project-root ((project (head local)))
-  (cdr project))
+  (cl-third project))
 
 (defun my/project-files-in-directory (dir)
   "Use `fd' to list files in DIR."

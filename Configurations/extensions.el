@@ -2,7 +2,6 @@
 ;;; Commentary:
 
 ;;; Code:
-(require 'zerolee-lib)
 (use-package save-position
   :ensure nil
   :bind (("s-." . sp-push-position-to-ring)

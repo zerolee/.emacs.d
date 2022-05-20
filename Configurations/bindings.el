@@ -3,7 +3,6 @@
 
 ;;; Code:
 
-(require 'zerolee-lib)
 ;; winner-mode
 ;; 主要用来撤销动作的
 (setq winner-dont-bind-my-keys t)
@@ -62,7 +61,21 @@
 
 ;;; hydra
 (with-eval-after-load 'info
-  (define-key Info-mode-map (kbd "?") #'hydra-info/body))
+  (define-key Info-mode-map (kbd "?") #'transient/my-info))
+
+;;; gud
+(with-eval-after-load 'gud
+  (zerolee-set-key gud-mode-map
+    ("<f3>" (lambda () (interactive)
+              (call-interactively #'gdb-many-windows)
+              (call-interactively #'tool-bar-mode)))
+    ("<f4>"  #'gud-until)
+    ("<f5>"  #'gud-go)
+    ("<f6>"  #'gud-stop-subjob)
+    ("<f7>"  #'gud-step)
+    ("<f8>"  #'gud-next)
+    ("<f9>"  #'gud-cont)
+    ("<f10>" #'gud-finish)))
 
 ;;; flymake
 (with-eval-after-load 'flymake
