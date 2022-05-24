@@ -38,8 +38,6 @@
   :ensure nil
   :commands (hugomd-preview hugomd-new-blog hugomd-deploy-blog))
 
-(use-package hydra)
-
 (use-package mc-mark-more
   :ensure multiple-cursors
   :init
@@ -60,14 +58,6 @@
          ("M-i" . mc/insert-numbers)
          ("M-." . mc/mark-all-like-this-dwim)))
 
-(use-package treemacs
-  :bind (("<f2>" . treemacs)
-         :map treemacs-mode-map
-         ("m" . (lambda () (interactive)
-                  (let ((bname (buffer-name)))
-                    (treemacs-RET-action)
-                    (or (string-equal bname (buffer-name)) (other-window -1)))))))
-
 (use-package expand-region
   :bind ("C-=" . er/expand-region))
 
@@ -80,6 +70,8 @@
          ("M-g s" . avy-goto-symbol-1)
          ("M-g 0" . avy-goto-word-0)
          ("M-g w" . avy-goto-word-1)))
+
+(use-package ace-window :defer t)
 
 ;; 使用主题
 (use-package solarized-theme

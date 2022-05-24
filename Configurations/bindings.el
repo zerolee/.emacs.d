@@ -53,13 +53,13 @@
   ("S-<down>" #'shrink-window)
   ("S-<left>" #'shrink-window-horizontally)
   ("S-<right>" #'enlarge-window-horizontally)
-  ("M-<SPC>" (lambda () (interactive) (zerolee-ime-disable) (hydra-f1/body)))
+  ("M-<SPC>" (lambda () (interactive) (zerolee-ime-disable) (transient/my-menu)))
   ([key-chord ?d ?f] (lambda () (interactive) (vesie-mode 1)))
   lisp-interaction-mode-map
   emacs-lisp-mode-map
   ("C-c <return>" #'emacs-lisp-macroexpand))
 
-;;; hydra
+;;; info
 (with-eval-after-load 'info
   (define-key Info-mode-map (kbd "?") #'transient/my-info))
 

@@ -19,7 +19,6 @@
 (require 'extensions)
 (require 'programs)
 (require 'init-macros)
-(require 'init-hydra)
 (require 'init-transient)
 (require 'bindings)
 (load custom-file)

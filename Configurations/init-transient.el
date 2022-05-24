@@ -30,5 +30,29 @@
    [("L"   "History"         Info-history)
     ("h"   "Info help"       Info-help)]])
 
+(transient-define-prefix transient/my-menu ()
+  "info 中所使用的命令的小提示."
+  [[("1" "1"             digit-argument)
+    ("2" "2"             digit-argument)
+    ("3" "4"             digit-argument)
+    ("4" "4"             digit-argument)]
+   [("r" "rg"            zerolee-rg)
+    ("z" "zff"           zerolee-find-file)
+    ("m" "emms"          zerolee-emms-default)
+    ("o" "open"     zerolee-open-with)]
+   [("d" "dired"         dired-jump)
+    ("v" "magit"         magit)
+    ("i" "imenu"         counsel-imenu)
+    ("l" "locate"        counsel-locate)]
+   [("k" "delete-window" zerolee-delete-window)
+    ("u" "update-tags"   zerolee-regenerate-ctags)
+    ("j" "jump-window"   ace-select-window)
+    ("b" "switch-buffer" ivy-switch-buffer)]
+   [("SPC" "shell"       zerolee-eshell)
+    ("f" "find-file"     counsel-find-file)
+    ("s" "swap-window"   ace-swap-window)
+    ("c" "compile"       zerolee-compile)
+    ("M-SPC" "quit"      transient-quit-one)]])
+
 (provide 'init-transient)
 ;;; init-transient.el ends here

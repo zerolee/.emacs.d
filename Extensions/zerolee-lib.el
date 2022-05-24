@@ -116,8 +116,7 @@ BUF 为读取所在的 buffer， EOF-ERROR-P 出错了应该如何处理，直�
 
 (cl-defun cl-write-line (string &optional (buf (current-buffer)))
   "写入一行并换行.
-STRING 为写入的字符串，BUF 为读取所在的 buffer，
-EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
+STRING 为写入的字符串，BUF 为要写入的 buffer。"
   (with-current-buffer buf
     (goto-char cl-current-position)
     (insert (format "%s\n" string))
@@ -125,8 +124,7 @@ EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
 
 (cl-defun cl-write-string (string &optional (buf (current-buffer)))
   "写入一个字符串.
-STRING 为写入的字符串，BUF 为读取所在的 buffer，
-EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
+STRING 为写入的字符串，BUF 为要写入的 buffer."
   (with-current-buffer buf
     (goto-char cl-current-position)
     (insert string)

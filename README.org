@@ -16,8 +16,6 @@
    编程语言相关的配置
 ** init-macros.el
    保存一些键盘宏
-** init-hydra.el
-   hydra 配置相关
 ** init-transient
    transient 配置相关
 ** init-emms.el
