@@ -31,7 +31,7 @@
     ("h"   "Info help"       Info-help)]])
 
 (transient-define-prefix transient/my-menu ()
-  "info 中所使用的命令的小提示."
+  "全局菜单."
   [[("1" "1"             digit-argument)
     ("2" "2"             digit-argument)
     ("3" "4"             digit-argument)
@@ -39,7 +39,7 @@
    [("r" "rg"            zerolee-rg)
     ("z" "zff"           zerolee-find-file)
     ("m" "emms"          zerolee-emms-default)
-    ("o" "open"     zerolee-open-with)]
+    ("o" "open"          zerolee-open-with)]
    [("d" "dired"         dired-jump)
     ("v" "magit"         magit)
     ("i" "imenu"         counsel-imenu)

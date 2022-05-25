@@ -47,12 +47,12 @@
 
 ;;; 便捷的快捷键绑定
 (defun zerolee-slots->set-key (keymaps slot)
-  "KEYMAPS 是一个包含 list(返回 keymap 的函数) 或者 symbol(keymap) 的 list.
+  "KEYMAPS 是一个由 list(返回 keymap 的函数) 或者 symbol(keymap) 组成的 lists.
 SLOT 应该是一个包含两个元素的(快捷键 绑定到的值) list.
 \(zerolee-slots->set-key '(flymake-mode-keymap) '(\"C-\\\\\" nil))
-→(define-key flymake-mode-keymap (kbd \"C-\\\\\") nil);
+→((define-key flymake-mode-keymap (kbd \"C-\\\\\") nil));
 \(zerolee-slots->set-key '(flymake-mode-keymap) '([key-chord ?d ?f] nil))
-→(define-key flymake-mode-keymap [key-chord 100 102] nil)"
+→((define-key flymake-mode-keymap [key-chord 100 102] nil))"
   (cl-loop for keymap in keymaps
            append
            (cl-loop with command = (car (last slot))
@@ -235,6 +235,43 @@ BODY：用户代码书写区域."
   "返回一个返回值和 FUN 的返回值相反的函数."
   (lambda (&rest x)
     (not (apply fun x))))
+
+(defun cl-byte (size position)
+  "返回一个被其他函数使用的(`cl-ldb') byte specifier.
+SIZE：需要解出（或设置）的位数量.
+POSITION: 最右边那位相对整数中最不重要位来说以零开始的位置.
+\(cl-byte 8 0) => (8 . 0)."
+  (cons size position))
+
+(defun cl-ldb (bytespec integer)
+  "加载字节(load byte): 从一个整数中解出和设置(setf)任意数量的连续位.
+函数接受一个字节描述符(BYTESPEC)和需要解出位数据的那个整数(INTEGER).
+返回由解出的位代表的整数.
+\(cl-ldb (cl-byte 8 0) #xabcd)=> 205 (#xcd).
+\(cl-ldb (cl-byte 8 8) #xabcd)=> 171 (#xab)."
+  (logand (ash integer (- (cdr bytespec)))
+          (- (expt 2 (car bytespec)) 1)))
+
+(defun cl-dpb (newbyte bytespec integer)
+  "存储字节(deposit byte): 替换整数中的连续位.
+将 INTEGER 中 BYTESPEC 所描述的位置设置为 NEWBYTE，并返回，NEWBYTE 是右对齐的.
+\(cl-dpb 128 (cl-byte 8 0) 0) ; => 128 (#x80)
+\(cl-dpb 1 (cl-byte 1 10) 0) ; => 1024 (11 bits, #x400)
+\(cl-dpb -2 (cl-byte 2 10) 0) ; => 2048 (12 bits, #x800)
+\(cl-dpb 1 (cl-byte 2 10) 2048) ; => 1024 (11 bits, #x400)"
+  (let ((mask (- (expt 2 (car bytespec)) 1)))
+    (logior (ash (logand mask newbyte) (cdr bytespec))
+            (logand integer (lognot (ash mask (cdr bytespec)))))))
+
+;;; 为 cl-ldb 定义 setter method
+(gv-define-expander cl-ldb              ;NAME
+  (lambda (do bytespec place)           ;HANDLER
+    (gv-letplace (getter setter) place
+      (funcall do `(cl-ldb ,bytespec ,getter) ;获取 PLACE 值的表达式
+               (lambda (v);接受表达式 v，返回一个新表达式，将 PLACE 设置为 v
+                 `(progn
+                    ,(funcall setter `(cl-dpb ,v ,bytespec ,getter))
+                    ,v))))))
 
 (provide 'zerolee-lib)
 ;;; zerolee-lib.el ends here
