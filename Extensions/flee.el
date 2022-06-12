@@ -60,8 +60,8 @@
 let, let*, symbol-macrolet… 的单个 bind 部分."
   (interactive "P")
   (when update
-    (setq-local treesit-parser-list nil))
-  (treesit-get-parser-create 'elisp)
+    (treesit-parser-delete (car (treesit-parser-list))))
+  (treesit-parser-create 'elisp)
   (if-let ((target (flee-get-target))
            (sibling1 (treesit-node-text
                       (treesit-node-child target 1) t)))

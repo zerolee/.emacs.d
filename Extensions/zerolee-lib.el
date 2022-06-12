@@ -29,20 +29,18 @@
   "查看 BUFFER 在打开的 window 中的位置，不存在返回 nil."
   (cl-position buffer (mapcar #'window-buffer (window-list))))
 
-(defun zerolee-time-to-seconds (times)
+(cl-defun zerolee-time-to-seconds (times &aux (seconds 0))
   "将由冒号分割的字符串形式的 TIMES 转换为整数形式的秒."
-  (let ((seconds 0))
-    (dolist (time (mapcar #'string-to-number (split-string times ":")) seconds)
-      (setq seconds (+ time (* seconds 60))))))
+  (dolist (time (mapcar #'string-to-number (split-string times ":")) seconds)
+    (setq seconds (+ time (* seconds 60)))))
 
 (defun zerolee-time-duration (start-time end-time)
   "计算 END-TIME - START-TIME, 结果为一个整数(秒)."
   (- (zerolee-time-to-seconds end-time) (zerolee-time-to-seconds start-time)))
 
-(defun zerolee-time-format (seconds)
+(cl-defun zerolee-time-format (seconds &aux (min (/ seconds 60)))
   "将 SECONDS 转换成 HH:MM:SS 的格式."
-  (let ((min (/ seconds 60)))
-    (format "%02d:%02d:%02d" (/ min 60) (% min 60) (% seconds 60))))
+  (format "%02d:%02d:%02d" (/ min 60) (% min 60) (% seconds 60)))
 
 
 ;;; 便捷的快捷键绑定
@@ -85,50 +83,47 @@ SLOT 应该是一个包含两个元素的(快捷键 绑定到的值) list.
 
 
 ;;; 模拟 Common Lisp 的 with-open-file，相关函数请局限在 with-open-file 中使用.
-
 (defvar-local cl-current-position (point-min) "当前位置.")
 
-(defun cl--read-helper (sexp-content new-pos buf eof-error-p eof)
-  "一个 cl-read 相关的辅助函数，SEXP-CONTENT 获取的内容所用的 sexp.
-NEW-POS 每一次读取完数据后新的位置。BUF 为 cl-read 函数的执行环境.
-EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
-  (with-current-buffer buf
-    (if (<= cl-current-position (point-max))
-        (prog2
-            (goto-char cl-current-position)
-            (eval sexp-content)
-          (setq-local cl-current-position (eval new-pos)))
-      (if eof-error-p
-          (error "End of file!")
-        eof))))
+(defun cl--read-helper (sexp-content new-pos eof-error-p eof)
+  "一个 cl-read 相关的辅助函数.
+SEXP-CONTENT: 获取的内容所用的 sexp.
+NEW-POS: 每一次读取完数据后新的位置.
+EOF-ERROR-P: 出错了应该如何处理，直接报错还是返回 EOF 的值."
+  (if (<= cl-current-position (point-max))
+      (prog2
+          (goto-char cl-current-position)
+          (eval sexp-content)
+        (setq-local cl-current-position (eval new-pos)))
+    (if eof-error-p
+        (error "End of file!")
+      eof)))
 
-(cl-defun cl-read-line (&optional (buf (current-buffer)) (eof-error-p t) eof)
+(cl-defun cl-read-line (&optional _buf (eof-error-p t) eof)
   "读取一行.
-BUF 为读取所在的 buffer， EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
+BUF: 读取所在的 buffer，EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF."
   (cl--read-helper '(buffer-substring-no-properties (point-at-bol) (point-at-eol))
-                   '(1+ (point-at-eol)) buf eof-error-p eof))
+                   '(1+ (point-at-eol)) eof-error-p eof))
 
-(cl-defun cl-read-char (&optional (buf (current-buffer)) (eof-error-p t) eof)
+(cl-defun cl-read-char (&optional _buf (eof-error-p t) eof)
   "读取一个字符.
-BUF 为读取所在的 buffer， EOF-ERROR-P 出错了应该如何处理，直接报错还是返回 EOF 的值."
-  (or (cl--read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)
-      (cl--read-helper '(char-after) '(1+ (point)) buf eof-error-p eof)))
+BUF: 读取所在的 buffer，EOF-ERROR-P 出错应该如何处理，直接报错还是返回 EOF."
+  (or (cl--read-helper '(char-after) '(1+ (point)) eof-error-p eof)
+      (cl--read-helper '(char-after) '(1+ (point)) eof-error-p eof)))
 
-(cl-defun cl-write-line (string &optional (buf (current-buffer)))
+(defun cl-write-line (string &optional _buf)
   "写入一行并换行.
 STRING 为写入的字符串，BUF 为要写入的 buffer。"
-  (with-current-buffer buf
-    (goto-char cl-current-position)
-    (insert (format "%s\n" string))
-    (setq-local cl-current-position (point-max))))
+  (goto-char cl-current-position)
+  (insert (format "%s\n" string))
+  (setq-local cl-current-position (point-max)))
 
-(cl-defun cl-write-string (string &optional (buf (current-buffer)))
+(defun cl-write-string (string &optional _buf)
   "写入一个字符串.
 STRING 为写入的字符串，BUF 为要写入的 buffer."
-  (with-current-buffer buf
-    (goto-char cl-current-position)
-    (insert string)
-    (setq-local cl-current-position (point-max))))
+  (goto-char cl-current-position)
+  (insert string)
+  (setq-local cl-current-position (point-max)))
 
 (defalias 'cl-write-char 'cl-write-string "写入一个字符.")
 (defalias 'cl-write-byte 'cl-write-string "写入一个字节.")
@@ -167,18 +162,17 @@ FORMAT-ARGUMENTS 为格式化参数."
              (insert (apply #'format (cl-parse-format control-string)
                             format-arguments))))))
 
-(cl-defun cl-file-position (buf &optional (position 0 position-p))
+(cl-defun cl-file-position (_buf &optional (position 0 position-p))
   "只有一个参数 BUF 时返回文件中的当前位置.
 \(已被读取或者写入流的元素数量，否则将流的位置设置到该描述的位置上).
 POSITION 的值为 :start :end 或者一个非负整数."
-  (with-current-buffer buf
-    (if (not position-p)
-        (1- cl-current-position)
-      (setq-local cl-current-position
-                  (cond ((eq position :start) (point-min))
-                        ((eq position :end) (point-max))
-                        (t (1+ position))))
-      t)))
+  (if (not position-p)
+      (1- cl-current-position)
+    (setq-local cl-current-position
+                (cond ((eq position :start) (point-min))
+                      ((eq position :end) (point-max))
+                      (t (1+ position))))
+    t))
 
 (cl-defmacro with-open-file ((str filename &key (direction :input)
                                   (element-type 'base-char)
@@ -237,7 +231,7 @@ BODY：用户代码书写区域."
     (not (apply fun x))))
 
 (defun cl-byte (size position)
-  "返回一个被其他函数使用的(`cl-ldb') byte specifier.
+  "返回一个被其他函数(如：`cl-ldb')使用的byte specifier.
 SIZE：需要解出（或设置）的位数量.
 POSITION: 最右边那位相对整数中最不重要位来说以零开始的位置.
 \(cl-byte 8 0) => (8 . 0)."
