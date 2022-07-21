@@ -134,8 +134,7 @@
         display-buffer-alist))
 
 ;;; 配置窗口永远在右方，占据 45% 大小
-(dolist (buffer '("^\\*lsp-help\\*$"
-                  "^\\*eglot-help"
+(dolist (buffer '("^\\*eglot-help"
                   "^\\*sly-description\\*$"
                   "^\\*vc-"
                   ".el.gz$"

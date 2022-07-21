@@ -2,7 +2,9 @@
 ;;; Commentary:
 
 ;;; Code:
-(defalias 'my-eval-last-sexp (kmacro "C-x C-e"))
+(defalias 'kmacro/my-eval-last-sexp (kmacro "C-x C-e"))
+(defalias 'kmacro/my-next-line (kmacro "C-n"))
+(defalias 'kmacro/my-prev-line (kmacro "C-p"))
 
 (provide 'init-macros)
 ;;; init-macros.el ends here

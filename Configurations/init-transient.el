@@ -16,7 +16,7 @@
 ;;; Commentary:
 
 ;;; info 相关 transient 的设置
-;;; gud  相关 transient 的设置
+;;; 全局相关  transient 的设置
 ;;; Code:
 (require 'transient)
 (transient-define-prefix transient/my-info ()
