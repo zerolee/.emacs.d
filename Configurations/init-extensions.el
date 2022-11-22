@@ -1,4 +1,4 @@
-;;; extensions.el --- 编程语言之外的第三方扩展相关配置 -*- lexical-binding: t; -*-
+;;; init-extensions.el --- 编程语言之外的第三方扩展相关配置 -*- lexical-binding: t; -*-
 ;;; Commentary:
 
 ;;; Code:
@@ -12,19 +12,9 @@
   :ensure nil
   :init
   (defconst zerolee--vesie-not-startup-mode
-    '(treemacs-mode package-menu-mode ibuffer-mode bookmark-bmenu-mode
-                    process-menu-mode occur-mode apropos-mode proced-mode)
+    '(package-menu-mode ibuffer-mode occur-mode  process-menu-mode
+                        bookmark-bmenu-mode apropos-mode proced-mode)
     "vesie 默认不启动的 mode")
-  :bind (("<escape>" . (lambda () (interactive) (vesie-mode 1)))
-         ("C-w" . (lambda () (interactive)
-                    (if (use-region-p)
-                        (kill-region (region-beginning) (region-end))
-                      (vesie-ckm "c"))))
-         ("M-w" . (lambda () (interactive)
-                    (if (use-region-p)
-                        (kill-ring-save (region-beginning) (region-end))
-                      (vesie-ckm "m")))))
-  :commands (vesie-mode vesie-ckm)
   :hook ((prog-mode text-mode comint-mode special-mode)
          .
          (lambda ()
@@ -124,7 +114,6 @@
         "rg -i -M 120 --no-heading --line-number --color never '%s' %s")
   (with-eval-after-load 'ivy
     (require 'counsel)
-    (require 'vesie)
     (require 'dumb-jump))
   :bind (("C-x C-f" . counsel-find-file)
          ("M-x"     . (lambda () (interactive)
@@ -250,11 +239,11 @@
 
 (use-package init-tools
   :ensure nil
-  :commands (zerolee-eshell zerolee-find-file zerolee-compile
-                            zerolee-rg zerolee-go zerolee-open-with
-                            zerolee-delete-window zerolee-goto-last-edit))
+  :commands
+  (zerolee-eshell zerolee-find-file zerolee-compile zerolee-rg
+                  zerolee-go zerolee-open-with zerolee-delete-window))
 
 (use-package magit :defer t)
 
-(provide 'extensions)
-;;; extensions.el ends here
+(provide 'init-extensions)
+;;; init-extensions.el ends here

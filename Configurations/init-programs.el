@@ -1,4 +1,4 @@
-;;; programs.el --- 编程相关的一些配置 -*- lexical-binding: t; -*-
+;;; init-programs.el --- 编程相关的一些配置 -*- lexical-binding: t; -*-
 ;;; Commentary:
 
 ;;; Code:
@@ -233,6 +233,7 @@
 ;;; eglot
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package eglot
+  :ensure nil
   :bind (:map eglot-mode-map
               ("S-<f2>" . eglot-rename)
               ("M-." . xref-find-definitions)
@@ -361,7 +362,6 @@
 (defun zerolee-regenerate-ctags (&optional arg)
   "生成相应的 tags 文件，传入参数时设置生成 tags 文件的目录."
   (interactive "P")
-  (require 'citre-util)
   ;; 计算出当前 buffer 所使用的语言，然后将其跟命令合并.
   (unless zerolee-ctags-command
     (setq-local zerolee-ctags-command
@@ -404,7 +404,6 @@
 (defun zerolee--tags-config (&optional create)
   "用来配置代码变量、函数的跳转."
   (add-hook 'xref-backend-functions #'dumb-jump-xref-activate nil t)
-  (require 'citre-util)
   (when (or (citre-tags-file-path) create)
     (add-hook 'xref-backend-functions #'citre-xref-backend nil t)
     (add-hook 'completion-at-point-functions
@@ -458,5 +457,5 @@
 
 (use-package go-mode)
 
-(provide 'programs)
-;;; programs.el ends here
+(provide 'init-programs)
+;;; init-programs.el ends here

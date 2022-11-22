@@ -36,12 +36,6 @@
   "存放 playlist 的地方")
 (defvar zerolee--emms-switched-buffer nil
   "存储切换记录的变量")
-(defvar zerolee--emms-loop-point-A nil
-  "A-B loop points 的起始时间")
-(defvar zerolee--emms-loop-point-B nil
-  "A-B loop points 的终止时间")
-(defvar zerolee--emms-loop-point-A-B-timer nil
-  "A-B loop points 相关定时器")
 (defvar zerolee--emms-hash-pls (make-hash-table :test #'equal :size 130)
   "将 pls 文件里的 title 和 file 存储在 hash-table 中")
 
@@ -137,64 +131,6 @@
          (interactive)
          (switch-to-buffer emms-playlist-buffer)
          (setq emms-playlist-buffer-name (buffer-name))))
-  ("o" (lambda ()
-         "Set/clear A-B loop points.
-
-         执行第一次时设置变量 `zerolee--emms-loop-point-A'
-         执行第二次时重复设置一个定时器，以便 track 可以在 A-B 之间循环
-         执行第三次时取消定时器，清空变量"
-         (interactive)
-         (if zerolee--emms-loop-point-A
-             (if zerolee--emms-loop-point-A-B-timer
-                 (progn
-                   (cancel-timer zerolee--emms-loop-point-A-B-timer)
-                   (setq zerolee--emms-loop-point-A nil)
-                   (setq zerolee--emms-loop-point-B nil)
-                   (setq zerolee--emms-loop-point-A-B-timer nil))
-               (setq zerolee--emms-loop-point-B emms-playing-time)
-               (setq zerolee--emms-loop-point-A-B-timer
-                     (run-with-timer 0
-                                     (- emms-playing-time zerolee--emms-loop-point-A)
-                                     #'emms-seek-to zerolee--emms-loop-point-A)))
-           (setq zerolee--emms-loop-point-A emms-playing-time))))
-  ("O" (lambda ()
-         "剪切 A-B 之间的 track
-
-         设置了 A-B loop points 后会调用 ffmpeg 剪切 A-B 之间的 track
-         若是在只设定了 A 的情况下剪切 track 会清空 `zerolee--emms-loop-point-A'"
-         (interactive)
-         (when zerolee--emms-loop-point-A
-           ;; 获取当前节点时间然后，然后调用剪辑，清除 `zerolee--emms-loop-point-A'
-           ;; 和 `zerolee--emms-loop-point-B'
-           ;; 剪辑成功后暂停当前正在运行的程序，然后打开相应的 track
-           (unless zerolee--emms-loop-point-B
-             (setq zerolee--emms-loop-point-B emms-playing-time))
-           (let* ((track-name (emms-track-get (emms-playlist-track-at) 'name))
-                  (track-name-ext (file-name-extension track-name))
-                  command)
-             (if (member track-name-ext '("mp3" "MP3" "wma" "flac" "ape" "aac"))
-                 (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
-                                     "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
-                                     "-i" track-name "-acodec" "copy"
-                                     (concat "/tmp/" (number-to-string zerolee--emms-loop-point-A)
-                                             "." track-name-ext)))
-               (setq command (list "ffmpeg" "-ss" (number-to-string zerolee--emms-loop-point-A)
-                                   "-t" (number-to-string (- zerolee--emms-loop-point-B zerolee--emms-loop-point-A))
-                                   "-i" track-name "-c:v" "libx264" "-c:a" "aac"
-                                   "-strict" "experimental" "-b:a" "98k"
-                                   (concat "/tmp/" (number-to-string zerolee--emms-loop-point-A)
-                                           "." track-name-ext))))
-             (make-process
-              :name "ffmpeg"
-              :buffer "*ffmpeg*"
-              :command command
-              :noquery t
-              :sentinel (lambda (proc _)
-                          (when (eq 'exit (process-status proc))
-                            (shell-command (concat "mpv /tmp/" (number-to-string zerolee--emms-loop-point-A)
-                                                   "." track-name-ext))))))
-           (unless zerolee--emms-loop-point-A-B-timer
-             (setq zerolee--emms-loop-point-B nil)))))
   ("R" (lambda ()
          "重新载入播放列表"
          (interactive)

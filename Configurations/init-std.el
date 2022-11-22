@@ -1,4 +1,4 @@
-;;; emacs-std.el --- Emacs 的一些基础配置-*- lexical-binding: t; -*-
+;;; init-std.el --- Emacs 的一些基础配置-*- lexical-binding: t; -*-
 ;;; Commentary:
 
 ;;; Code:
@@ -166,5 +166,5 @@
   (remember-data-file "~/.emacs.d/notes.org")
   :bind ("<C-f5>" . remember))
 
-(provide 'emacs-std)
-;;; emacs-std.el ends here
+(provide 'init-std)
+;;; init-std.el ends here

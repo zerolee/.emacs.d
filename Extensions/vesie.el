@@ -18,6 +18,7 @@
 ;;; Code:
 (require 'thunk)
 (require 'treesit)
+(require 'zerolee-lib)
 
 (defgroup vesie-face nil
   "类 vim 模式的的 emacs 按键风格"
@@ -117,7 +118,17 @@
     (zerolee-ime-disable))
   (overwrite-mode 0))
 
-(zerolee-set-key vesie-mode-map
+(zerolee-set-key
+  ("<escape>" (lambda () (interactive) (vesie-mode 1)))
+  ("C-w" (lambda () (interactive)
+           (if (use-region-p)
+               (kill-region (region-beginning) (region-end))
+             (vesie-ckm "c"))))
+  ("M-w" (lambda () (interactive)
+           (if (use-region-p)
+               (kill-ring-save (region-beginning) (region-end))
+             (vesie-ckm "m"))))
+  vesie-mode-map
   ("a" #'beginning-of-line)
   ("C-a" (lambda () (interactive) (beginning-of-line) (vesie-mode 0)))
   ("b" #'backward-char)

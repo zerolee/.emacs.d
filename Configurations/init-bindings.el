@@ -1,4 +1,4 @@
-;;; bindings.el --- 按键绑定相关 -*- lexical-binding: t; -*-
+;;; init-bindings.el --- 按键绑定相关 -*- lexical-binding: t; -*-
 ;;; Commentary:
 
 ;;; Code:
@@ -30,7 +30,6 @@
   ("C-M-%" #'query-replace)
   ("C-M-]" #'up-list)
   ("s-SPC" #'hippie-expand)
-  ("C-." #'zerolee-goto-last-edit)
   ("C-j" #'newline-and-indent)
   ("s-r" #'undo-redo)
   ("C-c a" #'org-agenda)
@@ -55,6 +54,10 @@
   ("S-<right>" #'enlarge-window-horizontally)
   ("M-<SPC>" (lambda () (interactive) (zerolee-ime-disable) (transient/my-menu)))
   ([key-chord ?d ?f] (lambda () (interactive) (vesie-mode 1)))
+  ("C-." (lambda () (interactive)
+           (when (and buffer-undo-list (listp buffer-undo-list))
+             (xref-push-marker-stack)
+             (goto-char (or (last (cadr buffer-undo-list) 0) (point))))))
   lisp-interaction-mode-map
   emacs-lisp-mode-map
   ("C-c <return>" #'emacs-lisp-macroexpand))
@@ -88,5 +91,5 @@
                      (delete-windows-on buffer)
                    (flymake-show-buffer-diagnostics)))))))
 
-(provide 'bindings)
-;;; bindings.el ends here
+(provide 'init-bindings)
+;;; init-bindings.el ends here

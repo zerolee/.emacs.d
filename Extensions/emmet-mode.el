@@ -97,6 +97,9 @@
     (maphash (lambda (k v) (setq vs (cons v vs))) hash)
     vs))
 
+(defun emmet-jsx-prop-value-var? (prop-value)
+  (string-match "{.+}" prop-value))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Generic parsing macros and utilities
 
@@ -245,6 +248,22 @@ e. g. without semicolons")
     less-css-mode)
   "Major modes that use emmet for CSS, rather than HTML.")
 
+(defvar emmet-fallback-filter '("html")
+  "Fallback filter for `emmet-default-filter', if none is found.")
+
+(defvar emmet-file-filter nil
+  "File local filter used by `emmet-default-filter'.")
+(make-variable-buffer-local 'emmet-file-filter)
+
+(defvar emmet-jsx-major-modes
+  '(rjsx-mode
+    typescript-tsx-mode
+    js-jsx-mode
+    js2-jsx-mode
+    jsx-mode
+    js-mode)
+  "Which modes to check before using jsx class expansion")
+
 (defun emmet-transform (input)
   (if (or (memq major-mode emmet-css-major-modes) (emmet-detect-style-tag-and-attr))
       (emmet-css-transform input)
@@ -254,7 +273,7 @@ e. g. without semicolons")
   (let* ((style-attr-end "[^=][\"']")
          (style-attr-begin "style=[\"']")
          (style-tag-end "</style>")
-         (style-tag-begin "<style>"))
+         (style-tag-begin "<style.*>"))
     (and emmet-use-style-tag-and-attr-detection
          (or
           (emmet-check-if-between style-attr-begin style-attr-end) ; style attr
@@ -540,7 +559,7 @@ or enable `emmet-preview-mode'."
            (text (nth 0 expr))
            (beg (nth 1 expr))
            (end (nth 2 expr)))
-      (let ((wap (word-at-point)))
+      (let ((wap (thing-at-point 'word 'no-properties)))
         (when (and (not (equal wap text))
                    (emmet-transform text))
           (emmet-preview beg end))))))
@@ -3061,7 +3080,7 @@ See `emmet-preview-online'."
 
 (defun emmet-expr (input)
   "Parse a zen coding expression with optional filters."
-  (emmet-pif (emmet-parse "\\(.*?\\)|" 2 "expr|filter" it)
+  (emmet-pif (emmet-extract-expr-filters input)
              (let ((input (elt it 1))
                    (filters (elt it 2)))
                (emmet-pif (emmet-extract-filters filters)
@@ -3085,6 +3104,18 @@ See `emmet-preview-online'."
                                                                     it
                                                                     '(error "no match, expecting ( or a-zA-Z0-9"))))))))
 
+(defun emmet-extract-expr-filters (input)
+  (cl-flet ((string-match-reverse (str regexp)
+              (emmet-aif (string-match regexp (reverse str)) (- (length str) 1 it))))
+    (let ((err '(error "expected expr|filter")))
+      (emmet-aif (string-match-reverse input "|")
+                 (if (string-match "[\"}]" (substring input (+ it 1)))
+                     err
+                   `(,input
+                     ,(substring input 0 it)
+                     ,(substring input (+ it 1))))
+                 err))))
+
 (defun emmet-extract-filters (input)
   "Extract filters from expression."
   (emmet-pif (emmet-parse "\\([^\\|]+?\\)|" 2 "" it)
@@ -3094,6 +3125,32 @@ See `emmet-preview-online'."
                           (cons filter-name it)
                           it))
              (emmet-parse "\\([^\\|]+\\)" 1 "filter name" `(,(elt it 1)))))
+
+(defun emmet-extract-inner-text (input)
+  "Extract inner-text in the form of {inner_text}...
+Right curly braces can be escaped by backslash, i.e. '\\}'
+Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
+`(error ,error-message)"
+  (cl-labels (
+              (string-find-paired-right-curly-brace
+                (str)
+                (cl-labels ((char-at-pos (str pos) (string-to-char (substring str pos)))
+                            (helper (str pos cnt)
+                              (let ((len (length str)))
+                                (if (>= pos len) nil
+                                  (let ((c (char-at-pos str pos)))
+                                    (cond ((char-equal c ?{) (setq cnt (+ cnt 1)))
+                                          ((and (char-equal c ?}) (not (char-equal (char-at-pos str (- pos 1)) ?\\))) (setq cnt (- cnt 1))))
+                                    (if (= cnt 0) pos (helper str (+ pos 1) cnt)))))
+                              ))
+                  (helper str 0 0))))
+    (let ((err '(error "expected inner text")))
+      (if (or (< (length input) 2) (not (char-equal (string-to-char input) ?{))) err
+        (emmet-aif (string-find-paired-right-curly-brace input)
+                   `(,input
+                     ,(substring input 1 it)
+                     ,(substring input (+ it 1)))
+                   err)))))
 
 (defun emmet-filter (input filters)
   "Construct AST with specified filters."
@@ -3105,16 +3162,18 @@ See `emmet-preview-online'."
 
 (defun emmet-default-filter ()
   "Default filter(s) to be used if none is specified."
-  (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
-         (defaults '(".html" ("html")
-                     ".htm"  ("html")
-                     ".haml" ("haml")
-                     ".clj"  ("hic")))
-         (default-else      '("html"))
-         (selected-default (member file-ext defaults)))
-    (if selected-default
-        (cadr selected-default)
-      default-else)))
+  (or emmet-file-filter
+      (let* ((file-ext (car (emmet-regex ".*\\(\\..*\\)" (or (buffer-file-name) "") 1)))
+             (defaults '(".html" ("html")
+                         ".htm"  ("html")
+                         ".haml" ("haml")
+                         ".clj"  ("hic")
+                         ".cljs" ("hic")))
+             (default-else emmet-fallback-filter)
+             (selected-default (member file-ext defaults)))
+        (if selected-default
+            (cadr selected-default)
+          default-else))))
 
 (defun emmet-numbering (input)
   (emmet-parse
@@ -3123,7 +3182,7 @@ See `emmet-preview-online'."
      (emmet-pif (emmet-parse
                  "@\\([0-9-][0-9]*\\)" 2 "numbering args"
                  (let* ((args (read (elt it 1)))
-                        (direction  (not (or (eq '- args) (cl-minusp args))))
+                        (direction  (not (or (eq '- args) (minusp args))))
                         (base       (if (eq '- args) 1 (abs args))))
                    `((n ,(length doller) ,direction ,base) . ,input)))
                 it
@@ -3319,11 +3378,23 @@ See `emmet-preview-online'."
                                 (input (elt it 2)))
                             `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
              it
-             (emmet-parse "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
-                          "=property value"
-                          (let ((value (elt it 1))
-                                (input (elt it 2)))
-                            `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))))
+             (let ((emmet--prop-value-parse-any
+                    (lambda () (emmet-parse
+                                "=\\([^\\,\\+\\>\\{\\}\\ )]*\\)" 2
+                                "=property value"
+                                (let ((value (elt it 1))
+                                      (input (elt it 2)))
+                                  `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input))))))
+               (if (emmet-jsx-supported-mode?)
+                   (emmet-pif
+                    (emmet-parse "=\\({.*?}\\)" 2
+                                 "=\"property value\""
+                                 (let ((value (elt it 1))
+                                       (input (elt it 2)))
+                                   `((,(read name) ,(emmet-split-numbering-expressions value)) . ,input)))
+                    it
+                    (funcall emmet--prop-value-parse-any))
+                 (funcall emmet--prop-value-parse-any)))))
 
 (defun emmet-tag-classes (tag input)
   (let ((tag-data (cadr tag)))
@@ -3344,12 +3415,23 @@ See `emmet-preview-online'."
 
 (defun emmet-text (input)
   "A zen coding expression innertext."
-  (emmet-parse "{\\(\\(?:\\\\.\\|[^\\\\}]\\)*?\\)}" 2 "inner text"
-               (let ((txt (emmet-split-numbering-expressions (elt it 1))))
-                 (if (listp txt)
-                     (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
-                   (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
-                 `((text ,txt) . ,input))))
+  (emmet-pif (emmet-extract-inner-text input)
+             (let ((txt (emmet-split-numbering-expressions (elt it 1))))
+               (if (listp txt)
+                   (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
+                 (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
+               `((text ,txt) . ,(elt it 2)))
+             '(error "expected inner text")))
+
+;; (defun emmet-text (input)
+;;   "A zen coding expression innertext."
+;;   (emmet-parse "{\\(\\(?:\\\\.\\|[^\\\\}]\\|\\\\}\\)*?\\)}" 2 "inner text"
+;;                (let ((txt (emmet-split-numbering-expressions (elt it 1))))
+;;                  (if (listp txt)
+;;                      (setq txt (cons (car txt) (cons (replace-regexp-in-string "\\\\\\(.\\)" "\\1" (cadr txt)) (cddr txt))))
+;;                    (setq txt (replace-regexp-in-string "\\\\\\(.\\)" "\\1" txt)))
+;;                  `((text ,txt) . ,input))
+;;                '(error "expected inner text")))
 
 (defun emmet-properties (input)
   "A bracketed emmet property expression."
@@ -3481,8 +3563,8 @@ See `emmet-preview-online'."
   "Function to execute when expanding a leaf node in the
   Emmet AST.")
 
-(defvar emmet-expand-jsx-className? nil
-  "Wether to use `className' when expanding `.classes'")
+(defvar emmet-jsx-className-braces? nil
+  "Wether to wrap classNames in {} instead of \"\"")
 
 (emmet-defparameter
  emmet-tag-settings-table
@@ -3594,6 +3676,10 @@ See `emmet-preview-online'."
                    contents))))))
       (eval (iter lines 'a nil nil)))))
 
+(defun emmet-jsx-supported-mode? ()
+  "Is the current mode we're on enabled for jsx class attribute expansion?"
+  (member major-mode emmet-jsx-major-modes))
+
 (defun emmet-make-html-tag (tag-name tag-has-body? tag-id tag-classes tag-props tag-txt settings content)
   "Create HTML markup string"
   (emmet-aif
@@ -3607,8 +3693,14 @@ See `emmet-preview-online'."
        (puthash tag-name fn emmet-tag-snippets-table)))
 
    (let* ((id           (emmet-concat-or-empty " id=\"" tag-id "\""))
-          (class-attr  (if emmet-expand-jsx-className? " className=\"" " class=\""))
-          (classes      (emmet-mapconcat-or-empty class-attr tag-classes " " "\""))
+          (class-attr   (if (emmet-jsx-supported-mode?)
+                            (if emmet-jsx-className-braces?
+                                " className={"
+                              " className=\"")
+                          " class=\""))
+          (class-list-closer (if emmet-jsx-className-braces? "}" "\""))
+          (class-list-delimiter (if emmet-jsx-className-braces? "." " "))
+          (classes      (emmet-mapconcat-or-empty class-attr tag-classes class-list-delimiter class-list-closer))
           (props        (let* ((tag-props-default
                                 (and settings (gethash "defaultAttr" settings)))
                                (merged-tag-props
@@ -3618,12 +3710,23 @@ See `emmet-preview-online'."
                           (emmet-mapconcat-or-empty
                            " " merged-tag-props " " nil
                            (lambda (prop)
-                             (let* ((key (car prop))
-                                    (key (if (symbolp key) (symbol-name key) key))
-                                    (value (cadr prop)))
-                               (if value
-                                   (concat key "=\"" value "\"")
-                                 key))))))
+                             (let* ((key-raw (car prop))
+                                    (key-str
+                                     (if (symbolp key-raw)
+                                         (symbol-name key-raw)
+                                       key-raw))
+                                    (key
+                                     (if (and (emmet-jsx-supported-mode?)
+                                              (string= key-str "for"))
+                                         "htmlFor"
+                                       key-str))
+                                    (val (cadr prop))
+                                    (format-string
+                                     (if (and (emmet-jsx-supported-mode?)
+                                              (emmet-jsx-prop-value-var? val))
+                                         "%s=%s"
+                                       "%s=\"%s\"")))
+                               (if val (format format-string key val) key))))))
           (content-multiline? (and content (string-match "\n" content)))
           (block-tag?         (and settings (gethash "block" settings)))
           (self-closing?      (and (not (or tag-txt content))
@@ -4111,53 +4214,53 @@ See `emmet-preview-online'."
 (defun emmet-css-transform-exprs (exprs)
   (emmet-join-string
    (mapcar
-    (lambda (expr)
-      (let*
-          ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
-           (basement
-            (emmet-aif
-             (or (gethash (car expr) hash-map) (gethash (car expr) emmet-css-snippets))
-             (let ((set it) (fn nil) (unitlessp nil))
-               (if (stringp set)
+    #'(lambda (expr)
+        (let*
+            ((hash-map (if emmet-use-sass-syntax emmet-sass-snippets emmet-css-snippets))
+             (basement
+              (emmet-aif
+               (or (gethash (car expr) hash-map) (gethash (car expr) emmet-css-snippets))
+               (let ((set it) (fn nil) (unitlessp nil))
+                 (if (stringp set)
+                     (progn
+                       ;; new pattern
+                       ;; creating print function
+                       (setf fn (emmet-css-instantiate-lambda set))
+                       ;; get unitless or no
+                       (setf unitlessp
+                             (not (null (string-match
+                                         emmet-css-unitless-properties-regex set))))
+                       ;; caching
+                       (puthash (car expr) (cons fn unitlessp) hash-map))
                    (progn
-                     ;; new pattern
-                     ;; creating print function
-                     (setf fn (emmet-css-instantiate-lambda set))
-                     ;; get unitless or no
-                     (setf unitlessp
-                           (not (null (string-match
-                                       emmet-css-unitless-properties-regex set))))
-                     ;; caching
-                     (puthash (car expr) (cons fn unitlessp) hash-map))
-                 (progn
-                   ;; cache hit.
-                   (setf fn (car set))
-                   (setf unitlessp (cdr set))))
-               (apply fn
-                      (mapcar
-                       (lambda (arg)
-                         (if (listp arg)
-                             (if unitlessp (car arg)
-                               (apply #'concat arg))
-                           arg))
-                       (cdddr expr))))
-             (concat (car expr) ": "
-                     (emmet-join-string
-                      (mapcar (lambda (arg)
-                                (if (listp arg) (apply #'concat arg) arg))
-                              (cdddr expr)) " ")
-                     ";"))))
-        (let ((line
-               (if (caddr expr)
-                   (concat (cl-subseq basement 0 -1) " !important;")
-                 basement)))
-          ;; remove trailing semicolon while editing Sass files
-          (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
-              (setq line (cl-subseq line 0 -1)))
-          (emmet-aif
-           (cadr expr)
-           (emmet-css-transform-vendor-prefixes line it)
-           line))))
+                     ;; cache hit.
+                     (setf fn (car set))
+                     (setf unitlessp (cdr set))))
+                 (apply fn
+                        (mapcar
+                         #'(lambda (arg)
+                             (if (listp arg)
+                                 (if unitlessp (car arg)
+                                   (apply #'concat arg))
+                               arg))
+                         (cdddr expr))))
+               (concat (car expr) ": "
+                       (emmet-join-string
+                        (mapcar #'(lambda (arg)
+                                    (if (listp arg) (apply #'concat arg) arg))
+                                (cdddr expr)) " ")
+                       ";"))))
+          (let ((line
+                 (if (caddr expr)
+                     (concat (cl-subseq basement 0 -1) " !important;")
+                   basement)))
+            ;; remove trailing semicolon while editing Sass files
+            (if (and emmet-use-sass-syntax (equal ";" (cl-subseq line -1)))
+                (setq line (cl-subseq line 0 -1)))
+            (emmet-aif
+             (cadr expr)
+             (emmet-css-transform-vendor-prefixes line it)
+             line))))
     exprs)
    "\n"))
 

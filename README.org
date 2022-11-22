@@ -6,13 +6,13 @@
   在一些图形元素(比如 tool-bar)加载、包管理初始化之前启动
 * Configurations
   该文件夹下存放 Emacs 的配置文件
-** bindings.el
+** init-bindings.el
    绑定快捷键
-** emacs-std.el
+** init-std.el
    对 Emacs 自带的插件以及功能进行设置
-** extensions.el
+** init-extensions.el
    编程语言无关的扩展的配置
-** programs.el
+** init-programs.el
    编程语言相关的配置
 ** init-macros.el
    保存一些键盘宏
