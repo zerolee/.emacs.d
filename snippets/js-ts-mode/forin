@@ -1,0 +1,6 @@
+# -*- mode: snippet -*-
+# name: forin (key in array)
+# --
+for (let ${1:key} in ${2:array}) {
+    $0
+}

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: case (switch...case)
+# condition: (looking-at "[\n]\\(case\\|default\\)")
+# --
+case $1:
+     $2
+     break;$0

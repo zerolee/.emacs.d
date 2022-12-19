@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: clearTimeout(variable)
+# key: clear
+# --
+clearTimeout($1);

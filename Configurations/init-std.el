@@ -158,6 +158,16 @@
   "关闭输入法."
   (call-process "fcitx5-remote" nil nil nil "-c"))
 
+;;; 默认 major-mode 配置
+(setq major-mode-remap-alist
+      '((python-mode . python-ts-mode)
+	(js-json-mode . json-ts-mode)
+	(javascript-mode . js-ts-mode)
+	(css-mode . css-ts-mode)
+	(c++-mode . c++-ts-mode)
+	(c-mode . c-ts-mode)
+	(sh-mode . bash-ts-mode)))
+
 
 ;;; remember
 (use-package remember
