@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: setter
+# key: set
+# --
+set${1: fn}(${2:value}) {
+    $0
+}

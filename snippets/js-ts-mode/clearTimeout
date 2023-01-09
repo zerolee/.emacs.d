@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: clearTimeout(variable)
-# key: clear
+# name: clearTimeout(timerId)
+# key: clearT
 # --
-clearTimeout($1);
+clearTimeout($0)${1:;}

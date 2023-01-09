@@ -242,6 +242,7 @@ e. g. without semicolons")
 
 (defvar emmet-css-major-modes
   '(css-mode
+    css-ts-mode
     scss-mode
     sass-mode
     less-mode
@@ -387,10 +388,8 @@ See also `emmet-expand-line'."
           (delete-region (cl-second expr) (cl-third expr))
           (insert filled)
           (indent-region (cl-second expr) (point))
-          (if (fboundp 'yas/expand-snippet)
-              (yas/expand-snippet
-               (buffer-substring (cl-second expr) (point))
-               (cl-second expr) (point)))))))
+          (yas-expand-snippet (buffer-substring (cl-second expr) (point))
+                              (cl-second expr) (point))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Real-time preview
@@ -3089,7 +3088,8 @@ See `emmet-preview-online'."
              (emmet-filter input (emmet-default-filter))))
 
 (defun emmet-subexpr (input)
-  "Parse a zen coding expression with no filter. This pretty much defines precedence."
+  "Parse a zen coding expression with no filter.
+This pretty much defines precedence."
   (emmet-run emmet-siblings
              it
              (emmet-run emmet-parent-child
@@ -3182,7 +3182,7 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
      (emmet-pif (emmet-parse
                  "@\\([0-9-][0-9]*\\)" 2 "numbering args"
                  (let* ((args (read (elt it 1)))
-                        (direction  (not (or (eq '- args) (minusp args))))
+                        (direction  (not (or (eq '- args) (cl-minusp args))))
                         (base       (if (eq '- args) 1 (abs args))))
                    `((n ,(length doller) ,direction ,base) . ,input)))
                 it
@@ -3591,7 +3591,8 @@ Return `(,inner-text ,input-without-inner-text) if succeeds, otherwise return
         input)))
 
 (defun emmet-primary-filter (input proc)
-  "Process filter that needs to be executed first, ie. not given output from other filter."
+  "Process filter that needs to be executed first, ie.
+not given output from other filter."
   (if (listp input)
       (let ((tag-maker (cadr proc)))
         (emmet-transform-ast

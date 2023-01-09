@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: getter
+# key: get
+# --
+get${1:fn}() {
+  $0
+}

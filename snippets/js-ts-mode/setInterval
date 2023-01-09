@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: setInterval(func|code, [delay], [arg1], [arg2, ...])
+# key: setI
+# --
+setInterval($2, $0)${1:;}

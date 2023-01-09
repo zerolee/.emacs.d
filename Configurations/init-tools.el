@@ -87,7 +87,9 @@
            ('java-mode `(".class" ,(zerolee--get-java-package-name) "java "))
            ('c-mode `("" "" "./"))
            ('js-mode `("" "scripts/" ""))
-           ('css-mode `("" "styles/" "")))))
+           ('css-mode `("" "styles/" ""))
+           ('js-ts-mode `("" "scripts/" ""))
+           ('css-ts-mode `("" "styles/" "")))))
 
 (defun zerolee--get-project-root ()
   "获取关联项目的 root."

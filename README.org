@@ -45,5 +45,8 @@
 ** flee.el
    在书写 Lisp 的时候，总有一些想要跳出的地方，比如 docing, 比如
    let 的 bind 的部分，比如 cond 的某一个子表达式……
+** etyma.el
+   主要是用来记忆词根的，词根存储在 .emacs.d 目录下的 etyma 文件中，
+   etyma 文件为二进制的 sqlite 文件
 * snippets
   yasnippet 使用的模板文件

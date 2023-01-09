@@ -1,5 +1,5 @@
 # -*- mode: snippet -*-
-# name: setTimeout("function", interval)
-# key: set
+# name: setTimeout(func|code, [delay], [arg1], [arg2], ...)
+# key: setT
 # --
-setTimeout("$1", $2);
+setTimeout($2, $0)${1:;}

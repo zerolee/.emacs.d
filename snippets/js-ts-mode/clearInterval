@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: clearInterval(timerId)
+# key: clearI
+# --
+clearInterval($0)${1:;}

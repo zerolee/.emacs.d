@@ -41,7 +41,7 @@
 (use-package emmet-mode
   :ensure nil
   :diminish emmet-mode
-  :hook (sgml-mode css-mode)
+  :hook (sgml-mode css-mode css-ts-mode html-ts-mode)
   :bind (:map emmet-mode-keymap
               ("C-c e p" . emmet-prev-edit-point)
               ("C-c e n" . emmet-next-edit-point)
@@ -213,7 +213,6 @@
   (zerolee-set-key js-mode-map
     ([remap eval-last-sexp] #'js-comint-send-last-sexp)
     ("C-M-x" 'js-eval-current-defun))
-
   :commands (js-eval-last-sexp js-eval-current-defun))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -266,11 +265,6 @@
          ("\\.md\\'" . markdown-mode)
          ("\\.markdown\\'" . markdown-mode))
   :init (setq markdown-command "pandoc"))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; cmake-mode
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package cmake-mode)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; dumb-jump
@@ -454,8 +448,6 @@
     (let ((value (thing-at-point 'symbol t)))
       (lua-send-string (format "=type(%s)" value))
       (run-at-time 0.005 nil #'lua-inspect-helper value))))
-
-(use-package go-mode)
 
 (provide 'init-programs)
 ;;; init-programs.el ends here

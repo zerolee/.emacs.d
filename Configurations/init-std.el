@@ -161,12 +161,18 @@
 ;;; 默认 major-mode 配置
 (setq major-mode-remap-alist
       '((python-mode . python-ts-mode)
-	(js-json-mode . json-ts-mode)
-	(javascript-mode . js-ts-mode)
-	(css-mode . css-ts-mode)
-	(c++-mode . c++-ts-mode)
-	(c-mode . c-ts-mode)
-	(sh-mode . bash-ts-mode)))
+        (js-json-mode . json-ts-mode)
+        (javascript-mode . js-ts-mode)
+        (css-mode . css-ts-mode)
+        (c++-mode . c++-ts-mode)
+        (c-mode . c-ts-mode)
+        (sh-mode . bash-ts-mode)
+        (csharp-mode . csharp-ts-mode)
+        (ruby-mode . ruby-ts-mode)
+        (java-mode . java-ts-mode)))
+
+(add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-ts-mode))
+(add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
 
 
 ;;; remember
