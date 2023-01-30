@@ -171,8 +171,13 @@
         (ruby-mode . ruby-ts-mode)
         (java-mode . java-ts-mode)))
 
-(add-to-list 'auto-mode-alist '("CMakeLists\\.txt\\'" . cmake-ts-mode))
-(add-to-list 'auto-mode-alist '("\\.cmake\\'" . cmake-ts-mode))
+(setq auto-mode-alist
+      (append '(("\\(?:CMakeLists\\.txt\\|\\.cmake\\)\\'" . cmake-ts-mode)
+                ("\\.ya?ml\\'" . yaml-ts-mode)
+                ("\\.ts\\'" . typescript-ts-mode)
+                ("\\.tsx\\'" . tsx-ts-mode)
+                ("\\.rs\\'" . rust-ts-mode))
+              auto-mode-alist))
 
 
 ;;; remember

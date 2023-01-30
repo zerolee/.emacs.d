@@ -210,7 +210,7 @@
   :ensure nil
   :diminish js-comint
   :config
-  (zerolee-set-key js-mode-map
+  (zerolee-set-key js-mode-map js-ts-mode-map
     ([remap eval-last-sexp] #'js-comint-send-last-sexp)
     ("C-M-x" 'js-eval-current-defun))
   :commands (js-eval-last-sexp js-eval-current-defun))

@@ -105,5 +105,24 @@ example_explain text)"))
       (setf etyma-random-id (1+ (random (1- etyma-next-id))))
       (take 2 (car (etyma-select (format "id=%s" etyma-random-id)))))))
 
+;;; 保存为 JSON 文件
+(defun etyma-write-to-json (filename)
+  "将 sqlite 中的数据以 json 的形式存储在文件中."
+  (with-temp-buffer
+    (insert "[")
+    (dolist (etyma (etyma-select "1=1"))
+      (insert
+       (format "{\"id\":\"%s\",\"name\":\"%s\",\"value\":\"%s\",\"example\":{\"name\":\"%s\",\"value\":\"%s\"},\"belong\":\"%s\"},"
+               (cl-first etyma)
+               (cl-second etyma)
+               (string-replace "\"" "'" (cl-third etyma))
+               (cl-fourth etyma)
+               (string-replace "\"" "'" (cl-fifth etyma))
+               (cl-sixth etyma))))
+    (when (char-equal (char-before) ?,)
+      (delete-char -1))
+    (insert "]")
+    (write-region nil nil filename)))
+
 (provide 'etyma)
 ;;; etyma.el ends here

@@ -171,7 +171,7 @@ NUM 为 4 强制当前目录打开 eshell."
            (et (gethash default-directory zerolee--eshell-path-hashtable))
            (max (gethash "max" zerolee--eshell-path-hashtable))
            (app (when (buffer-file-name) (zerolee--get-run-app))))
-      (cond ((eq major-mode 'js-mode)
+      (cond ((memq major-mode '(js-mode js-ts-mode))
              (progn
                (require 'js-comint)
                (zerolee--open-repl "*Javascript REPL" #'run-js num
