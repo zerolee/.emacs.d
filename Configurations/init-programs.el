@@ -261,9 +261,7 @@
 ;;; markdown-mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package markdown-mode
-  :mode (("README\\.md\\'" . gfm-mode)
-         ("\\.md\\'" . markdown-mode)
-         ("\\.markdown\\'" . markdown-mode))
+  :mode ("README\\.md\\'" . gfm-mode)
   :init (setq markdown-command "pandoc"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -411,7 +409,8 @@
 (add-hook 'prog-mode-hook
           (lambda ()
             (when (not (derived-mode-p 'lisp-data-mode))
-              (zerolee--tags-config))))
+              (zerolee--tags-config))
+            (setq forward-sexp-function nil)))
 
 (add-hook 'sgml-mode-hook #'zerolee--tags-config)
 
