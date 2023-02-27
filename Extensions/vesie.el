@@ -41,6 +41,26 @@
     (beginning-of-defun)
     (parse-partial-sexp (point) point)))
 
+(defsubst vesie--get-attribute-or-element ()
+  (treesit-parser-create 'html)
+  (treesit-parent-until
+   (treesit-node-at (point))
+   (lambda (parent)
+     (member (treesit-node-type parent)
+             '("attribute" "doctype" "element" "script_element" "style_element")))))
+
+(defun vesie--L-dwim (N)
+  "docstring"
+  (interactive "p")
+  (let* ((nearest (vesie--get-attribute-or-element))
+         (type (treesit-node-type nearest)))
+    (while (> N 1)
+      (setq nearest (treesit-node-next-sibling nearest))
+      (when (string-equal (treesit-node-type nearest) type)
+        (cl-decf N)))
+    (goto-char (treesit-node-end nearest))))
+
+
 (defsubst vesie--get-html-node ()
   "返回所需要的 NODE."
   (treesit-parser-create 'html)
@@ -256,6 +276,11 @@
           (vesie--emacs-get #'forward-sexp "es")))
   ("el" (lambda () (interactive) (vesie--emacs-get (vesie--l-dwim 1) "el")))
   ("l" (lambda () (interactive) (vesie--emacs-get (vesie--l-dwim 0) "l")))
+  ("aL" (lambda () (interactive)
+          (treesit-parser-create 'html)
+          (goto-char (treesit-node-start (vesie--get-attribute-or-element)))
+          (vesie--emacs-get #'vesie--L-dwim "aL")))
+  ("L" (lambda () (interactive) (vesie--emacs-get #'vesie--L-dwim "L")))
   ("d" (lambda () (interactive)
          (beginning-of-thing 'defun) (vesie--emacs-get #'end-of-defun "d")))
   ("w" (lambda () (interactive) (vesie--emacs-get #'forward-word "w")))
