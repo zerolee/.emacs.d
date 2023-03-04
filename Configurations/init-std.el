@@ -53,7 +53,11 @@
       org-adapt-indentation t)          ;org 回车换行
 
 (add-hook 'org-mode-hook
-          (lambda () (setq truncate-lines nil)))
+          (lambda ()
+            (setq truncate-lines nil)
+            (setq-local indent-tabs-mode nil)
+            (zerolee-set-key org-mode-map
+              ("C-'" "C-," nil))))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")

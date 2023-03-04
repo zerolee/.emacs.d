@@ -244,6 +244,7 @@
                  (zerolee-help-doc eldoc--doc-buffer #'eldoc-doc-buffer))))
   :custom
   (eglot-events-buffer-size 0)
+  (eglot-report-progress nil)
   :hook ((eglot-managed-mode
           .
           (lambda ()
@@ -410,7 +411,8 @@
           (lambda ()
             (when (not (derived-mode-p 'lisp-data-mode))
               (zerolee--tags-config))
-            (setq forward-sexp-function nil)))
+            (setq forward-sexp-function nil)
+            (setq-local indent-tabs-mode nil)))
 
 (add-hook 'sgml-mode-hook #'zerolee--tags-config)
 
