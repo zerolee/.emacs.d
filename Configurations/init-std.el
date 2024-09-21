@@ -12,6 +12,14 @@
 ;; 关掉开机信息
 (setq inhibit-startup-message t)
 
+;;; bidi 对编辑超大文件影响太大，所以这里进行修改
+;;; 方案来源：https://emacs-china.org/t/topic/25811/9
+(setq-default bidi-display-reordering nil)
+(setq bidi-inhibit-bpa t
+      long-line-threshold 1000
+      large-hscroll-threshold 1000
+      syntax-wholeline-max 1000)
+
 (setq column-number-mode t)
 
 
