@@ -165,10 +165,14 @@
 ;;; 开关输入法
 (defun zerolee-ime-enable ()
   "启用输入法."
-  (call-process "fcitx5-remote" nil nil nil "-o"))
+  (if (eq system-type 'gnu/linux)
+    (call-process "fcitx5-remote" nil nil nil "-o")
+    (w32-set-ime-open-status t)))
 (defun zerolee-ime-disable ()
   "关闭输入法."
-  (call-process "fcitx5-remote" nil nil nil "-c"))
+  (if (eq system-type 'gnu/linux)
+    (call-process "fcitx5-remote" nil nil nil "-c")
+    (w32-set-ime-open-status nil)))
 
 ;;; 默认 major-mode 配置
 (setq major-mode-remap-alist
