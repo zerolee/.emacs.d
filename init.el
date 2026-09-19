@@ -9,7 +9,6 @@
 (setq custom-file "~/.emacs.d/Configurations/custom.el")
 (require 'use-package)
 (setq use-package-always-ensure t)
-(use-package diminish)
 
 (require 'zerolee-lib)
 (require 'init-std)

@@ -2,6 +2,10 @@
 ;;; Commentary:
 
 ;;; Code:
+(use-package diminish)
+
+(use-package ghostel)
+
 (use-package save-position
   :ensure nil
   :bind (("s-." . sp-push-position-to-ring)
@@ -163,7 +167,7 @@
   (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
     "Enable yasnippet but disable it inline."
     (if (eq command 'prefix)
-        (when-let ((prefix (funcall fun 'prefix))
+        (when-let* ((prefix (funcall fun 'prefix))
                    (ppss (syntax-ppss)))
           (unless (or (memq (char-before (- (point) (length prefix)))
                             '(?. ?> ?\( ?\) ?{ ?} ?\" ?' ?`))

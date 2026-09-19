@@ -260,7 +260,7 @@ NUM 为 4 强制当前目录打开 eshell."
   (interactive)
   (require 'ffap)
   (if (nth 3 (syntax-ppss))
-      (if-let ((filename (ffap-file-at-point)))
+      (if-let* ((filename (ffap-file-at-point)))
           (find-file filename)
         (call-interactively #'ffap))
     (zerolee-rg (concat "\\b" (thing-at-point 'symbol t) "\\b")))

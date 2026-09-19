@@ -304,7 +304,7 @@
       (unless (eq (aref dir-local 0) ?/)
         (setf (aref dir-local 0) (upcase (aref dir-local 0))))
       (cons
-       (if-let ((remote-id (file-remote-p tagsfile)))
+       (if-let* ((remote-id (file-remote-p tagsfile)))
            (concat remote-id dir-local)
          dir-local)
        (pcase (aref dir-local 0)

@@ -62,7 +62,7 @@ let, let*, symbol-macrolet… 的单个 bind 部分."
   (when update
     (treesit-parser-delete (car (treesit-parser-list))))
   (treesit-parser-create 'elisp)
-  (if-let ((target (flee-get-target))
+  (if-let* ((target (flee-get-target))
            (sibling1 (treesit-node-text
                       (treesit-node-child target 1) t)))
       (if (and (member sibling1 flee-bind-list)
