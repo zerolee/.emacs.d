@@ -164,19 +164,19 @@
               ("M-/" . company-other-backend)
               ("C-s" . company-filter-candidates))
   :config
-  (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
-    "Enable yasnippet but disable it inline."
-    (if (eq command 'prefix)
-        (when-let* ((prefix (funcall fun 'prefix))
-                   (ppss (syntax-ppss)))
-          (unless (or (memq (char-before (- (point) (length prefix)))
-                            '(?. ?> ?\( ?\) ?{ ?} ?\" ?' ?`))
-                      (nth 3 ppss)
-                      (nth 4 ppss))
-            prefix))
-      (funcall fun command arg)))
-  (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)
-  (advice-add #'company-dabbrev-code :around #'my-company-yasnippet-disable-inline)
+  ;; (defun my-company-yasnippet-disable-inline (fun command &optional arg &rest _ignore)
+  ;;   "Enable yasnippet but disable it inline."
+  ;;   (if (eq command 'prefix)
+  ;;       (when-let* ((prefix (funcall fun 'prefix))
+  ;;                  (ppss (syntax-ppss)))
+  ;;         (unless (or (memq (char-before (- (point) (length prefix)))
+  ;;                           '(?. ?> ?\( ?\) ?{ ?} ?\" ?' ?`))
+  ;;                     (nth 3 ppss)
+  ;;                     (nth 4 ppss))
+  ;;           prefix))
+  ;;     (funcall fun command arg)))
+  ;; (advice-add #'company-yasnippet :around #'my-company-yasnippet-disable-inline)
+  ;; (advice-add #'company-dabbrev-code :around #'my-company-yasnippet-disable-inline)
   (setq company-transformers '(delete-dups))
   (add-hook 'company-completion-started-hook
             (lambda (_)
@@ -248,6 +248,16 @@
                   zerolee-go zerolee-open-with zerolee-delete-window))
 
 (use-package magit :defer t)
+
+(use-package markdown-ts-appear
+  :vc (markdown-ts-appear
+       :url "https://github.com/Thysrael/markdown-ts-appear"
+       :rev :newest)
+  :hook (markdown-ts-mode . markdown-ts-appear-mode)
+  :custom
+  (markdown-ts-appear-block-quote-marker "▎")
+  (markdown-ts-appear-render-callouts t)
+  (markdown-ts-appear-code-fence-style 'connected))
 
 (provide 'init-extensions)
 ;;; init-extensions.el ends here

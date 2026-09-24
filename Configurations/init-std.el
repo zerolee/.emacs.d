@@ -64,8 +64,9 @@
           (lambda ()
             (setq truncate-lines nil)
             (setq-local indent-tabs-mode nil)
-            (zerolee-set-key org-mode-map
-              ("C-'" "C-," nil))))
+            (progn
+              (define-key org-mode-map (kbd "C-'") nil)
+              (define-key org-mode-map (kbd "C-,") nil))))
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
@@ -136,7 +137,8 @@
                   "^\\*ansi-term\\*"
                   "^\\*Javascript REPL"
                   "^\\*lua*"
-                  "^\\*sly-mrepl"))
+                  "^\\*sly-mrepl"
+                  "^\\*ghostel"))
   (push `(,buffer
           (display-buffer-reuse-window
            display-buffer-in-side-window)
