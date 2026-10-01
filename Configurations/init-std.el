@@ -89,7 +89,7 @@
     "gradlew" ".bloop" "build.sc" "setup.py" "meson.build" "dune-project"
     "build.sbt" "project.clj" "poetry.lock" "Gemfile" "shard.yml" "mix.exs"
     ".midje.clj" "build.boot" "deps.edn" "DESCRIPTION" "stack.yaml" "Cask"
-    "info.rkt" "pubspec.yaml" "Pipfile")
+    "info.rkt" "pubspec.yaml" "Pipfile" ".obsidian")
   "有以上这些文件的话就是根目录.")
 
 (defun my/project-try-local (dir)

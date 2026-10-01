@@ -259,5 +259,11 @@
   (markdown-ts-appear-render-callouts t)
   (markdown-ts-appear-code-fence-style 'connected))
 
+(use-package zerolee-markdown
+  :ensure nil
+  :after (markdown-ts-mode)
+  :bind (:map markdown-ts-mode-map
+              ("C-c C-o" . zerolee-markdown-do)))
+
 (provide 'init-extensions)
 ;;; init-extensions.el ends here
