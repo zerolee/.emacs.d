@@ -257,7 +257,9 @@
   :custom
   (markdown-ts-appear-block-quote-marker "▎")
   (markdown-ts-appear-render-callouts t)
-  (markdown-ts-appear-code-fence-style 'connected))
+  (markdown-ts-appear-code-fence-style 'connected)
+  (markdown-ts-appear-link-icon "")
+  (markdown-ts-appear-image-icon ""))
 
 (use-package zerolee-markdown
   :ensure nil

@@ -14,67 +14,22 @@
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;;; Commentary:
+;; 基于 tree-sitter 的 `markdown-do' 实现：
+;;   种类很多，但是对于 tree-sitter 而言只有 5 类
+;;   1. link_reference_definition：脚注定义，即 [^1]: 脚注定义
+;;   2. shortcut_link：[^1], ^[1],
+;;                     [[wiki]], [[wiki|别名]],[[wiki#标题]],[[wiki#^段落]],^[[[wiki]]]
+;;                     打开对应文件并跳转锚点，文件不存在时可创建。
+;;   3. full_reference_link：[text][label]
+;;   4. inline_link：[百度](https://baidu.com)，[![alt](src)](url)
+;;   5. image：![alt](src)
 
 ;;; Code:
-
-
-;;; 只有标数字的需要跳转，其他的就是 wiki，跟链接跳转(应该也是不需要)
-;;; wiki link其实就是去跳转文件，带 # 还可以加上行数
-;;; [hello][world]
-;; [[wikitarget|text]]
-;; ^[鲁迅]
-;; 脚注
-;; 1. 引用 [^1]即[link_text] ，注释 [^1]: 脚注注释
-;; 2. 引用 ^[鲁迅]即 ^shortcut_link[link_text],
-;; wiki link
-;; 1. [[wiki链接]], 即 [shortcut_link[wiki 链接]]
-;; 2. [[wiki链接|别名]]
-;; 3. [[wiki链接#标题]]
-;; 4. [[wiki链接#^段落]]
-;; 脚注+wiki
-;; 1. ^[[[wiki链接]]]
-;; 其他
-;; [baidu](https://baidu.com)
-;; [link_text]shortcut_link link_label link_text
-;; ![图片](图片.jpg)
-;;(inline
-;; (image ! [ (image_description) ] (
-;;  (link_destination .)
-;;  (link_title " ")
-;;  )))
-;;  这是把上面两个结合起来了
-;;  [![图片](图片.jpg)](https://baidu.com)
-;; (inline
-;;  (inline_link [
-;;   (link_text
-;;    (image ! [ (image_description) ] (
-;;     (link_destination : / / . / .)
-;;     )))
-;;   ] (
-;;   (link_destination : / / .)
-;;   (link_title " ")
-;;   )))
-
-
-;; 看起来花样繁多实际上对于 treesitter 而言主要分为两种，即
-;; 1. 脚注定义,即 [^1]: 脚注定义。 在tree sitter眼中它是
-;;(link_reference_definition
-;; (link_label [ ^ ])
-;; : (link_destination))
-;; 2. 被中括号括起来的存在，中括号括起来后他叫 shortcut_link
-;;    中括号中的内容叫作 link_text
-;;    [link_text],
-;;    ^[link_text],
-;;    ^[[shortcut_link[]]]
-;;我往外寻找，是 link_reference_definition 或 shortcut_link 即停
-;;link_reference_definition 找到第二个子节点然后搜索引用 xref
-;;shortcut_link 则是分情况讨论
-;;(full_reference_link [ (link_text) ]
-;; (link_label [ ]))
 
 (require 'cl-lib)
 (require 'treesit)
 (require 'project)
+(require 'markdown-ts-mode)
 
 (defconst zerolee--markdown-link-node-types
   '("link_reference_definition"
@@ -83,6 +38,14 @@
     "inline_link"
     "image")
   "会被 `zerolee-markdown-do' 识别的 tree-sitter 节点类型.")
+
+(defun zerolee--markdown-child-by-type (node type)
+  "返回 NODE 中类型为 TYPE 的第一个直接子节点，找不到返回 nil."
+  (car (treesit-filter-child
+        node
+        (lambda (child)
+          (string= (treesit-node-type child) type))
+        t)))
 
 (defun zerolee--markdown-get-link-node ()
   "从当前节点开始往外查找，直到找到指定的符号."
@@ -94,9 +57,16 @@
 
 (defun zerolee--markdown-goto-def (node)
   "在当前缓冲区中查找 NODE 所引用的脚注定义并跳转到其行首."
-  (when (search-forward
-         (concat (treesit-node-text node t) ":") nil t)
-    (goto-char (match-beginning 0))))
+  (let* ((pos (point))
+         (text (treesit-node-text node t)))
+    (goto-char (point-min))
+    (catch 'done
+      (while (search-forward (concat text ":") nil t)
+        (unless (markdown-ts-at-code-block-p)
+          (setq pos (match-beginning 0))
+          (throw 'done 0))))
+    (goto-char pos)
+    (message "%s未定义" text)))
 
 (defun zerolee--markdown-find-file (filename)
   "查找需要的文件，
@@ -105,7 +75,8 @@
       filename
     (when-let* ((pc (project-current))
                 (fn (directory-files-recursively
-                     (project-root pc) (regexp-quote filename))))
+                     (project-root pc)
+                     (concat "\\`" (regexp-quote filename) "\\'"))))
       (car fn))))
 
 (defun zerolee--markdown-goto-anchor (anchor)
@@ -125,7 +96,7 @@
   "打开 wiki 标记"
   ;; [[wiki]]，[[wiki|look]],[[wiki#chapter]],[wiki.pdf]
   ;; 只要 | 前面的部分, 只有 markdown 文件的#后面有用
-  (let* ((raw (treesit-node-text (treesit-node-child wiki 1) t))
+  (let* ((raw (treesit-node-text wiki t))
          (target (car (string-split raw "|")))
          (parts (string-split target "#"))
          (filename (car parts)))
@@ -147,29 +118,32 @@
          (type (treesit-node-type target)))
     (cond
      ((string= type "link_reference_definition")  ;[]: something
-      "这是脚注的定义")
+      (message "Footnote definition: %s"
+               (treesit-node-text target t)))
      ((string= type "full_reference_link")      ;; [][] -> []: something
-      (zerolee--markdown-goto-def (treesit-node-child target 3)))
+      (zerolee--markdown-goto-def
+       (zerolee--markdown-child-by-type target "link_label")))
      ((string= type "inline_link")     ;; [百度](https://baidu.com)
-      (browse-url (treesit-node-text (treesit-node-child target 4) t)))
-     ((string= type "image");; ![图片](图片.jpg)
-      ;; [![图片](图片.jpg)](https://baidu.com)
-      (if (string= "link_text" (treesit-node-type (treesit-node-parent target)))
-          (browse-url (treesit-node-text
-                       (treesit-node-child
-                        (treesit-node-parent (treesit-node-parent target))
-                        4)
-                       t))
-        ;; ![图片](图片.jpg)
-        (browse-url (treesit-node-text (treesit-node-child target 5) t))))
+      (browse-url
+       (treesit-node-text
+        (zerolee--markdown-child-by-type target "link_destination") t)))
+     ((string= type "image");;  [![图片](图片.jpg)](https://baidu.com), ![图片](图片.jpg)
+      (let ((parent-node (treesit-node-parent target)))
+        (when (string= "link_text" (treesit-node-type parent-node))
+          (setq target (treesit-node-parent parent-node)))
+        (browse-url
+           (treesit-node-text
+            (zerolee--markdown-child-by-type target "link_destination") t))))
      ((string= type "shortcut_link")
       ;; [^1], ^[1], [[]], ^[[[]]]
       (let* ((start (treesit-node-start target))
              (before (char-before start)))
-        (cond ((char-equal ?\[ before) (zerolee--markdown-open-wiki target))
+        (cond ((char-equal ?\[ before)
+               (zerolee--markdown-open-wiki
+                (zerolee--markdown-child-by-type target "link_text")))
               ((char-equal ?^ before)
                ;; ^[footnote]
-               "另种脚注")
+               (message "另种脚注"))
               ((char-equal ?^ (char-after (+ start 1)))
                ;;  [^1] -> [^1]:something
                (zerolee--markdown-goto-def target))))))))
