@@ -261,7 +261,7 @@
 
 (use-package zerolee-markdown
   :ensure nil
-  :after (markdown-ts-mode)
+  :hook (markdown-ts-mode . zerolee-markdown-do)
   :bind (:map markdown-ts-mode-map
               ("C-c C-o" . zerolee-markdown-do)))
 

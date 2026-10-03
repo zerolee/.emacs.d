@@ -79,6 +79,8 @@
 
 ;;; 配置字体
 (push '(font . "Sarasa Fixed SC") default-frame-alist)
+(when (eq system-type 'windows-nt)
+  (set-fontset-font t 'unicode "Segoe UI Emoji" nil 'prepend))
 
 ;;; 配置 project, xref-search-program
 (defconst project-discover-files

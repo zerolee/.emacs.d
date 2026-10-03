@@ -36,6 +36,25 @@
 ;; 其他
 ;; [baidu](https://baidu.com)
 ;; [link_text]shortcut_link link_label link_text
+;; ![图片](图片.jpg)
+;;(inline
+;; (image ! [ (image_description) ] (
+;;  (link_destination .)
+;;  (link_title " ")
+;;  )))
+;;  这是把上面两个结合起来了
+;;  [![图片](图片.jpg)](https://baidu.com)
+;; (inline
+;;  (inline_link [
+;;   (link_text
+;;    (image ! [ (image_description) ] (
+;;     (link_destination : / / . / .)
+;;     )))
+;;   ] (
+;;   (link_destination : / / .)
+;;   (link_title " ")
+;;   )))
+
 
 ;; 看起来花样繁多实际上对于 treesitter 而言主要分为两种，即
 ;; 1. 脚注定义,即 [^1]: 脚注定义。 在tree sitter眼中它是
@@ -53,75 +72,96 @@
 ;;(full_reference_link [ (link_text) ]
 ;; (link_label [ ]))
 
+(require 'cl-lib)
 (require 'treesit)
 (require 'project)
 
-(defun zerolee--markdown-get-target ()
+(defconst zerolee--markdown-link-node-types
+  '("link_reference_definition"
+    "shortcut_link"
+    "full_reference_link"
+    "inline_link"
+    "image")
+  "会被 `zerolee-markdown-do' 识别的 tree-sitter 节点类型.")
+
+(defun zerolee--markdown-get-link-node ()
   "从当前节点开始往外查找，直到找到指定的符号."
   (treesit-parent-until
    (treesit-node-at (point))
    (lambda (parent)
      (member (treesit-node-type parent)
-             '("link_reference_definition" "shortcut_link" "full_reference_link" "inline_link")))))
+             zerolee--markdown-link-node-types))))
 
-(defun zerolee--markdown-goto-def (NODE)
-  "去寻找当前 NODE 所引用的定义的位置"
-  (when-let*
-      ((def
-        (save-excursion
-          (search-forward
-           (concat (treesit-node-text NODE t) ":") nil t))))
-    (goto-char def)))
+(defun zerolee--markdown-goto-def (node)
+  "在当前缓冲区中查找 NODE 所引用的脚注定义并跳转到其行首."
+  (when (search-forward
+         (concat (treesit-node-text node t) ":") nil t)
+    (goto-char (match-beginning 0))))
+
+(defun zerolee--markdown-find-file (filename)
+  "查找需要的文件，
+先在当前目录下查找，若没有看是否存在项目，存在则在项目下查找"
+  (if (file-exists-p filename)
+      filename
+    (when-let* ((pc (project-current))
+                (fn (directory-files-recursively
+                     (project-root pc) (regexp-quote filename))))
+      (car fn))))
+
+(defun zerolee--markdown-goto-anchor (anchor)
+  "在当前缓冲区跳转到 ANCHOR 指定的位置。
+支持 标题（#标题） 与 段落块 ID（#^blockid）两种形式。"
+  (when anchor
+    (goto-char (point-min))
+    ;; ^[blockid]:直接搜索 anchor，反之在前面加#, 即#anchor
+    (when (search-forward
+           (concat
+            (if (string-prefix-p "^" anchor) "" "# ")
+            anchor)
+           nil t)
+      (beginning-of-line))))
 
 (defun zerolee--markdown-open-wiki (wiki)
   "打开 wiki 标记"
   ;; [[wiki]]，[[wiki|look]],[[wiki#chapter]],[wiki.pdf]
   ;; 只要 | 前面的部分, 只有 markdown 文件的#后面有用
-  (let* ((truename (car (string-split (treesit-node-text (treesit-node-child wiki 1) t) "|")))
-         (filenames (string-split truename "#"))
-         (filename (car filenames)))
-    (if (string-search "." filename)    ;是否是 pdf 之类的文件
-        (if-let* ((pc (project-current))
-                  (fn (directory-files-recursively (project-root (project-current)) filename)))
-            (browse-url (car fn))
-          (when (file-exists-p filename)
-            (browse-url filename)))
-      (let* ((file (concat filename ".md")) ;markdown 文件
-             (path (expand-file-name file (file-name-directory (buffer-file-name)))))
-        (if-let* ((pc (project-current))
-                  (fn (directory-files-recursively (project-root (project-current)) file)))
+  (let* ((raw (treesit-node-text (treesit-node-child wiki 1) t))
+         (target (car (string-split raw "|")))
+         (parts (string-split target "#"))
+         (filename (car parts)))
+    (if (string-search "." filename) ;非 markdown 文件(pdf 等)，交由默认程序打开
+        (when-let* ((f (zerolee--markdown-find-file filename)))
+          (browse-url (expand-file-name f (file-name-directory (buffer-file-name)))))
+      (let* ((file (concat filename ".md"))) ;markdown 文件
+        (if-let* ((f (zerolee--markdown-find-file file)))
             (progn
-              (find-file (car fn))
-              (when-let* ((chapter (cl-second filenames)))
-                (progn
-                  (goto-char (point-min))
-                  (when (search-forward chapter nil t)
-                    (beginning-of-line)))))
-          (if (file-exists-p path)
-              (progn
-                (find-file path)
-                (when-let* ((chapter (cl-second filenames)))
-                  (progn
-                    (goto-char (point-min))
-                    (when (search-forward chapter nil t)
-                      (beginning-of-line)))))
-            (when (y-or-n-p (format "File %s does not exist. Create? " path))
-              (find-file path))))))))
+              (find-file f)
+              (zerolee--markdown-goto-anchor (cadr parts)))
+          (when (y-or-n-p (format "File %s does not exist. Create? " file))
+            (find-file file)))))))
 
 (defun zerolee-markdown-do ()
   "markdown-do在 treesit下的实现"
   (interactive)
-  (let* ((target (zerolee--markdown-get-target))
+  (let* ((target (zerolee--markdown-get-link-node))
          (type (treesit-node-type target)))
     (cond
-     ((string= type "link_reference_definition")
+     ((string= type "link_reference_definition")  ;[]: something
       "这是脚注的定义")
-     ((string= type "full_reference_link")
-      ;; [][] -> []: something
+     ((string= type "full_reference_link")      ;; [][] -> []: something
       (zerolee--markdown-goto-def (treesit-node-child target 3)))
-     ((string= type "inline_link")
-      ;; [百度](https://baidu.com)
+     ((string= type "inline_link")     ;; [百度](https://baidu.com)
       (browse-url (treesit-node-text (treesit-node-child target 4) t)))
+     ((string= type "image");; ![图片](图片.jpg)
+      ;; [![图片](图片.jpg)](https://baidu.com)
+      (if (string= "link_text" (treesit-node-type (treesit-node-parent target)))
+          (browse-url (treesit-node-text
+                       (treesit-node-child
+                        (treesit-node-parent (treesit-node-parent target))
+                        4)
+                       t))
+        ;; ![图片](图片.jpg)
+        (browse-url (treesit-node-text (treesit-node-child target 5) t))))
      ((string= type "shortcut_link")
       ;; [^1], ^[1], [[]], ^[[[]]]
       (let* ((start (treesit-node-start target))
