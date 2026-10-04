@@ -23,6 +23,7 @@
 ;;   3. full_reference_link：[text][label]
 ;;   4. inline_link：[百度](https://baidu.com)，[![alt](src)](url)
 ;;   5. image：![alt](src)
+;;   6. collapsed_reference_link: [label][] -> [label]: something2
 
 ;;; Code:
 
@@ -32,11 +33,12 @@
 (require 'markdown-ts-mode)
 
 (defconst zerolee--markdown-link-node-types
-  '("link_reference_definition"
-    "shortcut_link"
-    "full_reference_link"
-    "inline_link"
-    "image")
+  '("link_reference_definition";[]: something
+    "shortcut_link"      ;; [^1], ^[1], [[wiki]], ^[[[wiki]]]
+    "full_reference_link";; [text][label] ->  [label]: something
+    "collapsed_reference_link"          ;[label][] -> [label]: something2-
+    "inline_link" ;; [百度](https://baidu.com)
+    "image");; ![图片](图片.jpg), [![图片](图片.jpg)](https://baidu.com)
   "会被 `zerolee-markdown-do' 识别的 tree-sitter 节点类型.")
 
 (defun zerolee--markdown-child-by-type (node type)
@@ -44,8 +46,7 @@
   (car (treesit-filter-child
         node
         (lambda (child)
-          (string= (treesit-node-type child) type))
-        t)))
+          (string= (treesit-node-type child) type)))))
 
 (defun zerolee--markdown-get-link-node ()
   "从当前节点开始往外查找，直到找到指定的符号."
@@ -55,42 +56,74 @@
      (member (treesit-node-type parent)
              zerolee--markdown-link-node-types))))
 
-(defun zerolee--markdown-goto-def (node)
+(defun zerolee--markdown-goto-def (text)
   "在当前缓冲区中查找 NODE 所引用的脚注定义并跳转到其行首."
-  (let* ((pos (point))
-         (text (treesit-node-text node t)))
+  (let ((origin (point)))
     (goto-char (point-min))
-    (catch 'done
-      (while (search-forward (concat text ":") nil t)
-        (unless (markdown-ts-at-code-block-p)
-          (setq pos (match-beginning 0))
-          (throw 'done 0))))
-    (goto-char pos)
-    (message "%s未定义" text)))
+    (unless
+        (catch 'found
+          (while (search-forward (concat text ":") nil t)
+            (unless (markdown-ts-at-code-block-p)
+              (setq origin (match-beginning 0))
+              (throw 'found t))))
+      (message "%s未定义" text))
+    (goto-char origin)))
+
+(defun zerolee--markdown-goto-ref (text)
+  "在当前缓冲区中查找所有 NODE 的引用,
+如果有一个话直接跳转，否则让用户自己选择."
+  (let ((origin (point))
+        (refs '()))
+    (goto-char (point-min))
+    (while (search-forward text nil t)  ;搜集所有引用
+      (unless (or (markdown-ts-at-code-block-p) ;代码块里的不要
+                  (eq (char-after) ?:)) ;定义地方的不要
+        (push
+         (cons
+          (format "%d: %s"
+                  (line-number-at-pos)
+                  (buffer-substring (pos-bol) (point)))
+          (match-beginning 0))
+         refs)))
+    (goto-char origin)                  ;恢复
+    (when refs
+      (if (eql 1 (length refs))
+         (setq origin (cdar refs))     ;只有一个直接跳转
+        (let ((choose (completing-read "refs: " (reverse refs)))) ;用户的选择
+          (setq origin (cdr (assoc choose refs))))))
+    (goto-char origin)                  ;跳转
+    (unless refs                        ;一个没有，给出提示
+      (message "不存在%s的引用" text))))
 
 (defun zerolee--markdown-find-file (filename)
   "查找需要的文件，
-先在当前目录下查找，若没有看是否存在项目，存在则在项目下查找"
+先在当前目录下查找，若没有看是否存在项目，存在则在项目下查找,
+在项目下递归查找时跳过 .git 等隐藏目录."
   (if (file-exists-p filename)
       filename
-    (when-let* ((pc (project-current))
+    (when-let* ((project (project-current))
                 (fn (directory-files-recursively
-                     (project-root pc)
-                     (concat "\\`" (regexp-quote filename) "\\'"))))
+                     (project-root project)
+                     (concat "\\`" (regexp-quote filename) "\\'")
+                     nil
+                     (lambda (dirname)
+                       (not (string-match-p "/\\.[^/]+\\'" dirname))))))
       (car fn))))
 
 (defun zerolee--markdown-goto-anchor (anchor)
   "在当前缓冲区跳转到 ANCHOR 指定的位置。
 支持 标题（#标题） 与 段落块 ID（#^blockid）两种形式。"
-  (when anchor
-    (goto-char (point-min))
-    ;; ^[blockid]:直接搜索 anchor，反之在前面加#, 即#anchor
-    (when (search-forward
+  (let ((origin (point)))
+    (when anchor
+      (goto-char (point-min))
+      ;; ^[blockid]:直接搜索 anchor，反之在前面加#, 即#anchor
+      (if (search-forward
            (concat
             (if (string-prefix-p "^" anchor) "" "# ")
             anchor)
            nil t)
-      (beginning-of-line))))
+          (beginning-of-line)
+        (goto-char origin)))))
 
 (defun zerolee--markdown-open-wiki (wiki)
   "打开 wiki 标记"
@@ -102,7 +135,8 @@
          (filename (car parts)))
     (if (string-search "." filename) ;非 markdown 文件(pdf 等)，交由默认程序打开
         (when-let* ((f (zerolee--markdown-find-file filename)))
-          (browse-url (expand-file-name f (file-name-directory (buffer-file-name)))))
+          (browse-url (expand-file-name f (or (file-name-directory (buffer-file-name))
+                                              default-directory))))
       (let* ((file (concat filename ".md"))) ;markdown 文件
         (if-let* ((f (zerolee--markdown-find-file file)))
             (progn
@@ -117,36 +151,42 @@
   (let* ((target (zerolee--markdown-get-link-node))
          (type (treesit-node-type target)))
     (cond
-     ((string= type "link_reference_definition")  ;[]: something
-      (message "Footnote definition: %s"
-               (treesit-node-text target t)))
-     ((string= type "full_reference_link")      ;; [][] -> []: something
+     ((string= type "link_reference_definition")  ;[^1]: something -> [^1]
+      (zerolee--markdown-goto-ref
+       (treesit-node-text (zerolee--markdown-child-by-type target "link_label") t)))
+     ((string= type "full_reference_link")      ;; [text][label] ->  [label]: something
       (zerolee--markdown-goto-def
-       (zerolee--markdown-child-by-type target "link_label")))
-     ((string= type "inline_link")     ;; [百度](https://baidu.com)
-      (browse-url
-       (treesit-node-text
-        (zerolee--markdown-child-by-type target "link_destination") t)))
-     ((string= type "image");;  [![图片](图片.jpg)](https://baidu.com), ![图片](图片.jpg)
+       (treesit-node-text (zerolee--markdown-child-by-type target "link_label") t)))
+     ((string= type "collapsed_reference_link");[label][] -> [label]: something
+      (zerolee--markdown-goto-def
+       (concat "[" (treesit-node-text
+                    (zerolee--markdown-child-by-type target "link_text"))
+               "]")))
+     ;;  [![图片](图片.jpg)](https://baidu.com), ![图片](图片.jpg), [百度](https://baidu.com)
+     ((member type '("image" "inline_link"))
       (let ((parent-node (treesit-node-parent target)))
         (when (string= "link_text" (treesit-node-type parent-node))
           (setq target (treesit-node-parent parent-node)))
-        (browse-url
-           (treesit-node-text
-            (zerolee--markdown-child-by-type target "link_destination") t))))
+        (let ((text (treesit-node-text
+                     (zerolee--markdown-child-by-type target "link_destination") t)))
+          (if (string-prefix-p "#" text)
+              (if (length= text 1)
+                  (goto-char (point-min)) ;[回到顶部](#)
+                (zerolee--markdown-goto-anchor (substring text 1)));; [跳到标题](#标题)
+            (browse-url text)))))       ;打开链接
      ((string= type "shortcut_link")
       ;; [^1], ^[1], [[]], ^[[[]]]
       (let* ((start (treesit-node-start target))
              (before (char-before start)))
-        (cond ((char-equal ?\[ before)
+        (cond ((eq ?\[ before)
                (zerolee--markdown-open-wiki
                 (zerolee--markdown-child-by-type target "link_text")))
-              ((char-equal ?^ before)
+              ((eq ?^ before)
                ;; ^[footnote]
-               (message "另种脚注"))
-              ((char-equal ?^ (char-after (+ start 1)))
+               (message "自定义的脚注"))
+              ((eq ?^ (char-after (+ start 1)))
                ;;  [^1] -> [^1]:something
-               (zerolee--markdown-goto-def target))))))))
+               (zerolee--markdown-goto-def (treesit-node-text target t)))))))))
 
 (provide 'zerolee-markdown)
-;;; zerolee-markdown ends here
+;;; zerolee-markdown.el ends here

@@ -1,52 +1,53 @@
-# -*- vesie-mode: 1; cursor-type: box; -*-
-* init.el
+# init.el
   Emacs 启动时默认读取的配置文件，
   这个文件会读取 Configurations 下的相关文件，以及保存了 elpa 的一些相关设置
-* early-init.el
+# early-init.el
   在一些图形元素(比如 tool-bar)加载、包管理初始化之前启动
-* Configurations
+# Configurations
   该文件夹下存放 Emacs 的配置文件
-** init-bindings.el
+## init-bindings.el
    绑定快捷键
-** init-std.el
+## init-std.el
    对 Emacs 自带的插件以及功能进行设置
-** init-extensions.el
+## init-extensions.el
    编程语言无关的扩展的配置
-** init-programs.el
+## init-programs.el
    编程语言相关的配置
-** init-macros.el
+## init-macros.el
    保存一些键盘宏
-** init-transient
+## init-transient
    transient 配置相关
-** init-emms.el
+## init-emms.el
    emms 相关的配置
-** init-tools.el
+## init-tools.el
    配置 shell 和 compile 等各种小工具
-* Extensions
+# Extensions
   该文件夹下存放一些自己或者他人写的第三方扩展(非 elpa 安装的)
-** antlr-mode.el
-** emmet-mode.el
-   项目地址：[[https://github.com/smihica/emmet-mode][emmet-mode]]
+## antlr-mode.el
+## emmet-mode.el
+   项目地址：[emmet-mode](https://github.com/smihica/emmet-mode)
    一些更改，将 pr 里的一些东西进行了合并，比如 boolean 属性，bug 修复。
    此外，emmet-transform 函数中使用 (memq major-mode emmet-css-major-modes) 代替 emmet-use-css-transform
-** js-comint.el
-   项目地址： [[https://github.com/redguardtoo/js-comint][js-comint]]
+## js-comint.el
+   项目地址： [js-comint](https://github.com/redguardtoo/js-comint)
    补充了俩函数 js-eval-last-sexp 和 js-eval-current-defun
    微调了下 js-comint-send-region
-** save-position.el
+## save-position.el
    主要使用来保存、恢复、查看当前位置信息的
-** vesie.el
-   替代原本 [[file:Configurations/init-hydra.el][init-hydra]] 中的 ESC 绑定的一些命令，可以不需要修饰键
+## vesie.el
+   替代原本 [init-hydra](Configurations/init-hydra.el) 中的 ESC 绑定的一些命令，可以不需要修饰键
    使用 emacs 的命令， 类似于 vim 的模式
-** hugomd.el
+## hugomd.el
    用来预览 Markdown、Org 文件
-** zerolee-lib.el
+## zerolee-lib.el
    一些个人使用的函数
-** flee.el
+## flee.el
    在书写 Lisp 的时候，总有一些想要跳出的地方，比如 docing, 比如
    let 的 bind 的部分，比如 cond 的某一个子表达式……
-** etyma.el
+## etyma.el
    主要是用来记忆词根的，词根存储在 .emacs.d 目录下的 etyma 文件中，
    etyma 文件为二进制的 sqlite 文件
-* snippets
+## zerolee-markdown
+   这是一个对于 markdown-ts-mdoe 补充的文件，里面有一些可以用来对链接，注脚跳转的功能
+# snippets
   yasnippet 使用的模板文件
