@@ -111,6 +111,17 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
     (unless refs                        ;一个没有，给出提示
       (message "不存在 %s 的引用" label))))
 
+;;; 打开文件
+(defun zerolee-markdown--fd-file (filename root)
+  "使用 fd 来查找需要的文件."
+  (when (executable-find "fd")
+    (split-string
+     (let ((coding-system-for-read 'utf-8)
+           (default-directory root))
+       (shell-command-to-string
+        (format "fd --type f --path-separator=/ -g %s" (shell-quote-argument filename))))
+     "\n" t)))
+
 (defun zerolee-markdown--find-file (filename)
   "查找需要的文件，
 先在当前目录下查找，若没有看是否存在项目，存在则在项目下查找,
@@ -118,17 +129,19 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
   (if (file-exists-p filename)
       filename
     (when-let* ((project (project-current))
-                (fn (directory-files-recursively
-                     (project-root project)
-                     (concat "\\`" (regexp-quote filename) "\\'")
-                     nil
-                     (lambda (dirname)
-                       (not (string-match-p "/\\.[^/]+\\'" dirname))))))
-      (car fn))))
+                (root (project-root project))
+                (fn (or (zerolee-markdown--fd-file filename root)
+                        (directory-files-recursively
+                         root
+                         (concat "\\`" (regexp-quote filename) "\\'")
+                         nil
+                         (lambda (dirname)
+                           (not (string-match-p "/\\.[^/]+\\'" dirname)))))))
+      (expand-file-name (car fn)))))
 
 (cl-defun zerolee-markdown--goto-anchor (anchor &aux (origin (point)))
   "在当前缓冲区跳转到 ANCHOR 指定的位置。
-支持 标题（# 标题, #标题{#id}） 、 段落块 ID（#^blockid）,
+支持 标题（# 标题, #标题{#id}） 、 段落块 ID（#^blockid）, 
 自定义<a id=\"custom-id\"></a>三种形式。"
   (when anchor
     (goto-char (point-min))

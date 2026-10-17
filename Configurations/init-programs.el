@@ -4,6 +4,7 @@
 ;;; Code:
 (require 'diminish)
 (require 'init-tools)
+(eval-when-compile (require 'zerolee-lib))
 
 
 (defvar-local last-symbol nil)

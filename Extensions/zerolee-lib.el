@@ -18,7 +18,7 @@
 ;;; 一些自己使用的函数、宏……
 ;;; Code:
 
-(require 'cl-lib)
+(eval-when-compile (require 'cl-lib))
 (defun zerolee-goto-some-window (buffer-or-name)
   "去一个指定 BUFFER-OR-NAME 的 window."
   (let ((window (get-buffer-window buffer-or-name)))
