@@ -114,13 +114,12 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
 ;;; 打开文件
 (defun zerolee-markdown--fd-file (filename root)
   "使用 fd 来查找需要的文件."
-  (when (executable-find "fd")
-    (split-string
-     (let ((coding-system-for-read 'utf-8)
-           (default-directory root))
-       (shell-command-to-string
-        (format "fd --type f --path-separator=/ -g %s" (shell-quote-argument filename))))
-     "\n" t)))
+  (split-string
+   (let ((coding-system-for-read 'utf-8)
+         (default-directory root))
+     (shell-command-to-string
+      (format "fd --type f --path-separator=/ -g %s" (shell-quote-argument filename))))
+   "\n" t))
 
 (defun zerolee-markdown--find-file (filename)
   "查找需要的文件，
@@ -130,14 +129,15 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
       filename
     (when-let* ((project (project-current))
                 (root (project-root project))
-                (fn (or (zerolee-markdown--fd-file filename root)
-                        (directory-files-recursively
-                         root
-                         (concat "\\`" (regexp-quote filename) "\\'")
-                         nil
-                         (lambda (dirname)
-                           (not (string-match-p "/\\.[^/]+\\'" dirname)))))))
-      (expand-file-name (car fn)))))
+                (fn (if (executable-find "fd") ;电脑里有 fd 就用 fd 来搜索
+                        (zerolee-markdown--fd-file filename root)
+                      (directory-files-recursively
+                       root
+                       (concat "\\`" (regexp-quote filename) "\\'")
+                       nil
+                       (lambda (dirname)
+                         (not (string-match-p "/\\.[^/]+\\'" dirname)))))))
+      (expand-file-name (car fn) root))))
 
 (cl-defun zerolee-markdown--goto-anchor (anchor &aux (origin (point)))
   "在当前缓冲区跳转到 ANCHOR 指定的位置。
@@ -168,8 +168,9 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
          (filename (car parts)))
     (if (string-search "." filename) ;非 markdown 文件(pdf 等)，交由默认程序打开
         (when-let* ((f (zerolee-markdown--find-file filename)))
-          (browse-url (expand-file-name f (or (file-name-directory (buffer-file-name))
-                                              default-directory))))
+          (if (eq system-type 'windows-nt)
+              (w32-shell-execute "open" f)
+            (shell-command (format "open %s" f))))
       (if (string-empty-p filename)     ;[[#anchor]]直接跳转当前文件的anchor
           (zerolee-markdown--goto-anchor (cadr parts))
         (let* ((file (concat filename ".md"))) ;markdown 文件
@@ -208,7 +209,9 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
                 (if (length= text 1)
                     (goto-char (point-min)) ;[回到顶部](#)
                   (zerolee-markdown--goto-anchor (substring text 1))) ;; [跳到标题](#标题)
-              (browse-url text)))))     ;打开链接
+              (if (eq system-type 'windows-nt);打开链接
+                  (w32-shell-execute "open" text)
+                (shell-command (format "open %s" text)))))))
        ((string= type "shortcut_link")
         ;; [^1], ^[1], [[]], ^[[[]]], [[#custom-id]]
         (let* ((start (treesit-node-start target))

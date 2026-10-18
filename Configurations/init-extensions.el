@@ -4,7 +4,12 @@
 ;;; Code:
 (use-package diminish)
 
-(use-package ghostel)
+(use-package ghostel
+  :config
+  ;; ghostel line-mode 的输入被包装成 ghostel-line-mode-self-insert，
+  ;; 默认不在 company-begin-commands 里，所以 company 不自动触发。
+  (with-eval-after-load 'ghostel-line-mode
+    (put 'ghostel-line-mode-self-insert 'company-begin t)))
 
 (use-package save-position
   :ensure nil
@@ -263,7 +268,7 @@
 
 (use-package zerolee-markdown
   :ensure nil
-  :hook (markdown-ts-mode . zerolee-markdown-do)
+  :hook (markdown-ts-mode . (lambda () (require 'zerolee-markdown)))
   :bind (:map markdown-ts-mode-map
               ("C-c C-o" . zerolee-markdown-do)))
 
