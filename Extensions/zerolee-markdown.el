@@ -225,7 +225,10 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
                 ((eq ?^ (char-after (1+ start)))
                  ;;  [^1] -> [^1]:something
                  (zerolee-markdown--goto-def (treesit-node-text target t)))
-                (t (message "未知的快捷链接形式")))))))))
+                (t (message "未知的快捷链接形式")))))
+       ((string= (treesit-node-language (treesit-node-at (point))) "yaml") ; YAML frontmatter里的[[filename#Chapter]]
+        (zerolee-markdown--open-wiki
+         (substring (thing-at-point 'list t) 1 -1)))))))
 
 (provide 'zerolee-markdown)
 ;;; zerolee-markdown.el ends here

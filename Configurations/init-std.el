@@ -70,12 +70,13 @@
 
 ;; 设置环境变量
 (setenv "EMACS_START" "emacs_start")
-(setenv "FZF_DEFAULT_COMMAND" "fd --type file")
+(setenv "FZF_DEFAULT_COMMAND" "fd --type f")
 
 ;; Using MELPA
 (setq package-archives
-      '(("gnu"   . "http://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
-        ("melpa" . "http://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
+      '(("gnu"    . "https://mirrors.tuna.tsinghua.edu.cn/elpa/gnu/")
+        ("nongnu" . "https://mirrors.tuna.tsinghua.edu.cn/elpa/nongnu/")
+        ("melpa"  . "https://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")))
 
 ;;; 配置字体
 (push '(font . "Sarasa Fixed SC") default-frame-alist)
