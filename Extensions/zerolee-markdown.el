@@ -23,7 +23,6 @@
 ;;   4. inline_link：[百度](https://baidu.com)，[![alt](src)](url)
 ;;   5. collapsed_reference_link: [label][] -> [label]: something2
 ;;   6. image：![alt](src)
-
 ;;   7. 其他 <a id="custom-id"></a>,<span id="custom-id"></span>, {#id}
 
 ;;; Code:
@@ -32,6 +31,7 @@
 (require 'treesit)
 (require 'project)
 (require 'markdown-ts-mode)
+(require 'zerolee-lib)
 
 (defvar-local zerolee-markdown--origin-pos nil
   "保存跳转前的位置，供 `zerolee-markdown-do' 带前缀参数时回跳。")
@@ -103,7 +103,7 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
          refs)))
     (goto-char origin)                  ;恢复
     (when refs
-      (if (eql 1 (length refs))
+      (if (length= refs 1)
           (setq origin (cdar refs))     ;只有一个直接跳转
         (let ((choose (completing-read "refs: " (reverse refs)))) ;用户的选择
           (setq origin (cdr (assoc choose refs))))))
@@ -118,7 +118,7 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
    (let ((coding-system-for-read 'utf-8)
          (default-directory root))
      (shell-command-to-string
-      (format "fd --type f --path-separator=/ -g %s" (shell-quote-argument filename))))
+      (format "fd --type f --path-separator=/ -F %s" (shell-quote-argument filename))))
    "\n" t))
 
 (defun zerolee-markdown--find-file (filename)
@@ -136,8 +136,9 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
                        (concat "\\`" (regexp-quote filename) "\\'")
                        nil
                        (lambda (dirname)
-                         (not (string-match-p "/\\.[^/]+\\'" dirname)))))))
-      (expand-file-name (car fn) root))))
+                         (not (string-match-p "/\\.[^/]+\\'" dirname))))))
+                (f (car fn)))
+      (expand-file-name f root))))
 
 (cl-defun zerolee-markdown--goto-anchor (anchor &aux (origin (point)))
   "在当前缓冲区跳转到 ANCHOR 指定的位置。
@@ -159,32 +160,40 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
             (beginning-of-line)
           (goto-char origin))))))
 
-(defun zerolee-markdown--open-wiki (wiki)
+(defun zerolee-markdown--open-wiki (wiki &optional preview)
   "打开 wiki 标记"
   ;; [[wiki]]，[[wiki|look]],[[wiki#chapter]],[wiki.pdf],[#anchor]
   ;; 只要 | 前面的部分, 只有 markdown 文件的#后面有用
   (let* ((target (car (string-split wiki "|")))
          (parts (string-split target "#"))
-         (filename (car parts)))
-    (if (string-search "." filename) ;非 markdown 文件(pdf 等)，交由默认程序打开
+         (filename (car parts))
+         (ext (file-name-extension filename)))
+    ;; 非 markdown 文件(pdf 等)，交由默认程序打开
+    (if (and ext (not (member ext '("markdown" "md"))))
         (when-let* ((f (zerolee-markdown--find-file filename)))
           (if (eq system-type 'windows-nt)
               (w32-shell-execute "open" f)
-            (shell-command (format "open %s" f))))
-      (if (string-empty-p filename)     ;[[#anchor]]直接跳转当前文件的anchor
+            (shell-command (format "open %s" (shell-quote-argument f)))))
+      (if (string-empty-p filename) ;[[#anchor]]直接跳转当前文件的anchor
           (zerolee-markdown--goto-anchor (cadr parts))
-        (let* ((file (concat filename ".md"))) ;markdown 文件
-          (if-let* ((f (zerolee-markdown--find-file file)))
+        (let* ((file (concat filename (if ext "" ".md")))) ;markdown 文件
+          (if-let* ((f (zerolee-markdown--find-file file))
+                    (buffer (current-buffer)))
               (progn
-                (find-file f)
-                (zerolee-markdown--goto-anchor (cadr parts)))
+                (if preview           ; 添加了参数 2，另外打开窗口预览
+                    (find-file-other-window f)
+                  (find-file f))
+                (zerolee-markdown--goto-anchor (cadr parts))
+                (recenter 0)
+                (when preview
+                  (zerolee-goto-some-window buffer)))
             (when (y-or-n-p (format "File %s does not exist. Create? " file))
               (find-file file))))))))
 
 (defun zerolee-markdown-do (&optional arg)
-  "markdown-do在 treesit下的实现, 加参数跳回来的位置."
+  "markdown-do在 treesit下的实现, 加参数 2 预览，参数 4 跳回来的位置."
   (interactive "P")
-  (if arg
+  (if (and arg (= (prefix-numeric-value arg) 4) zerolee-markdown--origin-pos)
       (goto-char zerolee-markdown--origin-pos)
     (let* ((target (zerolee-markdown--get-link-node))
            (type (treesit-node-type target)))
@@ -199,7 +208,7 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
        ((string= type "collapsed_reference_link") ;[label][] -> [label]: something
         (zerolee-markdown--goto-def
          (concat "[" (zerolee-markdown--child-text target "link_text") "]")))
-       ;;  [![图片](图片.jpg)](https://baidu.com), ![图片](图片.jpg), [百度](https://baidu.com)
+       ;;  [![图片](图片.jpg)](https://baidu.com), ![图片替代文本](图片.jpg), [百度](https://baidu.com)
        ((member type '("image" "inline_link"))
         (let ((parent-node (treesit-node-parent target)))
           (when (string= "link_text" (treesit-node-type parent-node))
@@ -209,16 +218,21 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
                 (if (length= text 1)
                     (goto-char (point-min)) ;[回到顶部](#)
                   (zerolee-markdown--goto-anchor (substring text 1))) ;; [跳到标题](#标题)
-              (if (eq system-type 'windows-nt);打开链接
-                  (w32-shell-execute "open" text)
-                (shell-command (format "open %s" text)))))))
+              ;; [文字](链接) 本地文件链接，md文件链接，超链接
+              ;; 超链接形式的 proto:// 直接调用外部程序处理
+              ;; 其他的交由 open-wiki 来处理
+              (if (string-search "://" text)
+                  (if (eq system-type 'windows-nt) ;打开链接
+                      (w32-shell-execute "open" text)
+                    (shell-command (format "open %s" (shell-quote-argument text))))
+                (zerolee-markdown--open-wiki text arg))))))
        ((string= type "shortcut_link")
         ;; [^1], ^[1], [[]], ^[[[]]], [[#custom-id]]
         (let* ((start (treesit-node-start target))
                (before (char-before start)))
           (cond ((eq ?\[ before)
                  (zerolee-markdown--open-wiki
-                  (zerolee-markdown--child-text target "link_text")))
+                  (zerolee-markdown--child-text target "link_text") arg))
                 ((eq ?^ before)
                  ;; ^[footnote]
                  (message "自定义的脚注"))
@@ -226,9 +240,18 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
                  ;;  [^1] -> [^1]:something
                  (zerolee-markdown--goto-def (treesit-node-text target t)))
                 (t (message "未知的快捷链接形式")))))
-       ((string= (treesit-node-language (treesit-node-at (point))) "yaml") ; YAML frontmatter里的[[filename#Chapter]]
-        (zerolee-markdown--open-wiki
-         (substring (thing-at-point 'list t) 1 -1)))))))
+       ;; YAML frontmatter里的[[filename#Chapter]]
+       ((string= (treesit-node-language (treesit-node-at (point))) "yaml")
+        (let* ((node (treesit-node-parent (treesit-node-at (point))))
+               (type (treesit-node-type node)))
+          (when (string= type "double_quote_scalar")
+            (let* ((str (buffer-substring-no-properties
+                         (treesit-node-start node)
+                         (treesit-node-end node)))
+                   (start (substring str 1 3))
+                   (end   (substring str -3 -1)))
+              (when (and (string= start "[[") (string= end "]]"))
+                (zerolee-markdown--open-wiki (substring str 3 -3) arg))))))))))
 
 (provide 'zerolee-markdown)
 ;;; zerolee-markdown.el ends here
