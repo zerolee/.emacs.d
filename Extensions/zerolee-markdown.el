@@ -116,9 +116,13 @@ LABEL 例如 \"[^1]\" 或 \"[label]\"。找不到时给出提示并保持在原�
   "使用 fd 来查找需要的文件."
   (split-string
    (let ((coding-system-for-read 'utf-8)
-         (default-directory root))
+         (default-directory root)
+         (native-filename (if (eq system-type 'windows-nt)
+                              (subst-char-in-string ?/ ?\\ filename)
+                            filename)))
      (shell-command-to-string
-      (format "fd --type f --path-separator=/ -F %s" (shell-quote-argument filename))))
+      (format "fd --type f --full-path --path-separator=/ -F %s"
+              (shell-quote-argument native-filename))))
    "\n" t))
 
 (defun zerolee-markdown--find-file (filename)
